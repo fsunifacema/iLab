@@ -27,6 +27,7 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'nivel',
     ];
 
     /**
@@ -58,4 +59,14 @@ class User extends Authenticatable
     protected $appends = [
         'profile_photo_url',
     ];
+
+    public function getTypeAtrtribute(): string
+    {
+        return match($this->nivel){
+            1 => 'Professor',
+            2 => 'Tecnico',
+            3 => 'Coordenador_curso',
+            4 => 'Coordenador_laboratorio',
+        };
+    }
 }
