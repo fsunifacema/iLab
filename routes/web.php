@@ -1,5 +1,8 @@
 <?php
 
+use App\Http\Controllers\EquipamentoController;
+use App\Http\Controllers\InsumoController;
+use App\Http\Controllers\LaboratorioController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -25,4 +28,20 @@ Route::middleware([
     Route::get('/dashboard', function () {
         return view('dashboard');
     })->name('dashboard');
+
+    Route::resource('insumos', InsumoController::class);
+    Route::resource('laboratorios', LaboratorioController::class);
+    Route::resource('equipamentos', EquipamentoController::class);
 });
+
+
+/*  PADRÃO DE ROTAS RESOURCE
+VERB 	    URI	                    ACTION	    ROUTE NAME
+GET	        /photos	                index	    photos.index
+GET	        /photos/create	        create	    photos.create
+POST	    /photos	                store	    photos.store
+GET	        /photos/{photo}	        show	    photos.show
+GET	        /photos/{photo}/edit	edit	    photos.edit
+PUT/PATCH	/photos/{photo}	        update	    photos.update
+DELETE	    /photos/{photo}	        destroy	    photos.destroy
+*/
