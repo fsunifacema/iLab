@@ -60,13 +60,35 @@ class User extends Authenticatable
         'profile_photo_url',
     ];
 
+    /**
+     * Retorna o tipo de usuário com base no seu nível de acesso.
+     *
+     * Este método utiliza o valor do atributo 'nivel' para determinar
+     * e retornar uma string representando o tipo correspondente,
+     * como 'Professor', 'Técnico', 'Coordenador de curso' ou 'Coordenador de laboratório'.
+     *
+     * Útil para exibir o papel do usuário no sistema de forma legível.
+
+     * @return string
+     */
     public function getTypeAtrtribute(): string
     {
-        return match($this->nivel){
+        return match ($this->nivel) {
             1 => 'Professor',
             2 => 'Tecnico',
             3 => 'Coordenador_curso',
             4 => 'Coordenador_laboratorio',
         };
     }
+
+    /**
+     * Níveis de acesso disponíveis no sistema.
+     *
+     * Cada constante representa um papel específico atribuído ao usuário,
+     * utilizado para controle de permissões e visibilidade de funcionalidades.
+     */
+    public const NIVEL_PROFESSOR = 1;
+    public const NIVEL_TECNICO = 2;
+    public const NIVEL_COORDENADOR_CURSO = 3;
+    public const NIVEL_COORDENADOR_LABORATORIO = 4;
 }

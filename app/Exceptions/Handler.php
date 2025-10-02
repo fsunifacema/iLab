@@ -31,7 +31,7 @@ class Handler extends ExceptionHandler // hanlder é a central de controle de ex
     }
 
 
-    public function render($request, Throwable $exception) // o metodo render é chamado qnd há uma exceção
+    /* public function render($request, Throwable $exception) // o metodo render é chamado qnd há uma exceção
     {
         if ($request->is("api/*")) { // verificando se a req esta indo para uma rota da api
             if ($exception instanceof ValidationException) { // verifica se é uma falha de validação
@@ -41,5 +41,5 @@ class Handler extends ExceptionHandler // hanlder é a central de controle de ex
                 );
             }
         }
-    }
+    } */
 }
