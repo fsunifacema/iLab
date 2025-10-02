@@ -27,11 +27,11 @@ class UpdateInsumoRequest extends FormRequest
             'nome' => [
                 'required',
                 'string',
-                Rule::unique('insumos')->where(function ($query) {
-                    return $query->where('marca', $this->marca)
+                Rule::unique('insumos')->ignore($this->route('insumo'))->where(
+                    fn($query) =>
+                    $query->where('marca', $this->marca)
                         ->where('modelo', $this->modelo)
-                        ->ignore($this->route('insumo'));
-                }) // Validação composta, verificando se na tabela insumos ja existe um insumo com o mesmo nome,marca e modelo, ignorando o insumo atual, para que possa manter na atualização os mesmos dados caso queira mudar apenas a descrição por exemplo.
+                ) // Validação composta, verificando se na tabela insumos ja existe um insumo com o mesmo nome,marca e modelo, ignorando o insumo atual, para que possa manter na atualização os mesmos dados caso queira mudar apenas a descrição por exemplo.
             ],
 
             'validade' => 'nullable|date',

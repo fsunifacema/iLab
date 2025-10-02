@@ -31,8 +31,12 @@ class InsumoController extends Controller
      */
     public function store(StoreInsumoRequest $request)
     {
-        Insumo::create($request->validated());
-        return redirect()->route('insumos.index')->with('success', 'Insumo criado com sucesso!');
+        try {
+            Insumo::create($request->validated());
+            return redirect()->route('insumos.index')->with('success', 'Insumo criado com sucesso!');
+        } catch (\Exception $e) {
+            return redirect()->route('insumos.index')->with('error', 'Erro ao criar insumo.');
+        }
     }
 
     /**
@@ -58,8 +62,12 @@ class InsumoController extends Controller
      */
     public function update(UpdateInsumoRequest $request, string $id)
     {
-        Insumo::findOrFail($id)->update($request->validated());
-        return redirect()->route('insumos.index')->with('success', 'Insumo atualizado com sucesso!');
+        try {
+            Insumo::findOrFail($id)->update($request->validated());
+            return redirect()->route('insumos.index')->with('success', 'Insumo atualizado com sucesso!');
+        } catch (\Exception $e) {
+            return redirect()->route('insumos.index')->with('error', 'Erro ao atualizar insumo.');
+        }
     }
 
     /**
@@ -67,7 +75,11 @@ class InsumoController extends Controller
      */
     public function destroy(string $id)
     {
-        Insumo::findOrFail($id)->delete();
-        return redirect()->route('insumos.index')->with('success', 'Insumo deletado com sucesso!');
+        try {
+            Insumo::findOrFail($id)->delete();
+            return redirect()->route('insumos.index')->with('success', 'Insumo deletado com sucesso!');
+        } catch (\Exception $e) {
+            return redirect()->route('insumos.index')->with('error', 'Erro ao deletar insumo.');
+        }
     }
 }
