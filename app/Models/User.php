@@ -71,7 +71,7 @@ class User extends Authenticatable
 
      * @return string
      */
-    public function getTypeAtrtribute(): string
+    public function getTypeAttribute(): string
     {
         return match ($this->nivel) {
             1 => 'Professor',
