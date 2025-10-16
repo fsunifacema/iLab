@@ -30,9 +30,12 @@
             </div>
 
             <div class="block mt-4">
-                <label class="text-[#0C2E5C]" for="remember_me" class="flex items-center">
+                <label for="remember_me" class="flex items-center text-[#0C2E5C]">
+                    
                     <x-checkbox id="remember_me" name="remember" />
-                    <span class="ms-2 text-sm text-gray-700">{{ __('Lembre de mim') }}</span>
+                    
+                    <span class="ms-2 text-sm text-gray-700 -mt-px">{{ __('Lembre de mim') }}</span>
+                    
                 </label>
             </div>
 

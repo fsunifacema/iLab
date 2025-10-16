@@ -22,14 +22,12 @@ class StoreLaboratorioRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'nome' => [
-                ['required', 'string', 'unique:laboratorios,nome'],
+                'nome' => ['required', 'string', 'max:255', 'unique:laboratorios,nome'],
 
-                'capacidade' => 'required|integer',
-                'tipo' => 'required|string',
-                'localizacao' => 'required|string',
-            ]
-        ];
+                'capacidade' => ['required', 'integer', 'min:1'], 
+                'tipo' => ['required', 'string', 'max:255'],
+                'localizacao' => ['required', 'string', 'max:255'],
+            ];
     }
 
     public function messages(): array

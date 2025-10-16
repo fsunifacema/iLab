@@ -35,23 +35,9 @@ Route::middleware([
 
 
     // rotas de maneira publica podendo ter visibilidade alteradas futuramente
-    Route::get('laboratorios', [LaboratorioController::class, 'index']);
-    Route::get('laboratorios/{laboratorio}', [LaboratorioController::class, 'show']);
-    
-
-    Route::get('insumos', [InsumoController::class, 'index']);
-    Route::get('insumos/{insumo}', [InsumoController::class, 'show']);
-
-    Route::get('equipamentos', [EquipamentoController::class, 'index']);
-    Route::get('equipamentos/{equipamento}', [EquipamentoController::class, 'show']);
-
-    // controlando acesso de acordo com o nivel, neste caso apenas o tecnico nível(2) terá acesso as respectivas rotas
-    Route::middleware('nivel:2,3,4')->group(function () {
-        // tirando a index e a show ja que estão como publicas
-        Route::resource('insumos', InsumoController::class)->except('index', 'show');
-        Route::resource('laboratorios', LaboratorioController::class)->except('index', 'show');
-        Route::resource('equipamentos', EquipamentoController::class)->except('index', 'show');
-    });
+    Route::resource('laboratorios', LaboratorioController::class);
+    Route::resource('insumos', InsumoController::class);
+    Route::resource('equipamentos', EquipamentoController::class);
 });
 
 

@@ -15,7 +15,7 @@ class EquipamentoController extends Controller
     public function index()
     {
         $equipamentos = Equipamento::all();
-        return view('equipamentos.index', compact('equipamentos'));
+        return view('equipamento.index', compact('equipamentos'));
     }
 
     /**
@@ -23,7 +23,7 @@ class EquipamentoController extends Controller
      */
     public function create()
     {
-        return view('equipamentos.create');
+        return view('equipamento.create');
     }
 
     /**
@@ -45,7 +45,7 @@ class EquipamentoController extends Controller
      */
     public function show(Equipamento $equipamento)
     {
-        return view('equipamentos.show', compact('equipamento'));
+        return view('equipamento.show', compact('equipamento'));
     }
 
     /**
@@ -53,7 +53,7 @@ class EquipamentoController extends Controller
      */
     public function edit(Equipamento $equipamento)
     {
-        return view('equipamentos.edit', compact('equipamento'));
+        return view('equipamento.edit', compact('equipamento'));
     }
 
     /**

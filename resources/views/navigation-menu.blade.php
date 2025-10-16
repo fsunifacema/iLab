@@ -44,6 +44,12 @@
                         <x-nav-link href="{{ route('laboratorios.index') }}" :active="request()->routeIs('laboratorios.index')">
                             {{ __('Laboratórios') }}
                         </x-nav-link>
+                        <x-nav-link href="{{ route('insumos.index') }}" :active="request()->routeIs('insumos.index')">
+                            {{ __('Insumos') }}
+                        </x-nav-link>
+                        <x-nav-link href="{{ route('equipamentos.index') }}" :active="request()->routeIs('equipamentos.index')">
+                            {{ __('Equipamentos') }}
+                        </x-nav-link>
                     @endif
 
                     <!-- @can('admin')
@@ -173,39 +179,68 @@
     </div>
 
     <!-- Responsive Navigation Menu -->
-    <div :class="{'block': open, 'hidden': ! open}" class="hidden sm:hidden">
+<div 
+    x-show="open" 
+    @click="open = false" 
+    class="fixed inset-0 bg-black opacity-50 z-40 sm:hidden" 
+    style="display: none;"
+></div>
+
+<div 
+    x-show="open" 
+    x-transition:enter="transition ease-out duration-300"
+    x-transition:enter-start="opacity-0 transform translate-x-full"  x-transition:enter-end="opacity-100 transform translate-x-0"
+    x-transition:leave="transition ease-in duration-300"
+    x-transition:leave-start="opacity-100 transform translate-x-0"
+    x-transition:leave-end="opacity-0 transform translate-x-full"  class="fixed top-0 right-0 h-screen w-64 bg-[#0C2E5C] shadow-xl z-50 sm:hidden overflow-y-auto"
+    style="display: none;" 
+>
+    <div class="flex justify-end p-4">
+        <button @click="open = false" class="text-white hover:text-gray-300">
+            <svg class="h-6 w-6" stroke="currentColor" fill="none" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+        </button>
+    </div>    
         <div class="pt-2 pb-3 space-y-1">
             @if(Auth::user()->nivel == \App\Models\User::NIVEL_PROFESSOR)
-                <x-nav-link href="{{ route('dashboard') }}" :active="request()->routeIs('dashboard')">
+                <x-responsive-nav-link href="{{ route('dashboard') }}" :active="request()->routeIs('dashboard')">
                     {{ __('Inicio') }}
-                </x-nav-link>
+                </x-responsive-nav-link>
             @endif
             @if (Auth::user()->nivel == \App\Models\User::NIVEL_TECNICO)
-                <x-nav-link href="{{ route('dashboard') }}" :active="request()->routeIs('dashboard')">
+                <x-responsive-nav-link href="{{ route('dashboard') }}" :active="request()->routeIs('dashboard')">
                     {{ __('Inicio') }}
-                </x-nav-link>
-                <x-nav-link href="{{ route('laboratorios.index') }}" :active="request()->routeIs('laboratorios.index')">
+                </x-responsive-nav-link>
+                <x-responsive-nav-link href="{{ route('laboratorios.index') }}" :active="request()->routeIs('laboratorios.index')">
                     {{ __('Laboratórios') }}
-                </x-nav-link>
+                </x-responsive-nav-link>
     
             @endif
             @if (Auth::user()->nivel == \App\Models\User::NIVEL_COORDENADOR_CURSO)
-                <x-nav-link href="{{ route('dashboard') }}" :active="request()->routeIs('dashboard')">
+                <x-responsive-nav-link href="{{ route('dashboard') }}" :active="request()->routeIs('dashboard')">
                     {{ __('Inicio') }}
-                </x-nav-link>
-                <x-nav-link href="{{ route('laboratorios.index') }}" :active="request()->routeIs('laboratorios.index')">
+                </x-responsive-nav-link>
+                <x-responsive-nav-link href="{{ route('laboratorios.index') }}" :active="request()->routeIs('laboratorios.index')">
                     {{ __('Laboratórios') }}
-                </x-nav-link>
+                </x-responsive-nav-link>
                 
             
             @endif
             @if (Auth::user()->nivel == \App\Models\User::NIVEL_COORDENADOR_LABORATORIO)
-                <x-nav-link href="{{ route('dashboard') }}" :active="request()->routeIs('dashboard')">
+                <x-responsive-nav-link href="{{ route('dashboard') }}" :active="request()->routeIs('dashboard')">
                     {{ __('Inicio') }}
-                </x-nav-link>
-                <x-nav-link href="{{ route('laboratorios.index') }}" :active="request()->routeIs('laboratorios.index')">
+                </x-responsive-nav-link>
+                <x-responsive-nav-link href="{{ route('laboratorios.index') }}" :active="request()->routeIs('laboratorios.index')">
                     {{ __('Laboratórios') }}
-                </x-nav-link>
+                </x-responsive-nav-link>
+                <x-responsive-nav-link href="{{ route('insumos.index') }}" :active="request()->routeIs('insumos.index')">
+                    {{ __('Insumos') }}
+                </x-responsive-nav-link>
+                <x-responsive-nav-link href="{{ route('equipamentos.index') }}" :active="request()->routeIs('equipamentos.index')">
+                    {{ __('Equipamentos') }}
+                </x-responsive-nav-link>
+
             @endif
             <!-- @can('admin')
             <x-responsive-nav-link href="{{ route('usuarios.index') }}" :active="request()->routeIs('usuarios.*')">

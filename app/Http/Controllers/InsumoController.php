@@ -15,7 +15,7 @@ class InsumoController extends Controller
     public function index()
     {
         $insumos = Insumo::all();
-        return view('insumos.index', compact('insumos'));
+        return view('insumo.index', compact('insumos'));
     }
 
     /**
@@ -23,7 +23,7 @@ class InsumoController extends Controller
      */
     public function create()
     {
-        return view('insumos.create');
+        return view('insumo.create');
     }
 
     /**
@@ -45,7 +45,7 @@ class InsumoController extends Controller
     public function show(string $id)
     {
         $insumo = Insumo::findOrFail($id);
-        return view('insumos.show', compact('insumo'));
+        return view('insumo.show', compact('insumo'));
     }
 
     /**
@@ -54,7 +54,7 @@ class InsumoController extends Controller
     public function edit(string $id)
     {
         $insumo = Insumo::findOrFail($id);
-        return view('insumos.edit', compact('insumo'));
+        return view('insumo.edit', compact('insumo'));
     }
 
     /**
