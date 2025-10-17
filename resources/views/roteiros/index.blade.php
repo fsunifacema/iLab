@@ -68,20 +68,30 @@
                                     <div class="text-sm text-gray-700">{{ \Carbon\Carbon::parse($roteiro->data)->format('d/m/Y') }}</div>
                                     <div class="text-center flex justify-center gap-2">
                                         @if(in_array(Auth::user()->nivel, [\App\Models\User::NIVEL_TECNICO, \App\Models\User::NIVEL_COORDENADOR_CURSO, \App\Models\User::NIVEL_COORDENADOR_LABORATORIO]))
-                                            <a href="{{ route('roteiros.edit', $roteiro->id) }}" class="me-2">
+                                            <!-- Ícone de Visualizar (Olho) -->
+                                            <a href="{{ route('roteiros.show', $roteiro->id) }}" class="text-sm text-yellow-600 font-medium" title="Visualizar Roteiro">
+                                                <x-icons-logo name="show"/>
+                                            </a>
+
+                                            <!-- Botão de Editar -->
+                                            <a href="{{ route('roteiros.edit', $roteiro->id) }}" class="me-2" title="Editar Roteiro">
                                                 <x-icons-logo name="edit"/>
                                             </a>
 
+                                            <!-- Formulário de Exclusão -->
                                             <form action="{{ route('roteiros.destroy', $roteiro->id) }}" method="POST" class="inline-block">
                                                 @csrf
                                                 @method('DELETE')
-                                                <button onclick="return confirm('Deseja excluir?')" type="submit">
+                                                <button onclick="return confirm('Deseja excluir?')" type="submit" title="Excluir Roteiro">
                                                     <x-icons-logo name="delete"/>
                                                 </button>
                                             </form>
                                         @endif
+
                                         <!-- Botão para Gerar PDF -->
-                                        <a href="{{ route('roteiros.pdf', $roteiro->id) }}" class="text-sm text-blue-600 font-medium" target="_blank">Criar PDF</a>
+                                        <a href="{{ route('roteiros.pdf', $roteiro->id) }}" class="text-sm text-blue-600 font-medium" target="_blank" title="Criar PDF">
+                                            <x-icons-logo name="document"/>
+                                        </a>
                                     </div>
                                 </div>
 
@@ -117,12 +127,12 @@
                                     @if(in_array(Auth::user()->nivel, [\App\Models\User::NIVEL_TECNICO, \App\Models\User::NIVEL_COORDENADOR_CURSO, \App\Models\User::NIVEL_COORDENADOR_LABORATORIO]))
                                         <div class="mt-3 flex items-center gap-3">
                                             <!-- Botão para Gerar PDF -->
-                                            <a href="{{ route('roteiros.pdf', $roteiro->id) }}" class="text-sm text-blue-600 font-medium" target="_blank">Criar PDF</a>
-                                            <a href="{{ route('roteiros.edit', $roteiro->id) }}" class="text-sm text-[#0C2E5C] font-medium">Editar</a>
+                                            <a href="{{ route('roteiros.pdf', $roteiro->id) }}" class="text-sm text-blue-600 font-medium" target="_blank" title="Criar PDF">Criar PDF</a>
+                                            <a href="{{ route('roteiros.edit', $roteiro->id) }}" class="text-sm text-[#0C2E5C] font-medium" title="Editar Roteiro">Editar</a>
                                             <form action="{{ route('roteiros.destroy', $roteiro->id) }}" method="POST" class="inline-block">
                                                 @csrf
                                                 @method('DELETE')
-                                                <button onclick="return confirm('Deseja excluir?')" type="submit" class="text-sm text-red-600 font-medium">Excluir</button>
+                                                <button onclick="return confirm('Deseja excluir?')" type="submit" class="text-sm text-red-600 font-medium" title="Excluir Roteiro">Excluir</button>
                                             </form>
                                         </div>
                                     @endif

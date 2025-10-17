@@ -1,0 +1,47 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+
+class Roteiro extends Model
+{
+    use HasFactory;
+
+    /**
+     * Nome da tabela associada.
+     */
+    protected $table = 'roteiros';
+
+    /**
+     * Campos que podem ser preenchidos em massa (fillable).
+     */
+    protected $fillable = [
+        'curso',
+        'unidade_curricular',
+        'professor',
+        'periodo',
+        'quantidade_alunos',
+        'data',
+        'horario',
+        'carga_horaria',
+        'numero_praticas',
+        'laboratorio',
+        'conteudo',
+        'tema',
+        'objetivos',
+        'metodologia',
+        'recursos',
+        'avaliacao',
+        'observacoes',
+        'data_assinatura',
+    ];
+
+    /**
+     * Converte automaticamente o campo 'data' para objeto Carbon (data).
+     */
+    protected $casts = [
+        'data' => 'date',
+    ];
+}
