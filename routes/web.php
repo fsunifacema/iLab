@@ -4,6 +4,7 @@ use App\Http\Controllers\EquipamentoController;
 use App\Http\Controllers\InsumoController;
 use App\Http\Controllers\LaboratorioController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\RoteiroController;
 
 /*
 |--------------------------------------------------------------------------
@@ -69,6 +70,7 @@ Route::middleware([
     Route::resource('laboratorios', LaboratorioController::class);
     Route::resource('insumos', InsumoController::class);
     Route::resource('equipamentos', EquipamentoController::class);
+    Route::resource('roteiros', RoteiroController::class);
 });
 
 

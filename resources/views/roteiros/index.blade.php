@@ -1,0 +1,135 @@
+<x-app-layout>
+    <x-slot name="header">
+        <h2 class="text-xl font-semibold text-[#0C2E5C]">
+            Gerenciamento de Roteiros
+        </h2>
+    </x-slot>
+
+    <div class="py-8">
+        <div class="max-w-6xl mx-auto sm:px-6 lg:px-8">
+            @if(in_array(Auth::user()->nivel, [\App\Models\User::NIVEL_TECNICO, \App\Models\User::NIVEL_COORDENADOR_CURSO, \App\Models\User::NIVEL_COORDENADOR_LABORATORIO]))
+                <a href="{{ route('roteiros.create') }}" class="fixed bottom-6 right-6 bg-[#0C2E5C] text-white text-sm px-4 py-2 rounded-md shadow-md hover:bg-blue-800 transition duration-200">
+                    + Novo Roteiro
+                </a>
+            @endif
+
+            <div class="p-3 overflow-x-auto">
+                <div class="w-full">
+                    <!-- Controles: busca -->
+                    <div class="mb-4" x-data="{
+                        query: '',
+                        matches(el){
+                            const q = this.query.toLowerCase().trim();
+                            if(q === '') return true;
+                            const qDigits = q.replace(/\D/g, '');
+                            const curso = el.dataset.curso || '';
+                            const professor = el.dataset.professor || '';
+                            const unidade = el.dataset.unidade || '';
+                            const periodo = (el.dataset.periodo || '').toString();
+                            if(curso.includes(q) || professor.includes(q) || unidade.includes(q) || periodo.includes(q)) return true;
+                            if(qDigits !== '' && periodo.replace(/\D/g, '').includes(qDigits)) return true;
+                            return false;
+                        }
+                    }">
+                        <div class="p-1 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+                            <div class="flex items-center gap-2">
+                                <input x-model="query" type="text" placeholder="Buscar por curso, professor ou unidade..." class="border rounded px-3 py-2 text-sm w-full md:w-80" />
+                                <button type="button" @click="query=''" class="px-3 py-2 bg-gray-100 rounded text-sm">Limpar</button>
+                            </div>
+                        </div>
+
+                        <!-- Cabeçalho (desktop) -->
+                        <div class="hidden md:grid grid-cols-7 bg-[#0C2E5C] text-white px-4 py-2 rounded-t-md text-sm font-semibold mt-3">
+                            <div>Curso</div>
+                            <div>Unidade Curricular</div>
+                            <div>Professor</div>
+                            <div>Período</div>
+                            <div>Quantidade de Alunos</div>
+                            <div>Data</div>
+                            <div class="text-center">Ações</div>
+                        </div>
+
+                        <!-- Lista -->
+                        <div class="space-y-3 mt-2">
+                            @forelse($roteiros as $roteiro)
+                                @php
+                                    $curso = strtolower($roteiro->curso);
+                                    $unidade = strtolower($roteiro->unidade_curricular);
+                                    $professor = strtolower($roteiro->professor);
+                                    $periodo = strtolower($roteiro->periodo);
+                                @endphp
+                                    <!-- Desktop: linha -->
+                                <div data-curso="{{ $curso }}" data-professor="{{ $professor }}" data-unidade="{{ $unidade }}" data-periodo="{{ $periodo }}" x-show="matches($el)" class="hidden md:grid grid-cols-7 items-center bg-white px-4 py-2 rounded shadow border border-gray-200 hover:shadow-md transition">
+                                    <div class="text-sm text-gray-700">{{ $roteiro->curso }}</div>
+                                    <div class="text-sm text-gray-700">{{ $roteiro->unidade_curricular }}</div>
+                                    <div class="text-sm text-gray-700">{{ $roteiro->professor }}</div>
+                                    <div class="text-sm text-gray-700">{{ $roteiro->periodo }}</div>
+                                    <div class="text-sm text-gray-700">{{ $roteiro->quantidade_alunos }}</div>
+                                    <div class="text-sm text-gray-700">{{ \Carbon\Carbon::parse($roteiro->data)->format('d/m/Y') }}</div>
+                                    <div class="text-center flex justify-center gap-2">
+                                        @if(in_array(Auth::user()->nivel, [\App\Models\User::NIVEL_TECNICO, \App\Models\User::NIVEL_COORDENADOR_CURSO, \App\Models\User::NIVEL_COORDENADOR_LABORATORIO]))
+                                            <a href="{{ route('roteiros.edit', $roteiro->id) }}" class="me-2">
+                                                <x-icons-logo name="edit"/>
+                                            </a>
+
+                                            <form action="{{ route('roteiros.destroy', $roteiro->id) }}" method="POST" class="inline-block">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button onclick="return confirm('Deseja excluir?')" type="submit">
+                                                    <x-icons-logo name="delete"/>
+                                                </button>
+                                            </form>
+                                        @endif
+                                    </div>
+                                </div>
+
+                                <!-- Mobile: card -->
+                                <div data-curso="{{ $curso }}" data-professor="{{ $professor }}" data-unidade="{{ $unidade }}" data-periodo="{{ $periodo }}" x-show="matches($el)" class="md:hidden bg-white px-4 py-3 rounded shadow border border-gray-200">
+                                    <div class="flex justify-between items-start">
+                                        <div>
+                                            <div class="text-xs text-gray-500">Curso</div>
+                                            <div class="text-sm text-gray-700 font-medium">{{ $roteiro->curso }}</div>
+                                        </div>
+                                        <div class="text-right">
+                                            <div class="text-xs text-gray-500">Data</div>
+                                            <div class="text-sm text-gray-700">{{ \Carbon\Carbon::parse($roteiro->data)->format('d/m/Y') }}</div>
+                                        </div>
+                                    </div>
+
+                                    <div class="mt-2 grid grid-cols-2 gap-2 text-sm text-gray-700">
+                                        <div>
+                                            <div class="text-xs text-gray-500">Professor</div>
+                                            <div>{{ $roteiro->professor }}</div>
+                                        </div>
+                                        <div>
+                                            <div class="text-xs text-gray-500">Período</div>
+                                            <div>{{ $roteiro->periodo }}</div>
+                                        </div>
+                                    </div>
+
+                                    <div class="mt-2">
+                                        <div class="text-xs text-gray-500">Quantidade de Alunos</div>
+                                        <div class="text-sm text-gray-700">{{ $roteiro->quantidade_alunos }}</div>
+                                    </div>
+
+                                    @if(in_array(Auth::user()->nivel, [\App\Models\User::NIVEL_TECNICO, \App\Models\User::NIVEL_COORDENADOR_CURSO, \App\Models\User::NIVEL_COORDENADOR_LABORATORIO]))
+                                        <div class="mt-3 flex items-center gap-3">
+                                            <a href="{{ route('roteiros.edit', $roteiro->id) }}" class="text-sm text-[#0C2E5C] font-medium">Editar</a>
+                                            <form action="{{ route('roteiros.destroy', $roteiro->id) }}" method="POST" class="inline-block">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button onclick="return confirm('Deseja excluir?')" type="submit" class="text-sm text-red-600 font-medium">Excluir</button>
+                                            </form>
+                                        </div>
+                                    @endif
+                                </div>
+                            @empty
+                                <div class="text-center text-gray-500 py-4">
+                                    Nenhum roteiro encontrado.
+                                </div>
+                            @endforelse
+                        </div>
+                    </div>
+                </div>
+            </div>
+</x-app-layout>
