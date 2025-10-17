@@ -5,6 +5,7 @@ use App\Http\Controllers\InsumoController;
 use App\Http\Controllers\LaboratorioController;
 use App\Http\Controllers\ReservaController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\RoteiroController;
 
 /*
 |--------------------------------------------------------------------------
@@ -25,6 +26,15 @@ Route::get('/', function () {
     return redirect('/login');
 });
 
+
+/*
+ * * Rota para teste roteiro-pratica
+ */
+Route::get('/roteiro-pratica/{roteiro}', [RoteiroController::class, 'pdf'])->name('roteiros.pdf');
+/*
+
+*/
+
 Route::middleware([
     'auth:sanctum',
     config('jetstream.auth_session'),
@@ -39,7 +49,7 @@ Route::middleware([
     Route::resource('laboratorios', LaboratorioController::class);
     Route::resource('insumos', InsumoController::class);
     Route::resource('equipamentos', EquipamentoController::class);
-    Route::resource('reservas', ReservaController::class); 
+    Route::resource('roteiros', RoteiroController::class);
 });
 
 
