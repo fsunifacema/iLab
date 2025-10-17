@@ -1,116 +1,177 @@
-<x-app-layout>
-    <!-- Logo e Missão fora do cabeçalho -->
-    <div  class="flex justify-between items-center py-8">
-        <div class="max-w-6xl mx-auto sm:px-4 lg:px-9">
-        <!-- Logo à esquerda -->
-        <img src="{{ asset('img/logo-facema-azul.png') }}" alt="Timbre UniFacema" class="w-[300px]">
-        </div>
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Roteiro de Aula Prática</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            font-size: 12px;
+            margin: 0;
+            padding: 0;
+        }
 
-        <!-- Missão à direita -->
-        <div class="max-w-6xl mx-auto sm:px-4 lg:px-9">
-        <div class="text-right text-sm text-[#0C2E5C]">
-            Missão: <span  class="font-semibold">"Contribuir para o desenvolvimento sustentável por meio do ensino superior</span>
-            <br>
-            <span  class="font-semibold ">inovador em um ambiente de qualidade."</span>
-        </div>
-        </div>
+        /* Cabeçalho com logo e missão na mesma linha */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap; /* Permite a quebra de linha em telas menores */
+        }
+
+        /* Logo à esquerda */
+        .header img {
+            max-width: 300px;
+            height: auto;
+        }
+
+        /* Missão à direita com largura limitada a 50% */
+        .mission {
+            width: 45%; /* Limita a missão para não ultrapassar metade da página */
+            text-align: justify; /* Justifica o texto */
+            font-size: 12px;
+            color: #0C2E5C;
+            font-weight: bold;
+            padding-right: 10px;
+        }
+
+        /* Conteúdo da página */
+        .content {
+            margin-top: 20px;
+        }
+
+        /* Estilo da tabela */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        table, th, td {
+            border: 1px solid #000;
+        }
+
+        th, td {
+            padding: 8px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+
+        /* Rodapé */
+        .footer {
+            text-align: center;
+            margin-top: 50px;
+            font-size: 10px;
+        }
+
+        /* Ajustes para garantir boa visualização */
+        .flex {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .flex > div {
+            flex: 1;
+            min-width: 200px;
+        }
+    </style>
+</head>
+<body>
+
+<!-- Cabeçalho com logo e missão -->
+<div class="header">
+    <img src="{{ $imageSrc }}" alt="Logo UniFacema" class="w-[100px]">
+    <div class="mission">
+        Missão: <span>"Contribuir para o desenvolvimento sustentável por meio do ensino superior inovador em um ambiente de qualidade."</span>
     </div>
+</div>
 
-    <div class="py-8">
-        <div class="max-w-6xl mx-auto sm:px-6 lg:px-8">
-            <div class="p-3 overflow-x-auto">
-                <div class="w-full">
-                    <div class="space-y-4">
-                        <div class="flex">
-                            <strong class="w-1/3">CURSO/ CAMPUS:</strong>
-                            <span class="flex-1">{{ $curso ?? '______________________________________________' }}</span>
-                        </div>
-                        <div class="flex">
-                            <strong class="w-1/3">UNIDADE CURRICULAR:</strong>
-                            <span class="flex-1">{{ $unidade ?? '______________________________________________' }}</span>
-                        </div>
-                        <div class="flex">
-                            <strong class="w-1/3">PROFESSOR:</strong>
-                            <span class="flex-1">{{ $professor ?? '______________________________________________' }}</span>
-                        </div>
-                        <div class="flex">
-                            <strong class="w-1/3">PERÍODO:</strong>
-                            <span class="flex-1">{{ $periodo ?? '____________________' }}</span>
-                        </div>
-                        <div class="flex">
-                            <strong class="w-1/3">QUANT. DE ALUNOS:</strong>
-                            <span class="flex-1">{{ $quantidade_alunos ?? '________' }}</span>
-                        </div>
-                        <div class="flex">
-                            <strong class="w-1/3">DATA:</strong>
-                            <span class="flex-1">{{ $data ?? '____/____/________' }}</span>
-                        </div>
-                        <div class="flex">
-                            <strong class="w-1/3">HORÁRIO:</strong>
-                            <span class="flex-1">{{ $horario ?? '____________________' }}</span>
-                        </div>
-                        <div class="flex">
-                            <strong class="w-1/3">CARGA HORÁRIA DA AULA PRÁTICA:</strong>
-                            <span class="flex-1">{{ $carga_horaria ?? '________' }}</span>
-                        </div>
-                        <div class="flex">
-                            <strong class="w-1/3">Nº DE PRÁTICAS:</strong>
-                            <span class="flex-1">{{ $numero_praticas ?? '________' }}</span>
-                        </div>
-                        <div class="flex">
-                            <strong class="w-1/3">LABORATÓRIO / CENÁRIO DE PRÁTICA:</strong>
-                            <span class="flex-1">{{ $laboratorio ?? '____________________________' }}</span>
-                        </div>
-                    </div>
+<!-- Conteúdo do Roteiro -->
+<div class="content">
+    <table>
+        <tr>
+            <th>Curso/Campus:</th>
+            <td>{{ $roteiro->curso }}</td>
+        </tr>
+        <tr>
+            <th>Unidade Curricular</th>
+            <td>{{ $roteiro->unidade_curricular }}</td>
+        </tr>
+        <tr>
+            <th>Professor:</th>
+            <td>{{ $roteiro->professor }}</td>
+        </tr>
+        <tr>
+            <th>Período:</th>
+            <td>{{ $roteiro->periodo }}</td>
+        </tr>
+        <tr>
+            <th>Quantidade de Alunos:</th>
+            <td>{{ $roteiro->quantidade_alunos }}</td>
+        </tr>
+        <tr>
+            <th>Data:</th>
+            <td>{{ \Carbon\Carbon::parse($roteiro->data)->format('d/m/Y') }}</td>
+        </tr>
+        <tr>
+            <th>Horário:</th>
+            <td>{{ $roteiro->horario }}</td>
+        </tr>
+        <tr>
+            <th>Carga Horária:</th>
+            <td>{{ $roteiro->carga_horaria }}</td>
+        </tr>
+        <tr>
+            <th>Nº de Práticas:</th>
+            <td>{{ $roteiro->numero_praticas }}</td>
+        </tr>
+        <tr>
+            <th>Laboratório:</th>
+            <td>{{ $roteiro->laboratorio }}</td>
+        </tr>
+        <tr>
+            <th>Conteúdo da aula prática (Conforme plano de ensino):</th>
+            <td>{{ $roteiro->conteudo }}</td>
+        </tr>
+        <tr>
+            <th>Tema da aula prática:</th>
+            <td>{{ $roteiro->tema }}</td>
+        </tr>
+        <tr>
+            <th>Objetivos:</th>
+            <td>{{ $roteiro->objetivos }}</td>
+        </tr>
+        <tr>
+            <th>Metodologia da aula prática:</th>
+            <td>{{ $roteiro->metodologia }}</td>
+        </tr>
+        <tr>
+            <th>Recursos e materiais utilizados:</th>
+            <td>{{ $roteiro->recursos }}</td>
+        </tr>
+        <tr>
+            <th>Forma de avaliação da atividade prática realizada pelo aluno:</th>
+            <td>{{ $roteiro->avaliacao }}</td>
+        </tr>
+        <tr>
+            <th>Observações:</th>
+            <td>{{ $roteiro->observacoes }}</td>
+        </tr>
+        <tr>
+            <th>Data de Assinatura:</th>
+            <td>{{ \Carbon\Carbon::parse($roteiro->data_assinatura)->format('d/m/Y') }}</td>
+        </tr>
+    </table>
 
-                    <div class="mt-8 text-lg font-bold uppercase">CONTEÚDO DA AULA PRÁTICA (CONFORME PLANO DE ENSINO)</div>
-                    <div class="border border-black p-2 mt-2 min-h-[90px]">{{ $conteudo ?? '' }}</div>
-
-                    <div class="mt-8 text-lg font-bold uppercase">TEMA DA AULA PRÁTICA</div>
-                    <div class="border border-black p-2 mt-2 min-h-[90px]">{{ $tema ?? '' }}</div>
-
-                    <div class="mt-8 text-lg font-bold uppercase">OBJETIVO(S)</div>
-                    <div class="border border-black p-2 mt-2 min-h-[90px]">{{ $objetivos ?? '' }}</div>
-
-                    <div class="mt-8 text-lg font-bold uppercase">METODOLOGIA DA AULA PRÁTICA</div>
-                    <div class="border border-black p-2 mt-2 min-h-[90px]">{{ $metodologia ?? '' }}</div>
-
-                    <div class="mt-8 text-lg font-bold uppercase">RECURSOS E MATERIAIS UTILIZADOS</div>
-                    <div class="border border-black p-2 mt-2 min-h-[90px]">{{ $recursos ?? '' }}</div>
-
-                    <div class="mt-8 text-lg font-bold uppercase">FORMA DE AVALIAÇÃO DA ATIVIDADE PRÁTICA REALIZADA PELO ALUNO</div>
-                    <div class="border border-black p-2 mt-2 min-h-[90px]">{{ $avaliacao ?? '' }}</div>
-
-                    <div class="mt-8 text-lg font-bold uppercase">OBSERVAÇÕES</div>
-                    <div class="border border-black p-2 mt-2 min-h-[90px]">{{ $observacoes ?? '' }}</div>
-
-                    <footer class="mt-12 text-center text-sm">
-                        Cidade/MA, {{ $data_assinatura ?? '____ de __________________________ de ________' }}.
-                    </footer>
-
-                    <div class="mt-16 text-center">
-                        <div class="inline-block mt-16">
-                            <div class="border-t border-black w-60 mx-auto mb-2"></div>
-                            <div>Professor(a) da UC</div>
-                        </div>
-
-                        <div class="inline-block mt-16">
-                            <div class="border-t border-black w-60 mx-auto mb-2"></div>
-                            <div>Coordenação do Curso</div>
-                        </div>
-
-                        <div class="inline-block mt-16">
-                            <div class="border-t border-black w-60 mx-auto mb-2"></div>
-                            <div>Coordenação de Laboratórios</div>
-                        </div>
-
-                        <div class="inline-block mt-16">
-                            <div class="border-t border-black w-60 mx-auto mb-2"></div>
-                            <div>Técnico de Laboratório</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+    <div class="footer">
+        <p>Emitido em: {{ \Carbon\Carbon::now()->format('d/m/Y') }}</p>
     </div>
-</x-app-layout>
+</div>
+
+</body>
+</html>

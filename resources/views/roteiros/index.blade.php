@@ -80,6 +80,8 @@
                                                 </button>
                                             </form>
                                         @endif
+                                        <!-- Botão para Gerar PDF -->
+                                        <a href="{{ route('roteiros.pdf', $roteiro->id) }}" class="text-sm text-blue-600 font-medium" target="_blank">Criar PDF</a>
                                     </div>
                                 </div>
 
@@ -114,6 +116,8 @@
 
                                     @if(in_array(Auth::user()->nivel, [\App\Models\User::NIVEL_TECNICO, \App\Models\User::NIVEL_COORDENADOR_CURSO, \App\Models\User::NIVEL_COORDENADOR_LABORATORIO]))
                                         <div class="mt-3 flex items-center gap-3">
+                                            <!-- Botão para Gerar PDF -->
+                                            <a href="{{ route('roteiros.pdf', $roteiro->id) }}" class="text-sm text-blue-600 font-medium" target="_blank">Criar PDF</a>
                                             <a href="{{ route('roteiros.edit', $roteiro->id) }}" class="text-sm text-[#0C2E5C] font-medium">Editar</a>
                                             <form action="{{ route('roteiros.destroy', $roteiro->id) }}" method="POST" class="inline-block">
                                                 @csrf
@@ -132,4 +136,6 @@
                     </div>
                 </div>
             </div>
+        </div>
+    </div>
 </x-app-layout>
