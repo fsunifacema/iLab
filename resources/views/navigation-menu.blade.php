@@ -50,6 +50,9 @@
                         <x-nav-link href="{{ route('equipamentos.index') }}" :active="request()->routeIs('equipamentos.index')">
                             {{ __('Equipamentos') }}
                         </x-nav-link>
+                        <x-nav-link href="{{ route('reservas.index') }}" :active="request()->routeIs('reservas.index')">
+                            {{ __('Reservas') }}
+                        </x-nav-link>
                     @endif
 
                     <!-- @can('admin')
@@ -239,6 +242,9 @@
                 </x-responsive-nav-link>
                 <x-responsive-nav-link href="{{ route('equipamentos.index') }}" :active="request()->routeIs('equipamentos.index')">
                     {{ __('Equipamentos') }}
+                </x-responsive-nav-link>
+                <x-responsive-nav-link href="{{ route('reservas.index') }}" :active="request()->routeIs('reservas.index')">
+                    {{ __('Reservas') }}
                 </x-responsive-nav-link>
 
             @endif
