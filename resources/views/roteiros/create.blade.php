@@ -1,6 +1,6 @@
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="text-xl font-semibold text-gray-800">Adicionar Roteiro</h2>
+        <h2 class="text-xl font-semibold text-[#0C2E5C]">Adicionar Roteiro</h2>
     </x-slot>
 
     <div class="py-6">
@@ -21,9 +21,10 @@
                 </div>
 
                 <div class="mb-4">
-                    <x-label for="professor" value="Professor" class="block text-sm font-medium text-gray-700" />
-                    <x-input id="professor" type="text" name="professor" :value="old('professor')" required class="w-full" />
-                    <x-input-error for="professor" :messages="$errors->get('professor')" class="mt-2" />
+                    <x-label for="professor_name" value="Professor" class="block text-sm font-medium text-gray-700" />
+                    <x-input id="professor_name" type="text" value="{{ Auth::user()->name ?? 'Usuário Indefinido' }}" readonly class="w-full bg-gray-100 cursor-not-allowed" /> 
+                    <input type="hidden" name="professor_id" value="{{ Auth::id() }}">                  
+                    <x-input-error for="professor_id" :messages="$errors->get('professor_id')" class="mt-2" /> 
                 </div>
 
                 <div class="mb-4">
@@ -64,20 +65,28 @@
 
                 <div class="mb-4">
                     <x-label for="laboratorio" value="Laboratório" class="block text-sm font-medium text-gray-700" />
-                    <x-input id="laboratorio" type="text" name="laboratorio" :value="old('laboratorio')" required class="w-full" />
+                    <select id="laboratorio" name="laboratorio" required
+                        class="p-1 border-gray-300 focus:border-[#0C2E5C] focus:ring-[#0C2E5C] rounded-md shadow-sm w-full">
+                        <option value="">Selecione um laboratório</option>
+                        @foreach ($laboratorios as $lab)
+                            <option value="{{ $lab->nome }}" {{ old('laboratorio') == $lab->nome ? 'selected' : '' }}>
+                                {{ $lab->nome }}
+                            </option>
+                        @endforeach
+                    </select>
                     <x-input-error for="laboratorio" :messages="$errors->get('laboratorio')" class="mt-2" />
-                </div>
-
-                <div class="mb-4">
-                    <x-label for="conteudo" value="Conteúdo" class="block text-sm font-medium text-gray-700" />
-                    <x-textarea id="conteudo" name="conteudo" :value="old('conteudo')" class="w-full" rows="4"></x-textarea>
-                    <x-input-error for="conteudo" :messages="$errors->get('conteudo')" class="mt-2" />
                 </div>
 
                 <div class="mb-4">
                     <x-label for="tema" value="Tema" class="block text-sm font-medium text-gray-700" />
                     <x-input id="tema" type="text" name="tema" :value="old('tema')" required class="w-full" />
                     <x-input-error for="tema" :messages="$errors->get('tema')" class="mt-2" />
+                </div>
+
+                <div class="mb-4">
+                    <x-label for="conteudo" value="Conteúdo" class="block text-sm font-medium text-gray-700" />
+                    <x-textarea id="conteudo" name="conteudo" :value="old('conteudo')" class="w-full" rows="4"></x-textarea>
+                    <x-input-error for="conteudo" :messages="$errors->get('conteudo')" class="mt-2" />
                 </div>
 
                 <div class="mb-4">
@@ -118,44 +127,78 @@
         </div>
     </div>
 
+    <!-- Modal com animação -->
+    <div id="continueModal"
+        class="fixed inset-0 bg-black/40 backdrop-blur-sm hidden items-center justify-center z-50 transition-opacity duration-300">
+        <div id="modalContent"
+            class="bg-white rounded-2xl shadow-2xl p-6 w-96 text-center transform scale-90 opacity-0 transition-all duration-300">
+            <div class="flex justify-center mb-3">
+                <div class="bg-[#0C2E5C] text-white rounded-full p-3 text-2xl">💾</div>
+            </div>
+            <h3 class="text-lg font-semibold mb-3 text-[#0C2E5C]">Atenção! Você tem dados não salvos. </h3>
+            <p class="text-gray-700 mb-6">Deseja continuar de onde parou?</p>
+            <div class="flex justify-center gap-4">
+                <button id="continueYes"
+                    class="px-4 py-2 bg-[#0C2E5C] text-white rounded-lg hover:bg-[#103A7A] transition">Sim</button>
+                <button id="continueNo"
+                    class="px-4 py-2 bg-gray-300 text-white rounded-lg hover:bg-red-600 focus:bg:red-700 active bg-red-800 transition">Não</button>
+            </div>
+        </div>
+    </div>
     <script>
-        // Salvar dados preenchidos no localStorage
         const form = document.getElementById('createForm');
         const fields = form.querySelectorAll('input, textarea');
+        const modal = document.getElementById('continueModal');
+        const modalContent = document.getElementById('modalContent');
+        const btnYes = document.getElementById('continueYes');
+        const btnNo = document.getElementById('continueNo');
 
-        // Salvar os dados enquanto o usuário preenche
+        // Salvar dados enquanto o usuário digita
         fields.forEach(field => {
-            field.addEventListener('input', function () {
+            field.addEventListener('input', () => {
                 localStorage.setItem(field.name, field.value);
             });
         });
 
-        // Verificar se o formulário já tem dados salvos
-        window.onload = function () {
-            fields.forEach(field => {
-                if (localStorage.getItem(field.name)) {
-                    field.value = localStorage.getItem(field.name);
+        // Função que mostra o modal animado
+        function showModal() {
+            return new Promise(resolve => {
+                modal.classList.remove('hidden');
+                modal.classList.add('flex');
+                setTimeout(() => {
+                    modalContent.classList.remove('opacity-0', 'scale-90');
+                    modalContent.classList.add('opacity-100', 'scale-100');
+                }, 10);
+
+                btnYes.onclick = () => closeModal(true);
+                btnNo.onclick = () => closeModal(false);
+
+                function closeModal(result) {
+                    modalContent.classList.remove('opacity-100', 'scale-100');
+                    modalContent.classList.add('opacity-0', 'scale-90');
+                    setTimeout(() => {
+                        modal.classList.add('hidden');
+                        resolve(result);
+                    }, 250);
                 }
             });
+        }
 
-            // Perguntar ao usuário se deseja continuar de onde parou
+        window.onload = async function () {
             if (Object.keys(localStorage).length > 0) {
-                if (confirm('Você tem dados não salvos. Deseja continuar de onde parou?')) {
+                const continueSaved = await showModal();
+
+                if (continueSaved) {
                     fields.forEach(field => {
-                        if (localStorage.getItem(field.name)) {
-                            field.value = localStorage.getItem(field.name);
-                        }
+                        const savedValue = localStorage.getItem(field.name);
+                        if (savedValue) field.value = savedValue;
                     });
                 } else {
-                    // Limpar dados do localStorage
                     localStorage.clear();
                 }
             }
         };
 
-        // Limpar dados do localStorage ao enviar o formulário
-        form.addEventListener('submit', function () {
-            localStorage.clear();
-        });
+        form.addEventListener('submit', () => localStorage.clear());
     </script>
 </x-app-layout>

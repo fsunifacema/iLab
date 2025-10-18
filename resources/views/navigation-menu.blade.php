@@ -139,12 +139,11 @@
                 <x-responsive-nav-link href="{{ route('dashboard') }}" :active="request()->routeIs('dashboard')">
                     {{ __('Inicio') }}
                 </x-responsive-nav-link>
+                <!-- Roteiros Link -->
+                <x-responsive-nav-link href="{{ route('roteiros.index') }}" :active="request()->routeIs('roteiros.index')">
+                    {{ __('Roteiros') }}
+                </x-responsive-nav-link>
             @endif
-
-            <!-- Roteiros Link -->
-            <x-responsive-nav-link href="{{ route('roteiros.index') }}" :active="request()->routeIs('roteiros.index')">
-                {{ __('Roteiros') }}
-            </x-responsive-nav-link>
 
             @if (Auth::user()->nivel == \App\Models\User::NIVEL_TECNICO)
                 <x-responsive-nav-link href="{{ route('dashboard') }}" :active="request()->routeIs('dashboard')">

@@ -103,6 +103,10 @@
             <!-- Botões de ação: Editar e Excluir -->
             <div class="flex justify-end mt-6 space-x-4">
                 @if(in_array(Auth::user()->nivel, [\App\Models\User::NIVEL_TECNICO, \App\Models\User::NIVEL_COORDENADOR_CURSO, \App\Models\User::NIVEL_COORDENADOR_LABORATORIO]))
+
+                    <a href="{{ route('roteiros.index') }}" class="text-gray-600 font-medium px-4 py-2 border border-gray-600 rounded-md">
+                        Voltar
+                    </a>
                     <a href="{{ route('roteiros.edit', $roteiro->id) }}" class="text-[#0C2E5C] font-medium px-4 py-2 border border-[#0C2E5C] rounded-md">
                         Editar
                     </a>

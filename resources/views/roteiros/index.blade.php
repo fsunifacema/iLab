@@ -134,6 +134,10 @@
                                                 @method('DELETE')
                                                 <button onclick="return confirm('Deseja excluir?')" type="submit" class="text-sm text-red-600 font-medium" title="Excluir Roteiro">Excluir</button>
                                             </form>
+                                            <!-- Ícone de Visualizar (Olho) -->
+                                            <a href="{{ route('roteiros.show', $roteiro->id) }}" class="text-sm text-yellow-600 font-medium size-4" title="Visualizar Roteiro">
+                                                <x-icons-logo name="show"/>
+                                            </a>                                            
                                         </div>
                                     @endif
                                 </div>

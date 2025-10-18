@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Roteiro;
+use App\Models\Laboratorio;
 use Illuminate\Http\Request;
 use Dompdf\Dompdf;
 use Dompdf\Options;
@@ -20,7 +21,8 @@ class RoteiroController extends Controller
 
     public function create()
     {
-        return view('roteiros.create');
+        $laboratorios = Laboratorio::all();
+        return view('roteiros.create', compact('laboratorios'));
     }
 
     public function store(Request $request)
@@ -59,7 +61,8 @@ class RoteiroController extends Controller
 
     public function edit(Roteiro $roteiro)
     {
-        return view('roteiros.edit', compact('roteiro'));
+        $laboratorios = Laboratorio::all();
+        return view('roteiros.edit', compact('roteiro', 'laboratorios'));
     }
 
     public function update(Request $request, Roteiro $roteiro)
