@@ -21,10 +21,11 @@
                 </div>
 
                 <div class="mb-4">
-                    <x-label for="professor_name" value="Professor" class="block text-sm font-medium text-gray-700" />
-                    <x-input id="professor_name" type="text" value="{{ Auth::user()->name ?? 'Usuário Indefinido' }}" readonly class="w-full bg-gray-100 cursor-not-allowed" /> 
-                    <input type="hidden" name="professor_id" value="{{ Auth::id() }}">                  
-                    <x-input-error for="professor_id" :messages="$errors->get('professor_id')" class="mt-2" /> 
+                    <x-label for="professor" value="Professor" class="block text-sm font-medium text-gray-700" />
+                    <x-input id="professor" type="text" name="professor"
+                        value="{{ Auth::user()->name ?? 'Usuário Indefinido' }}" 
+                        readonly class="w-full bg-gray-100 cursor-not-allowed" />
+                    <x-input-error for="professor" :messages="$errors->get('professor')" class="mt-2" />
                 </div>
 
                 <div class="mb-4">

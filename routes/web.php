@@ -6,21 +6,13 @@ use App\Http\Controllers\LaboratorioController;
 use App\Http\Controllers\ReservaController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\RoteiroController;
+use App\Http\Controllers\SolicitacaoController; // Controller de Fluxo
 
 /*
 |--------------------------------------------------------------------------
 | Web Routes
 |--------------------------------------------------------------------------
-|
-| Here is where you can register web routes for your application. These
-| routes are loaded by the RouteServiceProvider and all of them will
-| be assigned to the "web" middleware group. Make something great!
-|
 */
-
-/* Route::get('/', function () {
-    return view('welcome');
-}); */
 
 Route::get('/', function () {
     return redirect('/login');
@@ -28,12 +20,9 @@ Route::get('/', function () {
 
 
 /*
- * * Rota para teste roteiro-pratica
+ * Rota para teste roteiro-pratica (PDF)
  */
 Route::get('/roteiro-pratica/{roteiro}', [RoteiroController::class, 'pdf'])->name('roteiros.pdf');
-/*
-
-*/
 
 Route::middleware([
     'auth:sanctum',
@@ -44,6 +33,25 @@ Route::middleware([
         return view('dashboard');
     })->name('dashboard');
 
+    // =====================================================================
+    // ROTAS DE FLUXO DE TRABALHO (SOLICITAÇÕES)
+    // =====================================================================
+    
+    // Rota Principal: Caixa de entrada de solicitações pendentes (filtradas por nível)
+    Route::get('/solicitacoes', [SolicitacaoController::class, 'indexSolicitacoes'])->name('solicitacoes.index');
+    
+    // Rotas de CRUD/Ações da Solicitação
+    Route::get('/solicitacoes/criar', [SolicitacaoController::class, 'createSolicitacao'])->name('solicitacoes.create');
+    Route::post('/solicitacoes', [SolicitacaoController::class, 'storeSolicitacao'])->name('solicitacoes.store');
+    Route::get('/solicitacoes/{solicitacao}/editar', [SolicitacaoController::class, 'edit'])->name('solicitacoes.edit');
+    // Rota de Processamento de Fluxo (Aprovar/Rejeitar)
+    Route::put('/solicitacoes/{solicitacao}', [SolicitacaoController::class, 'update'])->name('solicitacoes.update');
+    
+    // A ROTA API PARA O CALENDÁRIO FOI REMOVIDA
+    
+    // =====================================================================
+    // ROTAS RESOURCE PADRÃO (Administração / CRUD do Documento)
+    // =====================================================================
 
     // rotas de maneira publica podendo ter visibilidade alteradas futuramente
     Route::resource('laboratorios', LaboratorioController::class);
