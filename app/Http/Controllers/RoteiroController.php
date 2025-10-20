@@ -4,9 +4,11 @@ namespace App\Http\Controllers;
 
 use App\Models\Roteiro;
 use App\Models\Laboratorio;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use Dompdf\Dompdf;
 use Dompdf\Options;
+
 
 
 
@@ -14,8 +16,19 @@ class RoteiroController extends Controller
 {
     public function index()
     {
+        // 1. Inicia a query do modelo Roteiro
+        $query = Roteiro::query();
 
-        $roteiros = Roteiro::latest()->paginate(10);
+        // 2. Aplica o filtro SE o usuário for Professor
+        if (Auth::user()->nivel === \App\Models\User::NIVEL_PROFESSOR) {
+            // Adiciona a cláusula WHERE para filtrar por professor
+            $query->where('professor', Auth::user()->name);
+            // Os coordenadores, técnicos, etc. verão todos, pois não entram neste IF
+        } 
+        
+        // 3. Executa a query final (com ou sem o filtro de professor)
+        //    e aplica a ordenação e a paginação para todos os resultados.
+        $roteiros = $query->latest()->paginate(10);
         return view('roteiros.index', compact('roteiros'));
     }
 
@@ -30,7 +43,6 @@ class RoteiroController extends Controller
         $dados = $request->validate([
             'curso' => 'nullable|string|max:255',
             'unidade_curricular' => 'nullable|string|max:255',
-            'professor' => 'nullable|string|max:255',
             'periodo' => 'nullable|string|max:50',
             'quantidade_alunos' => 'nullable|integer',
             'data' => 'nullable|date',
@@ -47,6 +59,9 @@ class RoteiroController extends Controller
             'observacoes' => 'nullable|string',
             'data_assinatura' => 'nullable|date',
         ]);
+
+        // Adiciona automaticamente o professor logado
+        $dados['professor'] = auth()->user()->name ?? 'Usuário Indefinido';
 
         $roteiro = Roteiro::create($dados);
 
