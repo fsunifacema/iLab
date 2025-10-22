@@ -24,8 +24,11 @@
                         <x-nav-link href="{{ route('laboratorios.index') }}" :active="request()->routeIs('laboratorios.index')">
                             {{ __('Laboratórios') }}
                         </x-nav-link>
-                        <x-nav-link href="{{ route('roteiros.index') }}" :active="request()->routeIs('roteiros.index')">
-                            {{ __('Roteiros') }}
+                        <x-nav-link href="{{ route('insumos.index') }}" :active="request()->routeIs('insumos.index')">
+                            {{ __('Insumos') }}
+                        </x-nav-link>
+                        <x-nav-link href="{{ route('equipamentos.index') }}" :active="request()->routeIs('equipamentos.index')">
+                            {{ __('Equipamentos') }}
                         </x-nav-link>
                     @endif
                     @if (Auth::user()->nivel == \App\Models\User::NIVEL_COORDENADOR_CURSO)
@@ -34,6 +37,12 @@
                         </x-nav-link>
                         <x-nav-link href="{{ route('laboratorios.index') }}" :active="request()->routeIs('laboratorios.index')">
                             {{ __('Laboratórios') }}
+                        </x-nav-link>
+                        <x-nav-link href="{{ route('insumos.index') }}" :active="request()->routeIs('insumos.index')">
+                            {{ __('Insumos') }}
+                        </x-nav-link>
+                        <x-nav-link href="{{ route('equipamentos.index') }}" :active="request()->routeIs('equipamentos.index')">
+                            {{ __('Equipamentos') }}
                         </x-nav-link>
                         <x-nav-link href="{{ route('roteiros.index') }}" :active="request()->routeIs('roteiros.index')">
                             {{ __('Roteiros') }}
@@ -155,6 +164,12 @@
                 <x-responsive-nav-link href="{{ route('laboratorios.index') }}" :active="request()->routeIs('laboratorios.index')">
                     {{ __('Laboratórios') }}
                 </x-responsive-nav-link>
+                <x-responsive-nav-link href="{{ route('insumos.index') }}" :active="request()->routeIs('insumos.index')">
+                    {{ __('Insumos') }}
+                </x-responsive-nav-link>
+                <x-responsive-nav-link href="{{ route('equipamentos.index') }}" :active="request()->routeIs('equipamentos.index')">
+                    {{ __('Equipamentos') }}
+                </x-responsive-nav-link>
             @endif
             @if (Auth::user()->nivel == \App\Models\User::NIVEL_COORDENADOR_CURSO)
                 <x-responsive-nav-link href="{{ route('dashboard') }}" :active="request()->routeIs('dashboard')">
@@ -162,6 +177,12 @@
                 </x-responsive-nav-link>
                 <x-responsive-nav-link href="{{ route('laboratorios.index') }}" :active="request()->routeIs('laboratorios.index')">
                     {{ __('Laboratórios') }}
+                </x-responsive-nav-link>
+                <x-responsive-nav-link href="{{ route('insumos.index') }}" :active="request()->routeIs('insumos.index')">
+                    {{ __('Insumos') }}
+                </x-responsive-nav-link>
+                <x-responsive-nav-link href="{{ route('equipamentos.index') }}" :active="request()->routeIs('equipamentos.index')">
+                    {{ __('Equipamentos') }}
                 </x-responsive-nav-link>
                 <x-responsive-nav-link href="{{ route('roteiros.index') }}" :active="request()->routeIs('roteiros.index')">
                     {{ __('Roteiros') }}
@@ -195,8 +216,8 @@
                 @endif
 
                 <div>
-                    <div class="font-medium text-base text-gray-800">{{ Auth::user()->name }}</div>
-                    <div class="font-medium text-sm text-gray-500">{{ Auth::user()->email }}</div>
+                    <div class="font-medium text-base text-gray-600">{{ Auth::user()->name }}</div>
+                    <div class="font-medium text-sm text-gray-400">{{ Auth::user()->email }}</div>
                 </div>
             </div>
 
