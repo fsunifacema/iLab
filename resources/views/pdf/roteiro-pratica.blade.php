@@ -163,7 +163,7 @@
 </div>
 
 <table class="data-table">
-    <tr><th>CURSO / CAMPUS:</th><td>{{ $roteiro->curso }}</td></tr>
+    <tr><th>CURSO / CAMPUS:</th><td>{{ $roteiro->curso }} / CAXIAS</td></tr>
     <tr><th>DISCIPLINA:</th><td>{{ $roteiro->unidade_curricular }}</td></tr>
     <tr><th>PROFESSOR:</th><td>{{ $roteiro->professor }}</td></tr>
     <tr><th>PERÍODO:</th><td>{{ $roteiro->periodo }}</td></tr>
