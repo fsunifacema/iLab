@@ -36,6 +36,7 @@ Route::middleware([
     // =====================================================================
     // ROTAS DE FLUXO DE TRABALHO (SOLICITAÇÕES)
     // =====================================================================
+    Route::get('/api/roteiros/eventos', [RoteiroController::class, 'getRoteirosAsEvents'])->name('api.roteiros.eventos');    // Rota Principal: Caixa de entrada de solicitações pendentes (filtradas por nível)
     
     // Rota Principal: Caixa de entrada de solicitações pendentes (filtradas por nível)
     Route::get('/solicitacoes', [SolicitacaoController::class, 'indexSolicitacoes'])->name('solicitacoes.index');

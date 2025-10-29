@@ -12,7 +12,6 @@ class ReservaController extends Controller
      */
     public function index()
     {
-
         $reservas = collect([]); 
 
         return view('reservas.index', compact('reservas'));
