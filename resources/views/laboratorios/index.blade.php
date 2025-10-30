@@ -31,7 +31,7 @@
                                 return false;
                             }
                         }">
-                        <div class="p-1 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+                        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
                             <div class="flex items-center gap-2">
                                 <input x-model="query" type="text" placeholder="Buscar por nome, tipo ou localização..." class="border rounded px-3 py-2 text-sm w-full md:w-80" />
                                 <button type="button" @click="query=''" class="px-3 py-2 bg-gray-100 rounded text-sm">Limpar</button>
@@ -109,14 +109,14 @@
                                         <form action="{{ route('laboratorios.destroy', $lab->id) }}" method="POST" class="inline-block">
                                             @csrf
                                             @method('DELETE')
-                                            <button onclick="return confirm('Deseja excluir?')" type="submit" class="text-sm text-red-600 font-medium">Excluir</button>
+                                            <button onclick="return confirm('Deseja excluir?')" type="submit" class="text-sm text-red-600">Excluir</button>
                                         </form>
                                     </div>
                                 @endif
                             </div>
                         @empty
                             <div class="text-center text-gray-500 py-4">
-                                Nenhum equipamento encontrado.
+                                Nenhum laboratório encontrado.
                             </div>
                         @endforelse
                     </div>

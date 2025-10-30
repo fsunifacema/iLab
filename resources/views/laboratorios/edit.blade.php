@@ -39,7 +39,7 @@
                 </div>
                 
                 <div class="flex justify-end space-x-2 mt-6">
-                    <a href="{{ route('laboratorios.index') }}" class="inline-flex items-center px-4 py-2 text-white bg-gray-800 border border-transparent rounded-md font-semibold text-xs uppercase tracking-widest hover:bg-red-600 focus:bg:red-700 active bg-red-800 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition ease-in-out duration-150">Cancelar</a>
+                    <a href="{{ route('laboratorios.index') }}" class="px-4 py-2 text-white bg-red-700 border rounded hover:bg-red-600">Cancelar</a>
                     <x-button type="submit" class="bg-[#0C2E5C] hover:bg-blue-700">
                         {{ __('Salvar') }}
                     </x-button>
@@ -48,5 +48,4 @@
             </form>
         </div>
     </div>
-
 </x-app-layout>

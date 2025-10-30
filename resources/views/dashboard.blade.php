@@ -1,7 +1,7 @@
 <x-app-layout>
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            {{ __('Inicio') }}
+            {{ __('Calendário de Práticas') }}
         </h2>
     </x-slot>
 
@@ -22,7 +22,6 @@
                 flex-wrap: wrap;
                 gap: 5px;
             }
-            
         }
 
         /* CORREÇÃO: Remove a capitalização global de palavras (que causava "De") */
@@ -37,9 +36,55 @@
 
     <div class="py-6">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            <div class="bg-white overflow-hidden shadow-xl sm:rounded-lg p-6">
-                {{-- Div onde o FullCalendar será renderizado --}}
-                <div id='calendar'></div>
+            {{-- NOVO CONTAINER DE LAYOUT: Grid para 1 coluna em mobile e 3 colunas em desktop --}}
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+                {{-- COLUNA 1: CALENDÁRIO (Ocupa 2/3 em telas grandes) --}}
+                <div class="lg:col-span-2 bg-white overflow-hidden shadow-xl sm:rounded-lg p-6">
+                    <div id='calendar'></div>
+                </div>
+
+                {{-- COLUNA 2: PAINEL DE NOTIFICAÇÕES (Ocupa 1/3 em telas grandes) --}}
+                <div class="lg:col-span-1 bg-white overflow-hidden shadow-xl sm:rounded-lg p-6">
+                    <h3 class="text-lg font-bold mb-4 text-[#0C2E5C] border-b pb-2">Feed de Atividades</h3>
+
+                    {{-- O feed de atividades com rolagem limitada --}}
+                    <div id="notification-list" class="space-y-3 max-h-[700px] overflow-y-auto pr-2">
+
+                        {{-- Loop para exibir as notificações reais passadas pelo DashboardController --}}
+                        @forelse ($notifications as $notification)
+                            @php
+                                // Define as classes de cor com base no 'status' que você definiu no Controller
+                                $status_classes = match ($notification['status']) {
+                                    'approved' => 'border-green-500 bg-green-50 hover:bg-green-100',
+                                    'review' => 'border-yellow-500 bg-yellow-50 hover:bg-yellow-100',
+                                    'rejected' => 'border-red-500 bg-red-50 hover:bg-red-100',
+                                    default => 'border-blue-500 bg-blue-50 hover:bg-blue-100', // Status 'pending' ou desconhecido
+                                };
+                            @endphp
+                            
+                            {{-- Cada notificação é um link <a> que usa a chave 'link' do array --}}
+                            <a href="{{ $notification['link'] ?? '#' }}" 
+                               class="block p-3 border-l-4 {{ $status_classes }} rounded-r-md transition duration-150 cursor-pointer">
+                                
+                                <p class="text-sm font-semibold text-gray-900">{{ $notification['title'] }}</p>
+                                <p class="text-xs text-gray-700 mt-0.5">{{ $notification['message'] }}</p>
+                                
+                                {{-- LINHA CORRIGIDA: Exibe o tempo relativo (à esquerda) e o tempo exato (à direita) --}}
+                                <p class="text-xs text-gray-500 mt-1 italic flex justify-between">
+                                    <span>{{ $notification['time_ago'] }}</span>
+                                    <span class="font-normal text-gray-600">{{ $notification['time_exact'] }}</span>
+                                </p>
+                            </a>
+                        @empty
+                            <div class="text-center p-4 text-gray-500 bg-gray-50 rounded-md">
+                                Nenhuma atividade recente para exibir.
+                            </div>
+                        @endforelse
+                        
+                    </div>
+                </div>
+
             </div>
         </div>
     </div>
@@ -61,12 +106,6 @@
                     Ver Roteiro (PDF)
                 </a>
                 
-                <a id="editRoteiroBtn" href="#" class="inline-flex items-center justify-center px-4 py-2 bg-yellow-500 text-white rounded-md font-semibold text-sm hover:bg-yellow-600 transition">
-                    {{-- Ícone: w-3 h-3 em mobile, w-4 h-4 em desktop (sm:w-4 sm:h-4) --}}
-                    <svg class="w-3 h-3 sm:w-4 sm:h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
-                    Editar Roteiro
-                </a>
-
                 <button id="closeModalBtn" class="px-4 py-2 bg-gray-500 text-white rounded-md font-semibold text-sm hover:bg-gray-600 transition">
                     Fechar
                 </button>
@@ -85,7 +124,6 @@
 
         // Função para determinar a cor do texto (preto ou branco) com base no fundo
         function getContrastColor(hexcolor) {
-            // Se o # ainda estiver na frente, remove.
             if (hexcolor.startsWith('#')) {
                 hexcolor = hexcolor.substring(1);
             }
@@ -96,11 +134,9 @@
             const b = parseInt(hexcolor.substring(4, 6), 16);
             
             // Calcula a Luminosidade (usando a fórmula de Perceived Brightness)
-            // A taxa de 255 é para normalizar o valor (0 a 255)
             const brightness = (r * 299 + g * 587 + b * 114) / 1000;
 
-            // Define o limite de contraste. Geralmente 128 é o ponto médio (metade de 255).
-            // Se o brilho for alto, usamos texto preto; se for baixo, usamos texto branco.
+            // Retorna a cor de contraste
             return brightness > 140 ? '#000000' : '#FFFFFF';
         }
 
@@ -126,7 +162,7 @@
                 initialView: isMobile ? 'listWeek' : 'dayGridMonth',
                 locale: 'pt-br',
                 
-                // CORREÇÃO: Define altura fixa (700px) para desktop para garantir visualização completa
+                // Define altura fixa (700px) para desktop para garantir visualização completa
                 height: isMobile ? 'auto' : 700, 
                 
                 // NOVA OPÇÃO: Tradução do "All Day" para "Dia Inteiro" ou similar
@@ -149,7 +185,7 @@
                 },
                 
                 // Aponta para a Rota API recém-criada
-                /*events: route("api.roteiros.eventos"), */
+                events: '{{ route("api.roteiros.eventos") }}', 
                 
                 eventClick: function(info) {
                     const roteiro = info.event.extendedProps;
@@ -187,11 +223,9 @@
 
                     // Configurar os botões de Ação
                     const viewPdfBtn = document.getElementById('viewRoteiroPdfBtn');
-                    const editBtn = document.getElementById('editRoteiroBtn');
 
                     // Rotas
                     viewPdfBtn.href = `/roteiro-pratica/${roteiroId}`; 
-                    editBtn.href = `/roteiros/${roteiroId}/edit`; 
 
                     // Exibir o Modal com animação
                     modal.classList.remove('hidden');
@@ -235,7 +269,6 @@
                     calendar.setOption('height', isMobile ? 'auto' : 700);
                     calendar.setOption('initialView', isMobile ? 'listWeek' : 'dayGridMonth');
                     
-                    // Não alteramos o headerToolbar, pois ele é estático agora.
                 }
             });
         });

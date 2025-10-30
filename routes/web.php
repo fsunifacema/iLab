@@ -6,21 +6,14 @@ use App\Http\Controllers\LaboratorioController;
 use App\Http\Controllers\ReservaController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\RoteiroController;
+use App\Http\Controllers\SolicitacaoController;
+use App\Http\Controllers\DashboardController; // <<<< ADICIONADO: Importação do DashboardController
 
 /*
 |--------------------------------------------------------------------------
 | Web Routes
 |--------------------------------------------------------------------------
-|
-| Here is where you can register web routes for your application. These
-| routes are loaded by the RouteServiceProvider and all of them will
-| be assigned to the "web" middleware group. Make something great!
-|
 */
-
-/* Route::get('/', function () {
-    return view('welcome');
-}); */
 
 Route::get('/', function () {
     return redirect('/login');
@@ -31,35 +24,41 @@ Route::get('/', function () {
  * * Rota para teste roteiro-pratica
  */
 Route::get('/roteiro-pratica/{roteiro}', [RoteiroController::class, 'pdf'])->name('roteiros.pdf');
-/*
 
-*/
 
 Route::middleware([
     'auth:sanctum',
     config('jetstream.auth_session'),
     'verified',
 ])->group(function () {
-    Route::get('/dashboard', function () {
-        return view('dashboard');
-    })->name('dashboard');
+    
+    // ROTA CORRIGIDA: Aponta para o DashboardController@index, que carrega $notifications.
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
+    Route::get('/api/roteiros/eventos', [RoteiroController::class, 'getRoteirosAsEvents'])->name('api.roteiros.eventos'); 
 
     // rotas de maneira publica podendo ter visibilidade alteradas futuramente
     Route::resource('laboratorios', LaboratorioController::class);
     Route::resource('insumos', InsumoController::class);
     Route::resource('equipamentos', EquipamentoController::class);
     Route::resource('roteiros', RoteiroController::class);
+    Route::resource('solicitacoes', SolicitacaoController::class);
+
+    // Coordenador de Curso (nível 3)
+    Route::post('/solicitacoes/{id}/aprovar-coordenador-curso', [SolicitacaoController::class, 'aprovarCoordenadorCurso'])
+        ->name('solicitacoes.aprovar.coordenador.curso')
+        ->middleware('nivel:3');
+
+    Route::post('/solicitacoes/{id}/recusar-coordenador-curso', [SolicitacaoController::class, 'recusarCoordenadorCurso'])
+        ->name('solicitacoes.recusar.coordenador.curso')
+        ->middleware('nivel:3');
+
+    // Coordenador de Laboratório (nível 4)
+    Route::post('/solicitacoes/{id}/aprovar-coordenador-lab', [SolicitacaoController::class, 'aprovarCoordenadorLab'])
+        ->name('solicitacoes.aprovar.coordenador.lab')
+        ->middleware('nivel:4');
+
+    Route::post('/solicitacoes/{id}/recusar-coordenador-lab', [SolicitacaoController::class, 'recusarCoordenadorLab'])
+        ->name('solicitacoes.recusar.coordenador.lab')
+        ->middleware('nivel:4');
 });
-
-
-/*  PADRÃO DE ROTAS RESOURCE
-VERB 	    URI	                    ACTION	    ROUTE NAME
-GET	        /photos	                index	    photos.index
-GET	        /photos/create	        create	    photos.create
-POST	    /photos	                store	    photos.store
-GET	        /photos/{photo}	        show	    photos.show
-GET	        /photos/{photo}/edit	edit	    photos.edit
-PUT/PATCH	/photos/{photo}	        update	    photos.update
-DELETE	    /photos/{photo}	        destroy	    photos.destroy
-*/
