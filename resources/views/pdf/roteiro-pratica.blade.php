@@ -6,7 +6,7 @@
     <style>
         @page {
             margin-top: 2cm;
-            margin-bottom: 1cm; 
+            margin-bottom: 1cm;
             margin-left: 2cm;
             margin-right: 3cm;
         }
@@ -100,7 +100,7 @@
             font-size: 10pt;
             text-align: left;
         }
-        
+
         .section-content td {
             padding: 8px;
             line-height: 1.4;
@@ -121,26 +121,26 @@
             margin-bottom: 20px;
             page-break-inside: avoid;
         }
-        
+
         /* 3. RODAPÉ (Estilo original do bloco de endereços, sem 'fixed') */
         .footer-address {
-            font-size: 8pt; 
-            color: #555; 
-            text-align: center; 
-            margin-top: 30 px; 
-            page-break-inside: avoid; 
-            border-top: 1px solid #0C2E5C; 
+            font-size: 8pt;
+            color: #555;
+            text-align: center;
+            margin-top: 30 px;
+            page-break-inside: avoid;
+            border-top: 1px solid #0C2E5C;
             padding-top: 5px;
         }
         .footer-address table {
-            width:100%; 
-            border:none; 
+            width:100%;
+            border:none;
             table-layout: fixed;
         }
         .footer-address td {
-            border:none; 
-            padding: 0 5px; 
-            vertical-align: top; 
+            border:none;
+            padding: 0 5px;
+            vertical-align: top;
             font-size: 7.5pt;
         }
         .center-contact { text-align: center; }
@@ -169,7 +169,7 @@
     <tr><th>PERÍODO:</th><td>{{ $roteiro->periodo }}</td></tr>
     <tr><th>QUANT. DE ALUNOS:</th><td>{{ $roteiro->quantidade_alunos }}</td></tr>
     <tr><th>DATA:</th><td>{{ \Carbon\Carbon::parse($roteiro->data)->format('d/m/Y') }}</td></tr>
-    <tr><th>HORÁRIO:</th><td>{{ $roteiro->horario }}</td></tr>
+    <tr><th>HORÁRIO:</th><td>{{ $roteiro->horario_inicio }} às {{ $roteiro->horario_fim }} Horas</td></tr>
     <tr><th>CARGA HORÁRIA DA AULA PRÁTICA:</th><td>{{ $roteiro->carga_horaria }}</td></tr>
     <tr><th>Nº DE PRÁTICAS:</th><td>{{ $roteiro->numero_praticas }}</td></tr>
     <tr><th>LABORATÓRIO / CENÁRIO DE PRÁTICA:</th><td>{{ $roteiro->laboratorio }}</td></tr>

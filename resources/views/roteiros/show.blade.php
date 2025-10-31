@@ -40,8 +40,13 @@
                 </div>
 
                 <div class="flex">
-                    <strong class="w-1/3">Horário:</strong>
-                    <span class="flex-1">{{ $roteiro->horario }}</span>
+                    <strong class="w-1/3">Horário de Início:</strong>
+                    <span class="flex-1">{{ $roteiro->horario_inicio }}</span>
+                </div>
+
+                <div class="flex">
+                    <strong class="w-1/3">Horário de Fim:</strong>
+                    <span class="flex-1">{{ $roteiro->horario_fim }}</span>
                 </div>
 
                 <div class="flex">

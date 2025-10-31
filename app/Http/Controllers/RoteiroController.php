@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use Dompdf\Dompdf;
 use Dompdf\Options;
-use Carbon\Carbon; 
+use Carbon\Carbon;
 use App\Models\User;
 
 class RoteiroController extends Controller
@@ -23,8 +23,8 @@ class RoteiroController extends Controller
             // Adiciona a cláusula WHERE para filtrar por professor
             $query->where('professor', Auth::user()->name);
             // Os coordenadores, técnicos, etc. verão todos, pois não entram neste IF
-        } 
-        
+        }
+
         // 3. Executa a query final (com ou sem o filtro de professor)
         //    e aplica a ordenação e a paginação para todos os resultados.
         $roteiros = $query->latest()->paginate(10);
@@ -46,7 +46,7 @@ class RoteiroController extends Controller
         if (Auth::user()->nivel === User::NIVEL_PROFESSOR) {
             $query->where('professor', Auth::user()->name);
         }
-        
+
         // Filtro de segurança para ignorar datas obviamente inválidas
         $query->where('data', '>', '2020-01-01');
 
@@ -54,7 +54,7 @@ class RoteiroController extends Controller
 
         // 3. Formata os dados para o FullCalendar
         $events = $roteiros->map(function ($roteiro) {
-            
+
             $title = "{$roteiro->unidade_curricular} - {$roteiro->tema} ({$roteiro->laboratorio})";
 
             // CORREÇÃO DEFINITIVA: Usa Carbon para garantir APENAS a data pura (YYYY-MM-DD).
@@ -63,21 +63,21 @@ class RoteiroController extends Controller
                 $dateOnly = $carbonDate->format('Y-m-d');
             } catch (\Exception $e) {
                 // Ignora roteiros com datas inválidas
-                return null; 
+                return null;
             }
-            
-            $start = $dateOnly; 
-            $end = null; 
-            
+
+            $start = $dateOnly;
+            $end = null;
+
             // Lógica de Formatação para ISO 8601 (YYYY-MM-DDTHH:MM:SS)
             if (!empty($roteiro->horario) && str_contains($roteiro->horario, ':')) {
-                
+
                 $horarios = explode('-', $roteiro->horario);
                 $hora_inicio = trim($horarios[0]);
-                
+
                 // GARANTE O FORMATO ISO: YYYY-MM-DDTHH:MM:SS
-                $start = "{$dateOnly}T{$hora_inicio}:00"; 
-                
+                $start = "{$dateOnly}T{$hora_inicio}:00";
+
                 // Calcula o 'end'
                 if (count($horarios) > 1) {
                     $hora_fim = trim($horarios[1]);
@@ -89,11 +89,11 @@ class RoteiroController extends Controller
             return [
                 'id' => $roteiro->id,
                 'title' => $title,
-                'start' => $start, 
+                'start' => $start,
                 'end' => $end,
-                'color' => 'rgba(255, 255, 255, 1)', 
-                'allDay' => empty($roteiro->horario), 
-                
+                'color' => 'rgba(255, 255, 255, 1)',
+                'allDay' => empty($roteiro->horario),
+
                 // Informações adicionais para o modal
                 'extendedProps' => [
                     'professor' => $roteiro->professor,
@@ -125,8 +125,9 @@ class RoteiroController extends Controller
             'unidade_curricular' => 'nullable|string|max:255',
             'periodo' => 'nullable|string|max:50',
             'quantidade_alunos' => 'nullable|integer',
-            'data' => 'nullable|date',
-            'horario' => 'nullable|string|max:100',
+            'data' => 'nullable|date|after_or_equal:today',
+            'horario_inicio' => 'nullable|date_format:H:i',
+            'horario_fim' => 'nullable|date_format:H:i|after:horario_inicio',
             'carga_horaria' => 'nullable|string|max:50',
             'numero_praticas' => 'nullable|integer',
             'laboratorio' => 'nullable|string|max:255',
@@ -165,7 +166,7 @@ class RoteiroController extends Controller
             User::NIVEL_COORDENADOR_CURSO,
             User::NIVEL_COORDENADOR_LABORATORIO,
         ];
-        
+
         // A autorização é concedida se o nível do usuário estiver na lista de permitidos
         $is_authorized = in_array($user_nivel, $allowed_levels);
 
@@ -173,7 +174,7 @@ class RoteiroController extends Controller
             // Bloqueia se for NIVEL_TECNICO ou qualquer outro não listado
             abort(403, 'Acesso não autorizado. Você não tem permissão para editar roteiros.');
         }
-        
+
         // 2. Continua se a autorização for bem-sucedida
         $laboratorios = Laboratorio::all();
         return view('roteiros.edit', compact('roteiro', 'laboratorios'));
@@ -200,11 +201,11 @@ class RoteiroController extends Controller
         $dados = $request->validate([
             'curso' => 'nullable|string|max:255',
             'unidade_curricular' => 'nullable|string|max:255',
-            'professor' => 'nullable|string|max:255',
             'periodo' => 'nullable|string|max:50',
             'quantidade_alunos' => 'nullable|integer',
-            'data' => 'nullable|date',
-            'horario' => 'nullable|string|max:100',
+            'data' => 'nullable|date|after_or_equal:today',
+            'horario_inicio' => 'nullable|date_format:H:i',
+            'horario_fim' => 'nullable|date_format:H:i|after:horario_inicio',
             'carga_horaria' => 'nullable|string|max:50',
             'numero_praticas' => 'nullable|integer',
             'laboratorio' => 'nullable|string|max:255',
