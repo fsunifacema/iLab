@@ -3,6 +3,7 @@
 use App\Http\Controllers\EquipamentoController;
 use App\Http\Controllers\InsumoController;
 use App\Http\Controllers\LaboratorioController;
+use App\Http\Controllers\ReservaController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\RoteiroController;
 

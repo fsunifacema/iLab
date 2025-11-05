@@ -25,7 +25,9 @@
 
                 <div class="mb-4">
                     <x-label for="professor" value="Professor" class="block text-sm font-medium text-gray-700" />
-                    <x-input id="professor" type="text" name="professor" :value="old('professor', $roteiro->professor)" required class="w-full" />
+                    <x-input id="professor" type="text" name="professor"
+                        value="{{ Auth::user()->name ?? 'Usuário Indefinido' }}" 
+                        readonly class="w-full bg-gray-100 cursor-not-allowed" />
                     <x-input-error for="professor" :messages="$errors->get('professor')" class="mt-2" />
                 </div>
 
@@ -67,20 +69,29 @@
 
                 <div class="mb-4">
                     <x-label for="laboratorio" value="Laboratório" class="block text-sm font-medium text-gray-700" />
-                    <x-input id="laboratorio" type="text" name="laboratorio" :value="old('laboratorio', $roteiro->laboratorio)" required class="w-full" />
+                    <select id="laboratorio" name="laboratorio" required
+                        class="p-1 border-gray-300 focus:border-[#0C2E5C] focus:ring-[#0C2E5C] rounded-md shadow-sm w-full">
+                        <option value="">Selecione um laboratório</option>
+                        @foreach ($laboratorios as $lab)
+                            <option value="{{ $lab->nome }}" 
+                                {{ old('laboratorio', $roteiro->laboratorio) == $lab->nome ? 'selected' : '' }}>
+                                {{ $lab->nome }}
+                            </option>
+                        @endforeach
+                    </select>
                     <x-input-error for="laboratorio" :messages="$errors->get('laboratorio')" class="mt-2" />
-                </div>
-
-                <div class="mb-4">
-                    <x-label for="conteudo" value="Conteúdo" class="block text-sm font-medium text-gray-700" />
-                    <x-textarea id="conteudo" name="conteudo" :value="old('conteudo', $roteiro->conteudo)" class="w-full" rows="4"></x-textarea>
-                    <x-input-error for="conteudo" :messages="$errors->get('conteudo')" class="mt-2" />
                 </div>
 
                 <div class="mb-4">
                     <x-label for="tema" value="Tema" class="block text-sm font-medium text-gray-700" />
                     <x-input id="tema" type="text" name="tema" :value="old('tema', $roteiro->tema)" required class="w-full" />
                     <x-input-error for="tema" :messages="$errors->get('tema')" class="mt-2" />
+                </div>
+
+                <div class="mb-4">
+                    <x-label for="conteudo" value="Conteúdo" class="block text-sm font-medium text-gray-700" />
+                    <x-textarea id="conteudo" name="conteudo" :value="old('conteudo', $roteiro->conteudo)" class="w-full" rows="4"></x-textarea>
+                    <x-input-error for="conteudo" :messages="$errors->get('conteudo')" class="mt-2" />
                 </div>
 
                 <div class="mb-4">

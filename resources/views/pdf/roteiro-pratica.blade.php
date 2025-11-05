@@ -4,173 +4,264 @@
     <meta charset="UTF-8">
     <title>Roteiro de Aula Prática</title>
     <style>
+        @page {
+            margin-top: 2cm;
+            margin-bottom: 1cm; 
+            margin-left: 3cm;
+            margin-right: 2cm;
+        }
+
         body {
             font-family: Arial, sans-serif;
-            font-size: 12px;
+            font-size: 10pt;
+            color: #333;
             margin: 0;
             padding: 0;
         }
 
-        /* Cabeçalho com logo e missão na mesma linha */
         .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-            flex-wrap: wrap; /* Permite a quebra de linha em telas menores */
+            display: table;
+            width: 100%;
+            margin-bottom: 10px;
+            border-bottom: 3px solid #0C2E5C;
+            padding-bottom: 5px;
         }
 
-        /* Logo à esquerda */
+        .header .logo-box, .header .mission-box {
+            display: table-cell;
+            vertical-align: top;
+        }
+
+        .header .logo-box {
+            width: 30%;
+        }
+
+        .header .mission-box {
+            width: 70%;
+            text-align: right;
+            font-size: 8pt;
+            color: #0C2E5C;
+            font-weight: bold;
+            padding-left: 20px;
+        }
+
         .header img {
-            max-width: 300px;
+            max-width: 200px;
             height: auto;
         }
 
-        /* Missão à direita com largura limitada a 50% */
-        .mission {
-            width: 45%; /* Limita a missão para não ultrapassar metade da página */
-            text-align: justify; /* Justifica o texto */
-            font-size: 12px;
+        /* 2. TÍTULO PRINCIPAL */
+        .main-title {
+            background-color: #D3E0F0;
             color: #0C2E5C;
+            text-align: center;
+            padding: 7px 0;
+            margin-top: 10px;
+            margin-bottom: 10px;
+            font-size: 14pt;
             font-weight: bold;
-            padding-right: 10px;
+            border: 1px solid #aaa;
         }
 
-        /* Conteúdo da página */
-        .content {
-            margin-top: 20px;
-        }
-
-        /* Estilo da tabela */
-        table {
+        /* TABELAS - Estilo limpo baseado no PDF 2 */
+        .data-table, .section-box {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 20px;
+            table-layout: fixed;
+            margin-top: 5px;
+            margin-bottom: 15px;
+            page-break-inside: avoid;
         }
 
-        table, th, td {
+        .data-table th, .section-box th {
+            background-color: #F8F8F8; /* Fundo cinza claro para as células de título */
             border: 1px solid #000;
+            padding: 4px;
+            text-align: left;
+            font-weight: bold;
+            width: 30%;
+            font-size: 9pt;
         }
 
-        th, td {
-            padding: 8px;
+        .data-table td {
+            border: 1px solid #000;
+            padding: 4px;
+            text-align: left;
+            font-size: 9pt;
+        }
+
+        /* Estilo da Caixa de Seção (Conteúdo) */
+        .section-header {
+            background-color: #E0E0E0; /* Cinza claro/médio */
+            border: 1px solid #000;
+            border-bottom: 2px solid #0C2E5C;
+            font-weight: bold;
+            padding: 5px;
+            font-size: 10pt;
             text-align: left;
         }
-
-        th {
-            background-color: #f2f2f2;
+        
+        .section-content td {
+            padding: 8px;
+            line-height: 1.4;
+            border-top: none;
+            /* Garante bordas laterais e inferiores */
+            border-bottom: 1px solid #000;
+            border-left: 1px solid #000;
+            border-right: 1px solid #000;
         }
 
-        /* Rodapé */
-        .footer {
-            text-align: center;
-            margin-top: 50px;
-            font-size: 10px;
+
+        /* impede quebra entre título e conteúdo */
+        .section-box, .data-table {
+            page-break-inside: avoid;
         }
 
-        /* Ajustes para garantir boa visualização */
-        .flex {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
+        .last-content-block {
+            margin-bottom: 20px;
+            page-break-inside: avoid;
         }
-
-        .flex > div {
-            flex: 1;
-            min-width: 200px;
+        
+        /* 3. RODAPÉ (Estilo original do bloco de endereços, sem 'fixed') */
+        .footer-address {
+            font-size: 8pt; 
+            color: #555; 
+            text-align: center; 
+            margin-top: 30 px; 
+            page-break-inside: avoid; 
+            border-top: 1px solid #0C2E5C; 
+            padding-top: 5px;
         }
+        .footer-address table {
+            width:100%; 
+            border:none; 
+            table-layout: fixed;
+        }
+        .footer-address td {
+            border:none; 
+            padding: 0 5px; 
+            vertical-align: top; 
+            font-size: 7.5pt;
+        }
+        .center-contact { text-align: center; }
+        .right-contact { text-align: right; }
     </style>
 </head>
 <body>
 
-<!-- Cabeçalho com logo e missão -->
 <div class="header">
-    <img src="{{ $imageSrc }}" alt="Logo UniFacema" class="w-[100px]">
-    <div class="mission">
-        Missão: <span>"Contribuir para o desenvolvimento sustentável por meio do ensino superior inovador em um ambiente de qualidade."</span>
+    <div class="logo-box">
+        <img src="{{ $imageSrc }}" alt="Logo UniFacema">
+    </div>
+    <div class="mission-box">
+        Missão: "Contribuir para o desenvolvimento sustentável por meio do ensino superior inovador em um ambiente de qualidade."
     </div>
 </div>
 
-<!-- Conteúdo do Roteiro -->
-<div class="content">
-    <table>
+<div class="main-title">
+    ROTEIRO DE AULA PRÁTICA <br> UniFacema
+</div>
+
+<table class="data-table">
+    <tr><th>CURSO / CAMPUS:</th><td>{{ $roteiro->curso }} / CAXIAS</td></tr>
+    <tr><th>DISCIPLINA:</th><td>{{ $roteiro->unidade_curricular }}</td></tr>
+    <tr><th>PROFESSOR:</th><td>{{ $roteiro->professor }}</td></tr>
+    <tr><th>PERÍODO:</th><td>{{ $roteiro->periodo }}</td></tr>
+    <tr><th>QUANT. DE ALUNOS:</th><td>{{ $roteiro->quantidade_alunos }}</td></tr>
+    <tr><th>DATA:</th><td>{{ \Carbon\Carbon::parse($roteiro->data)->format('d/m/Y') }}</td></tr>
+    <tr><th>HORÁRIO:</th><td>{{ $roteiro->horario }}</td></tr>
+    <tr><th>CARGA HORÁRIA DA AULA PRÁTICA:</th><td>{{ $roteiro->carga_horaria }}</td></tr>
+    <tr><th>Nº DE PRÁTICAS:</th><td>{{ $roteiro->numero_praticas }}</td></tr>
+    <tr><th>LABORATÓRIO / CENÁRIO DE PRÁTICA:</th><td>{{ $roteiro->laboratorio }}</td></tr>
+</table>
+
+<table class="section-box">
+    <tr><td class="section-header">CONTEÚDO DA AULA PRÁTICA (CONFORME PLANO DE ENSINO)</td></tr>
+    <tr class="section-content"><td>{{ $roteiro->conteudo }}</td></tr>
+</table>
+
+<table class="section-box">
+    <tr><td class="section-header">TEMA DA AULA PRÁTICA:</td></tr>
+    <tr class="section-content"><td>{{ $roteiro->tema }}</td></tr>
+</table>
+
+<table class="section-box">
+    <tr><td class="section-header">OBJETIVO(S):</td></tr>
+    <tr class="section-content"><td>{{ $roteiro->objetivos }}</td></tr>
+</table>
+
+<table class="section-box">
+    <tr><td class="section-header">METODOLOGIA DA AULA PRÁTICA</td></tr>
+    <tr class="section-content"><td>{{ $roteiro->metodologia }}</td></tr>
+</table>
+
+<table class="section-box">
+    <tr><td class="section-header">RECURSOS E MATERIAIS UTILIZADOS</td></tr>
+    <tr class="section-content"><td>{{ $roteiro->recursos }}</td></tr>
+</table>
+
+<table class="section-box">
+    <tr><td class="section-header">FORMA DE AVALIAÇÃO DA ATIVIDADE PRÁTICA REALIZADA PELO ALUNO</td></tr>
+    <tr class="section-content"><td>{{ $roteiro->avaliacao }}</td></tr>
+</table>
+
+<table class="section-box last-content-block">
+    <tr><td class="section-header">OBSERVAÇÕES:</td></tr>
+    <tr class="section-content"><td>{{ $roteiro->observacoes }}</td></tr>
+</table>
+
+<div style="text-align:right; margin-top:10px; font-size:9pt; color:#555;">
+    Emitido em: {{ \Carbon\Carbon::now()->format('d/m/Y') }}
+</div>
+
+<div style="width:100%; margin-top:70px; border:none;">
+    <div style="text-align:center;">
+        <hr style="width:200px; margin: 0 auto 5px auto;">
+        <p style="margin:0; padding:0;">Professor da disciplina</p>
+    </div>
+</div>
+
+<div style="width:100%; margin-top:70px; border:none;">
+    <div style="text-align:center;">
+        <hr style="width:200px; margin: 0 auto 5px auto;">
+        <p style="margin:0; padding:0;">Coordenação do Curso</p>
+    </div>
+</div>
+
+<div style="width:100%; margin-top:70px; border:none;">
+    <div style="text-align:center;">
+        <hr style="width:200px; margin: 0 auto 5px auto;">
+        <p style="margin:0; padding:0;">Coordenação de Laboratórios</p>
+    </div>
+</div>
+
+<div style="width:100%; margin-top:70px; border:none; margin-bottom: 70px;">
+    <div style="text-align:center;">
+        <hr style="width:200px; margin: 0 auto 5px auto;">
+        <p style="margin:0; padding:0;">Técnico de Laboratório</p>
+    </div>
+</div>
+
+<div class="footer-address">
+    <table class="footer-info-table">
         <tr>
-            <th>Curso/Campus:</th>
-            <td>{{ $roteiro->curso }}</td>
-        </tr>
-        <tr>
-            <th>Unidade Curricular</th>
-            <td>{{ $roteiro->unidade_curricular }}</td>
-        </tr>
-        <tr>
-            <th>Professor:</th>
-            <td>{{ $roteiro->professor }}</td>
-        </tr>
-        <tr>
-            <th>Período:</th>
-            <td>{{ $roteiro->periodo }}</td>
-        </tr>
-        <tr>
-            <th>Quantidade de Alunos:</th>
-            <td>{{ $roteiro->quantidade_alunos }}</td>
-        </tr>
-        <tr>
-            <th>Data:</th>
-            <td>{{ \Carbon\Carbon::parse($roteiro->data)->format('d/m/Y') }}</td>
-        </tr>
-        <tr>
-            <th>Horário:</th>
-            <td>{{ $roteiro->horario }}</td>
-        </tr>
-        <tr>
-            <th>Carga Horária:</th>
-            <td>{{ $roteiro->carga_horaria }}</td>
-        </tr>
-        <tr>
-            <th>Nº de Práticas:</th>
-            <td>{{ $roteiro->numero_praticas }}</td>
-        </tr>
-        <tr>
-            <th>Laboratório:</th>
-            <td>{{ $roteiro->laboratorio }}</td>
-        </tr>
-        <tr>
-            <th>Conteúdo da aula prática (Conforme plano de ensino):</th>
-            <td>{{ $roteiro->conteudo }}</td>
-        </tr>
-        <tr>
-            <th>Tema da aula prática:</th>
-            <td>{{ $roteiro->tema }}</td>
-        </tr>
-        <tr>
-            <th>Objetivos:</th>
-            <td>{{ $roteiro->objetivos }}</td>
-        </tr>
-        <tr>
-            <th>Metodologia da aula prática:</th>
-            <td>{{ $roteiro->metodologia }}</td>
-        </tr>
-        <tr>
-            <th>Recursos e materiais utilizados:</th>
-            <td>{{ $roteiro->recursos }}</td>
-        </tr>
-        <tr>
-            <th>Forma de avaliação da atividade prática realizada pelo aluno:</th>
-            <td>{{ $roteiro->avaliacao }}</td>
-        </tr>
-        <tr>
-            <th>Observações:</th>
-            <td>{{ $roteiro->observacoes }}</td>
-        </tr>
-        <tr>
-            <th>Data de Assinatura:</th>
-            <td>{{ \Carbon\Carbon::parse($roteiro->data_assinatura)->format('d/m/Y') }}</td>
+            <td style="text-align: left;">
+                Caxias/MA | unifacema.centro<br>
+                R. Aarão Reis, 1000<br>
+                Bairro Centro, CEP: 65606-020
+            </td>
+            <td class="center-contact">
+                Codó/MA | unifacemacodo<br>
+                Av. Santos Dumont, 5132<br>
+                Bairro São Sebastião, CEP: 65400-000
+            </td>
+            <td class="right-contact">
+                Presidente Dutra/MA | unifacemadutra<br>
+                Av. José Olavo Sampaio, 100<br>
+                Bairro Vila Militar, CEP: 65760-000
+            </td>
         </tr>
     </table>
-
-    <div class="footer">
-        <p>Emitido em: {{ \Carbon\Carbon::now()->format('d/m/Y') }}</p>
-    </div>
 </div>
 
 </body>

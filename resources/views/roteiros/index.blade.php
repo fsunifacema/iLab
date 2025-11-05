@@ -7,7 +7,7 @@
 
     <div class="py-8">
         <div class="max-w-6xl mx-auto sm:px-6 lg:px-8">
-            @if(in_array(Auth::user()->nivel, [\App\Models\User::NIVEL_TECNICO, \App\Models\User::NIVEL_COORDENADOR_CURSO, \App\Models\User::NIVEL_COORDENADOR_LABORATORIO]))
+            @if(in_array(Auth::user()->nivel, [\App\Models\User::NIVEL_PROFESSOR, \App\Models\User::NIVEL_TECNICO, \App\Models\User::NIVEL_COORDENADOR_CURSO, \App\Models\User::NIVEL_COORDENADOR_LABORATORIO]))
                 <a href="{{ route('roteiros.create') }}" class="fixed bottom-6 right-6 bg-[#0C2E5C] text-white text-sm px-4 py-2 rounded-md shadow-md hover:bg-blue-800 transition duration-200">
                     + Novo Roteiro
                 </a>
@@ -39,13 +39,13 @@
                         </div>
 
                         <!-- Cabeçalho (desktop) -->
-                        <div class="hidden md:grid grid-cols-7 bg-[#0C2E5C] text-white px-4 py-2 rounded-t-md text-sm font-semibold mt-3">
-                            <div>Curso</div>
-                            <div>Unidade Curricular</div>
-                            <div>Professor</div>
-                            <div>Período</div>
-                            <div>Quantidade de Alunos</div>
-                            <div>Data</div>
+                        <div class="hidden md:grid grid-cols-7 space-x-2 flex bg-[#0C2E5C] text-white px-4 py-2 rounded-t-md text-sm font-semibold mt-3">
+                            <div class="text-left">Curso</div>
+                            <div class="text-center">Unidade Curricular</div>
+                            <div class="text-center">Professor</div>
+                            <div class="text-center">Período</div>
+                            <div class="text-center">Qtd. Alunos</div>
+                            <div class="text-center">Data</div>                  
                             <div class="text-center">Ações</div>
                         </div>
 
@@ -59,29 +59,33 @@
                                     $periodo = strtolower($roteiro->periodo);
                                 @endphp
                                     <!-- Desktop: linha -->
-                                <div data-curso="{{ $curso }}" data-professor="{{ $professor }}" data-unidade="{{ $unidade }}" data-periodo="{{ $periodo }}" x-show="matches($el)" class="hidden md:grid grid-cols-7 items-center bg-white px-4 py-2 rounded shadow border border-gray-200 hover:shadow-md transition">
-                                    <div class="text-sm text-gray-700">{{ $roteiro->curso }}</div>
-                                    <div class="text-sm text-gray-700">{{ $roteiro->unidade_curricular }}</div>
-                                    <div class="text-sm text-gray-700">{{ $roteiro->professor }}</div>
-                                    <div class="text-sm text-gray-700">{{ $roteiro->periodo }}</div>
-                                    <div class="text-sm text-gray-700">{{ $roteiro->quantidade_alunos }}</div>
-                                    <div class="text-sm text-gray-700">{{ \Carbon\Carbon::parse($roteiro->data)->format('d/m/Y') }}</div>
+                                <div data-curso="{{ $curso }}" data-professor="{{ $professor }}" data-unidade="{{ $unidade }}" data-periodo="{{ $periodo }}" x-show="matches($el)" class="hidden md:grid grid-cols-7 space-x-2 items-center bg-white px-4 py-2 rounded shadow border border-gray-200 hover:shadow-md transition">
+                                    
+                                    <div class="text-sm text-gray-700 text-left">{{ $roteiro->curso }}</div>
+                                    <div class="text-sm text-gray-700 text-center">{{ $roteiro->unidade_curricular }}</div>
+                                    <div class="text-sm text-gray-700 text-center">{{ $roteiro->professor }}</div>
+                                    <div class="text-sm text-gray-700 text-center">{{ $roteiro->periodo }}</div>
+                                    <div class="text-sm text-gray-700 text-center">{{ $roteiro->quantidade_alunos }}</div>
+                                    <div class="text-sm text-gray-700 text-center">{{ \Carbon\Carbon::parse($roteiro->data)->format('d/m/Y') }}</div>
                                     <div class="text-center flex justify-center gap-2">
-                                        @if(in_array(Auth::user()->nivel, [\App\Models\User::NIVEL_TECNICO, \App\Models\User::NIVEL_COORDENADOR_CURSO, \App\Models\User::NIVEL_COORDENADOR_LABORATORIO]))
-                                            <a href="{{ route('roteiros.edit', $roteiro->id) }}" class="me-2">
+                                        @if(in_array(Auth::user()->nivel, [\App\Models\User::NIVEL_PROFESSOR, \App\Models\User::NIVEL_TECNICO, \App\Models\User::NIVEL_COORDENADOR_CURSO, \App\Models\User::NIVEL_COORDENADOR_LABORATORIO]))
+                                            <a href="{{ route('roteiros.show', $roteiro->id) }}" class="text-sm text-yellow-600 font-medium" title="Visualizar Roteiro">
+                                                <x-icons-logo name="show"/>
+                                            </a>
+                                            <a href="{{ route('roteiros.edit', $roteiro->id) }}" class="" title="Editar Roteiro">
                                                 <x-icons-logo name="edit"/>
                                             </a>
-
                                             <form action="{{ route('roteiros.destroy', $roteiro->id) }}" method="POST" class="inline-block">
                                                 @csrf
                                                 @method('DELETE')
-                                                <button onclick="return confirm('Deseja excluir?')" type="submit">
+                                                <button onclick="return confirm('Deseja excluir?')" type="submit" title="Excluir Roteiro">
                                                     <x-icons-logo name="delete"/>
                                                 </button>
                                             </form>
                                         @endif
-                                        <!-- Botão para Gerar PDF -->
-                                        <a href="{{ route('roteiros.pdf', $roteiro->id) }}" class="text-sm text-blue-600 font-medium" target="_blank">Criar PDF</a>
+                                        <a href="{{ route('roteiros.pdf', $roteiro->id) }}" class="text-sm text-blue-600 font-medium" target="_blank" title="Criar PDF">
+                                            <x-icons-logo name="document"/>
+                                        </a>
                                     </div>
                                 </div>
 
@@ -114,16 +118,20 @@
                                         <div class="text-sm text-gray-700">{{ $roteiro->quantidade_alunos }}</div>
                                     </div>
 
-                                    @if(in_array(Auth::user()->nivel, [\App\Models\User::NIVEL_TECNICO, \App\Models\User::NIVEL_COORDENADOR_CURSO, \App\Models\User::NIVEL_COORDENADOR_LABORATORIO]))
-                                        <div class="mt-3 flex items-center gap-3">
+                                    @if(in_array(Auth::user()->nivel, [\App\Models\User::NIVEL_PROFESSOR, \App\Models\User::NIVEL_TECNICO, \App\Models\User::NIVEL_COORDENADOR_CURSO, \App\Models\User::NIVEL_COORDENADOR_LABORATORIO]))
+                                        <div class="mt-3 flex items-center gap-2">
                                             <!-- Botão para Gerar PDF -->
-                                            <a href="{{ route('roteiros.pdf', $roteiro->id) }}" class="text-sm text-blue-600 font-medium" target="_blank">Criar PDF</a>
-                                            <a href="{{ route('roteiros.edit', $roteiro->id) }}" class="text-sm text-[#0C2E5C] font-medium">Editar</a>
+                                            <a href="{{ route('roteiros.pdf', $roteiro->id) }}" class="text-sm text-blue-600 font-medium" target="_blank" title="Criar PDF">Criar PDF</a>
+                                            <a href="{{ route('roteiros.edit', $roteiro->id) }}" class="text-sm text-[#0C2E5C] font-medium" title="Editar Roteiro">Editar</a>
                                             <form action="{{ route('roteiros.destroy', $roteiro->id) }}" method="POST" class="inline-block">
                                                 @csrf
                                                 @method('DELETE')
-                                                <button onclick="return confirm('Deseja excluir?')" type="submit" class="text-sm text-red-600 font-medium">Excluir</button>
+                                                <button onclick="return confirm('Deseja excluir?')" type="submit" class="text-sm text-red-600 font-medium" title="Excluir Roteiro">Excluir</button>
                                             </form>
+                                            <!-- Ícone de Visualizar (Olho) -->
+                                            <a href="{{ route('roteiros.show', $roteiro->id) }}" class="text-sm text-yellow-600 font-medium size-4" title="Visualizar Roteiro">
+                                                <x-icons-logo name="show"/>
+                                            </a>                                            
                                         </div>
                                     @endif
                                 </div>
