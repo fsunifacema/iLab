@@ -136,7 +136,7 @@
                                     <form action="{{ route('solicitacoes.aprovar.coordenador.lab', $solicitacao->id) }}" method="POST">
                                 @endif
                                     @csrf
-                                    <button type="submit" class="w-full bg-green-600 text-white font-bold text-sm px-4 py-3 rounded-md hover:bg-green-700 transition">
+                                    <button type="submit" class=" cursor-pointer w-full bg-green-600 text-white font-bold text-sm px-4 py-3 rounded-md hover:bg-green-700 transition">
                                         APROVAR E AVANÇAR
                                     </button>
                                 </form>
@@ -147,7 +147,7 @@
                                 @endphp
                                 <button type="button" 
                                         onclick="openRecusarModal('{{ $nivelRecusa }}')"
-                                        class="w-full bg-red-600 text-white font-bold text-sm px-4 py-3 rounded-md hover:bg-red-700 transition">
+                                        class="w-full bg-red-600 text-white font-bold text-sm cursor-pointer px-4 py-3 rounded-md hover:bg-red-700 transition">
                                     RECUSAR SOLICITAÇÃO
                                 </button>
                             </div>
@@ -216,7 +216,7 @@
                     <form action="{{ route('solicitacoes.destroy', $solicitacao->id) }}" method="POST" class="inline">
                         @csrf
                         @method('DELETE')
-                        <button type="submit" class="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700"
+                        <button type="submit" class="bg-red-600 text-white px-4 py-2 cursor-pointer rounded-md hover:bg-red-700"
                                 onclick="return confirm('Tem certeza que deseja excluir esta solicitação?')">
                             Excluir Solicitação
                         </button>
@@ -241,10 +241,10 @@
                         <textarea name="parecer" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2" rows="4" required placeholder="Informe o motivo da recusa..."></textarea>
                     </div>
                     <div class="items-center px-4 py-3">
-                        <button type="button" onclick="closeRecusarModal()" class="px-4 py-2 bg-gray-200 text-gray-800 text-base font-medium rounded-md shadow-sm hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-300 mr-2">
+                        <button type="button" onclick="closeRecusarModal()" class="px-4 py-2 bg-gray-200 cursor-pointer text-gray-800 text-base font-medium rounded-md shadow-sm hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-300 mr-2">
                             Cancelar
                         </button>
-                        <button type="submit" class="px-4 py-2 bg-red-600 text-white text-base font-medium rounded-md shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500">
+                        <button type="submit" class="px-4 py-2 bg-red-600 text-white text-base cursor-pointer font-medium rounded-md shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500">
                             Recusar Solicitação
                         </button>
                     </div>

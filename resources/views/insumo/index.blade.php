@@ -21,7 +21,7 @@
                         <div class="mb-3 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
                             <div class="flex items-center gap-2">
                                 <input x-model="query" type="text" placeholder="Buscar por nome, marca ou modelo..." class="border rounded px-3 py-2 text-sm w-full md:w-80" />
-                                <button type="button" @click="query=''" class="px-3 py-2 bg-gray-100 rounded text-sm">Limpar</button>
+                                <button type="button" @click="query=''" class="cursor-pointer px-3 py-2 bg-gray-100 rounded text-sm">Limpar</button>
                             </div>
 
 
@@ -40,15 +40,15 @@
                         @php $nivel = Auth::user()->nivel; @endphp
                         @php $desktopCols = $nivel != \App\Models\User::NIVEL_PROFESSOR ? 'grid-cols-6' : 'grid-cols-4'; @endphp
                         <div class="hidden md:grid {{ $desktopCols }} bg-[#0C2E5C] text-white px-4 py-2 rounded-t-md text-sm font-semibold">
-                            <div>Nome</div>
-                            <div>Marca</div>
-                            <div>Modelo</div>
+                            <div class="text-center">Nome</div>
+                            <div class="text-center">Marca</div>
+                            <div class="text-center">Modelo</div>
                             @if($nivel != \App\Models\User::NIVEL_PROFESSOR)
-                                <div>Validade</div>
-                                <div>Descrição</div>
+                                <div class="text-center">Validade</div>
+                                <div class="text-center">Descrição</div>
                                 <div class="text-center">Ações</div>
                             @else
-                                <div>Descrição</div>
+                                <div class="text-center">Descrição</div>
                             @endif
                         </div>
 
@@ -66,16 +66,16 @@
                                 $vencido = $validade ? $validade->isPast() : false;
                             @endphp
                             <div data-vencido="{{ $vencido ? 'true' : 'false' }}" data-proximo="{{ $proximo ? 'true' : 'false' }}" data-sem="{{ $validade ? 'false' : 'true' }}" data-nome="{{ strtolower($insumo->nome) }}" data-marca="{{ strtolower($insumo->marca) }}" data-modelo="{{ strtolower($insumo->modelo) }}" x-show="(filter==='all' || (filter==='vencidos' && $el.dataset.vencido === 'true') || (filter==='proximos' && $el.dataset.proximo === 'true') || (filter==='sem' && $el.dataset.sem === 'true')) && (query === '' || $el.dataset.nome.includes(query.toLowerCase().trim()) || $el.dataset.marca.includes(query.toLowerCase().trim()) || $el.dataset.modelo.includes(query.toLowerCase().trim()))" class="hidden md:grid {{ $desktopCols }} items-center bg-white px-4 py-2 rounded shadow border border-gray-200 hover:shadow-md transition">
-                                <div class="text-sm text-gray-700">{{ $insumo->nome }}</div>
-                                <div class="text-sm text-gray-700">{{ $insumo->marca }}</div>
-                                <div class="text-sm text-gray-700">{{ $insumo->modelo }}</div>
+                                <div class="text-sm text-center text-gray-700">{{ $insumo->nome }}</div>
+                                <div class="text-sm text-center text-gray-700">{{ $insumo->marca }}</div>
+                                <div class="text-sm text-center text-gray-700">{{ $insumo->modelo }}</div>
                                 @if($nivel != \App\Models\User::NIVEL_PROFESSOR)
                                     @php
                                         $validade = $insumo->validade ? \Carbon\Carbon::parse($insumo->validade) : null;
                                         $vencido = $validade ? $validade->isPast() : false;
                                     @endphp
-                                    <div class="text-sm {{ $vencido ? 'text-red-600 font-semibold' : 'text-gray-700' }}">{{ $validade ? $validade->format('d/m/Y') : 'N/A' }}</div>
-                                    <div class="text-sm text-gray-700 truncate max-w-xs">{{ Str::limit($insumo->descricao, 50) }}</div>
+                                    <div class="text-sm text-center {{ $vencido ? 'text-red-600 font-semibold' : 'text-gray-700' }}">{{ $validade ? $validade->format('d/m/Y') : 'N/A' }}</div>
+                                    <div class="text-sm text-center text-gray-700 truncate max-w-xs">{{ Str::limit($insumo->descricao, 50) }}</div>
                                     <div class="text-center flex justify-center gap-2">
                                         @if(in_array(Auth::user()->nivel, [\App\Models\User::NIVEL_TECNICO, \App\Models\User::NIVEL_COORDENADOR_CURSO, \App\Models\User::NIVEL_COORDENADOR_LABORATORIO]))
                                             <a href="{{ route('insumos.edit', $insumo->id) }}" class="me-2">
@@ -92,7 +92,7 @@
                                         @endif
                                     </div>
                                 @else
-                                    <div class="text-sm text-gray-700 truncate max-w-xs">{{ Str::limit($insumo->descricao, 50) }}</div>
+                                    <div class="text-sm text-gray-700 truncate max-w-xs text-center">{{ Str::limit($insumo->descricao, 50) }}</div>
                                 @endif
                             </div>
 
@@ -137,7 +137,7 @@
                                         <form action="{{ route('insumos.destroy', $insumo->id) }}" method="POST" class="inline-block">
                                             @csrf
                                             @method('DELETE')
-                                            <button onclick="return confirm('Deseja excluir?')" type="submit" class="text-sm text-red-600">Excluir</button>
+                                            <button onclick="return confirm('Deseja excluir?')" type="submit" class="cursor-pointer text-sm text-red-600">Excluir</button>
                                         </form>
                                     </div>
                                 @endif

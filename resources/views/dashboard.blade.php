@@ -78,7 +78,8 @@
                             </a>
                         @empty
                             <div class="text-center p-4 text-gray-500 bg-gray-50 rounded-md">
-                                Nenhuma atividade recente para exibir.
+                                <p class="font-semibold">Nenhuma notificação nos últimos 7 dias.</p>
+                                <p class="text-sm mt-1">No momento não há atividades recentes que se apliquem ao seu perfil.</p>
                             </div>
                         @endforelse
                         
@@ -106,7 +107,7 @@
                     Ver Roteiro (PDF)
                 </a>
                 
-                <button id="closeModalBtn" class="px-4 py-2 bg-gray-500 text-white rounded-md font-semibold text-sm hover:bg-gray-600 transition">
+                <button id="closeModalBtn" class="cursor-pointer px-4 py-2 bg-gray-500 text-white rounded-md font-semibold text-sm hover:bg-gray-600 transition">
                     Fechar
                 </button>
             </div>

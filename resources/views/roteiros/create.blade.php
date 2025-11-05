@@ -145,9 +145,9 @@
             <p class="text-gray-700 mb-6">Deseja continuar de onde parou?</p>
             <div class="flex justify-center gap-4">
                 <button id="continueYes"
-                    class="px-4 py-2 bg-[#0C2E5C] text-white rounded-lg hover:bg-[#103A7A] transition">Sim</button>
+                    class="px-4 py-2 bg-[#0C2E5C] text-white rounded-lg hover:bg-[#103A7A] transition cursor-pointer">Sim</button>
                 <button id="continueNo"
-                    class="px-4 py-2 bg-gray-300 text-white rounded-lg hover:bg-red-600 focus:bg:red-700 active bg-red-800 transition">Não</button>
+                    class="px-4 py-2 bg-gray-300 text-white rounded-lg hover:bg-red-600 focus:bg:red-700 active bg-red-800 transition cursor-pointer">Não</button>
             </div>
         </div>
     </div>

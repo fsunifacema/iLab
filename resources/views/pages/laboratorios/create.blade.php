@@ -50,7 +50,7 @@
                 
                 <div class="flex justify-end space-x-2 mt-4">
                     <a href="{{ route('laboratorios.index') }}" class="px-4 py-2 text-white bg-red-700 border rounded hover:bg-red-600">Cancelar</a>
-                    <button type="submit" class="px-4 py-2 bg-[#0C2E5C] text-white rounded hover:bg-blue-700">Salvar</button>
+                    <button type="submit" class="px-4 py-2 bg-[#0C2E5C] cursor-pointer text-white rounded hover:bg-blue-700">Salvar</button>
                 </div>
             </form>
         </div>

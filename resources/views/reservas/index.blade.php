@@ -130,7 +130,7 @@
                                 </div>
                                     <div class="mt-3 flex items-center gap-3">
                                         <a class="text-sm text-[#0C2E5C] font-medium">Editar</a>
-                                        <button class="text-sm text-red-600 font-medium">Excluir</button>
+                                        <button class="cursor-pointer text-sm text-red-600 font-medium">Excluir</button>
                                     </div>
                                 
                             </div>
@@ -158,7 +158,7 @@
                                 </div>
                                     <div class="mt-3 flex items-center gap-3">
                                         <a class="text-sm text-[#0C2E5C] font-medium">Editar</a>
-                                        <button class="text-sm text-red-600 font-medium">Excluir</button>
+                                        <button class="cursor-pointer text-sm text-red-600 font-medium">Excluir</button>
                                     </div>
                                 
                             </div>
@@ -186,7 +186,7 @@
                                 </div>
                                     <div class="mt-3 flex items-center gap-3">
                                         <a class="text-sm text-[#0C2E5C] font-medium">Editar</a>
-                                        <button class="text-sm text-red-600 font-medium">Excluir</button>
+                                        <button class="cursor-pointer text-sm text-red-600 font-medium">Excluir</button>
                                     </div>
                                 
                             </div>                        

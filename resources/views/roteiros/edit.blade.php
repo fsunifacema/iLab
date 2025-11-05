@@ -26,7 +26,7 @@
                 <div class="mb-4">
                     <x-label for="professor" value="Professor" class="block text-sm font-medium text-gray-700" />
                     <x-input id="professor" type="text" name="professor"
-                        value="{{ Auth::user()->name ?? 'Usuário Indefinido' }}"
+                        value="{{ Auth::user()->name ?? 'Usuário Indefinido' }}" 
                         readonly class="w-full bg-gray-100 cursor-not-allowed" />
                     <x-input-error for="professor" :messages="$errors->get('professor')" class="mt-2" />
                 </div>
@@ -48,11 +48,13 @@
                     <x-input id="data" type="date" name="data" :value="old('data', $roteiro->data)" required class="w-full" />
                     <x-input-error for="data" :messages="$errors->get('data')" class="mt-2" />
                 </div>
+
                 <div class="mb-4">
                     <x-label for="horario_inicio" value="Horário Inicio" class="block text-sm font-medium text-gray-700" />
                     <x-input id="horario_inicio" type="time" name="horario_inicio" :value="old('horario_inicio')" required class="w-full" />
                     <x-input-error for="horario_inicio" :messages="$errors->get('horario_inicio')" class="mt-2" />
                 </div>
+
                 <div class="mb-4">
                     <x-label for="horario_fim" value="Horário Fim" class="block text-sm font-medium text-gray-700" />
                     <x-input id="horario_fim" type="time" name="horario_fim" :value="old('horario_fim')" required class="w-full" />
@@ -77,7 +79,7 @@
                         class="p-1 border-gray-300 focus:border-[#0C2E5C] focus:ring-[#0C2E5C] rounded-md shadow-sm w-full">
                         <option value="">Selecione um laboratório</option>
                         @foreach ($laboratorios as $lab)
-                            <option value="{{ $lab->nome }}"
+                            <option value="{{ $lab->nome }}" 
                                 {{ old('laboratorio', $roteiro->laboratorio) == $lab->nome ? 'selected' : '' }}>
                                 {{ $lab->nome }}
                             </option>

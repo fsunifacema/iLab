@@ -53,12 +53,12 @@
                         </div>
 
                         {{-- Cabeçalho (desktop) --}}
-                        <div class="hidden md:grid grid-cols-6 bg-[#0C2E5C] text-white px-4 py-3 rounded-t-md text-sm font-semibold mt-3">
-                            <div>Data Solicitada</div>
-                            <div>Unidade Curricular</div>
-                            <div>Laboratório</div>
-                            <div>Professor</div>
-                            <div>Status</div>
+                        <div class="hidden md:grid bg-[#0C2E5C] text-white px-4 py-3 rounded-t-md text-sm font-semibold mt-3" style="grid-template-columns: 0.75fr 1.25fr 1fr 1fr 1fr 1.25fr;">
+                            <div class="text-left">Data Solicitada</div>
+                            <div class="text-center">Unidade Curricular</div>
+                            <div class="text-center">Laboratório</div>
+                            <div class="text-center">Professor</div>
+                            <div class="text-center">Status</div>
                             <div class="text-center">Ações</div>
                         </div>
 
@@ -82,18 +82,18 @@
 
                             {{-- Desktop: linha --}}
                             <div data-unidade="{{ $unidade }}" data-laboratorio="{{ $laboratorio }}" data-status="{{ $status }}" data-professor="{{ $professor }}" x-show="matches($el)" 
-                                class="hidden md:grid grid-cols-6 items-center bg-white px-4 py-3 rounded shadow border border-gray-200 hover:shadow-lg transition
+                                style="grid-template-columns: 0.75fr 1.25fr 1fr 1fr 1fr 1.25fr;" class="hidden md:grid items-center bg-white px-4 py-3 rounded shadow border border-gray-200 hover:shadow-lg transition
                                 {{ $requerAcao ? 'border-l-4 border-yellow-500' : '' }}"> {{-- DESTAQUE VISUAL AQUI --}}
                                 
-                                <div class="text-sm text-gray-700">{{ $dataDisplay }}</div>
-                                <div class="text-sm text-gray-700">{{ $solicitacao->roteiro->unidade_curricular ?? 'Roteiro Excluído' }}</div>
-                                <div class="text-sm text-gray-700">{{ $solicitacao->laboratorio->nome ?? 'N/A' }}</div>
-                                <div class="text-sm text-gray-700">{{ $solicitacao->professor->name ?? 'N/A' }}</div>
+                                <div class="text-sm text-gray-700 text-left">{{ $dataDisplay }}</div>
+                                <div class="text-sm text-gray-700 text-center">{{ $solicitacao->roteiro->unidade_curricular ?? 'Roteiro Excluído' }}</div>
+                                <div class="text-sm text-gray-700 text-center">{{ $solicitacao->laboratorio->nome ?? 'N/A' }}</div>
+                                <div class="text-sm text-gray-700 text-center">{{ $solicitacao->professor->name ?? 'N/A' }}</div>
                                 
                                 {{-- Exibição do Status com cor --}}
-                                <div>
-                                    <span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full 
-                                        @if ($solicitacao->status === \App\Models\Solicitacao::STATUS_APROVADA) bg-green-100 text-green-800
+                                <div class="text-center">
+                                    <span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full
+                                        @if ($solicitacao->status === \App\Models\Solicitacao::STATUS_APROVADA) bg-green-100 text-green-800 
                                         @elseif ($solicitacao->status === \App\Models\Solicitacao::STATUS_RECUSADA) bg-red-100 text-red-800
                                         @else bg-yellow-100 text-yellow-800 @endif">
                                         {{ $solicitacao->status_texto }}
@@ -164,7 +164,7 @@
                                         <form action="{{ route('solicitacoes.destroy', $solicitacao->id) }}" method="POST" class="inline-block" onsubmit="return confirm('Deseja realmente excluir esta solicitação?');">
                                             @csrf
                                             @method('DELETE')
-                                            <button type="submit" class="text-sm text-red-600 font-medium">Excluir</button>
+                                            <x-button type="submit" class="text-sm text-red-600 font-medium">Excluir</x-button>
                                         </form>
                                     @endif
                                 </div>

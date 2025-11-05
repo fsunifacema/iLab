@@ -93,7 +93,6 @@
                                                 <x-icons-logo name="document"/>
                                             </a>
                                         @endif
-
                                     </div>
                                 </div>
 
@@ -125,29 +124,29 @@
                                         <div class="text-xs text-gray-500">Quantidade de Alunos</div>
                                         <div class="text-sm text-gray-700">{{ $roteiro->quantidade_alunos }}</div>
                                     </div>
-
-                                        <div class="mt-3 flex items-center gap-2">
-                                            @if(in_array(Auth::user()->nivel, [\App\Models\User::NIVEL_PROFESSOR]))
-                                            <!-- Botão para Gerar PDF -->
-                                            <a href="{{ route('roteiros.pdf', $roteiro->id) }}" class="text-sm text-blue-600 font-medium" target="_blank" title="Criar PDF">Criar PDF</a>
-                                            <a href="{{ route('roteiros.edit', $roteiro->id) }}" class="text-sm text-[#0C2E5C] font-medium" title="Editar Roteiro">Editar</a>
-                                            <form action="{{ route('roteiros.destroy', $roteiro->id) }}" method="POST" class="inline-block">
-                                                @csrf
-                                                @method('DELETE')
-                                                <button onclick="return confirm('Deseja excluir?')" type="submit" class="text-sm text-red-600 font-medium" title="Excluir Roteiro">Excluir</button>
-                                            </form>
-                                            <!-- Ícone de Visualizar (Olho) -->
-                                            <a href="{{ route('roteiros.show', $roteiro->id) }}" class="text-sm text-yellow-600 font-medium size-4" title="Visualizar Roteiro">
-                                                <x-icons-logo name="show"/>
-                                            </a> 
-                                            @else
-                                            <a href="{{ route('roteiros.pdf', $roteiro->id) }}" class="text-sm text-blue-600 font-medium" target="_blank" title="Criar PDF">Criar PDF</a>
-                                            <!-- Ícone de Visualizar (Olho) -->
-                                            <a href="{{ route('roteiros.show', $roteiro->id) }}" class="text-sm text-yellow-600 font-medium size-4" title="Visualizar Roteiro">
-                                                <x-icons-logo name="show"/>
-                                            </a> 
-                                            @endif
-                                        </div>
+                                    
+                                    <div class="mt-3 flex items-center gap-2">
+                                        @if(in_array(Auth::user()->nivel, [\App\Models\User::NIVEL_PROFESSOR]))
+                                        <!-- Botão para Gerar PDF -->
+                                        <a href="{{ route('roteiros.pdf', $roteiro->id) }}" class="text-sm text-blue-600 font-medium" target="_blank" title="Criar PDF">Criar PDF</a>
+                                        <a href="{{ route('roteiros.edit', $roteiro->id) }}" class="text-sm text-[#0C2E5C] font-medium" title="Editar Roteiro">Editar</a>
+                                        <form action="{{ route('roteiros.destroy', $roteiro->id) }}" method="POST" class="inline-block">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button onclick="return confirm('Deseja excluir?')" type="submit" class="cursor-pointer text-sm text-red-600 font-medium" title="Excluir Roteiro">Excluir</button>
+                                        </form>
+                                        <!-- Ícone de Visualizar (Olho) -->
+                                        <a href="{{ route('roteiros.show', $roteiro->id) }}" class="text-sm text-yellow-600 font-medium size-4" title="Visualizar Roteiro">
+                                            <x-icons-logo name="show"/>
+                                        </a> 
+                                        @else
+                                        <a href="{{ route('roteiros.pdf', $roteiro->id) }}" class="text-sm text-blue-600 font-medium" target="_blank" title="Criar PDF">Criar PDF</a>
+                                        <!-- Ícone de Visualizar (Olho) -->
+                                        <a href="{{ route('roteiros.show', $roteiro->id) }}" class="text-sm text-yellow-600 font-medium size-4" title="Visualizar Roteiro">
+                                            <x-icons-logo name="show"/>
+                                        </a> 
+                                        @endif
+                                    </div>
                                 </div>
                             @empty
                                 <div class="text-center text-gray-500 py-4">
