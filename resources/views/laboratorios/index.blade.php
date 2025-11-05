@@ -34,16 +34,16 @@
                         <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
                             <div class="flex items-center gap-2">
                                 <input x-model="query" type="text" placeholder="Buscar por nome, tipo ou localização..." class="border rounded px-3 py-2 text-sm w-full md:w-80" />
-                                <button type="button" @click="query=''" class="px-3 py-2 bg-gray-100 rounded text-sm">Limpar</button>
+                                <button type="button" @click="query=''" class="cursor-pointer px-3 py-2 bg-gray-100 rounded text-sm">Limpar</button>
                             </div>
                         </div>
 
                         <!-- Cabeçalho (desktop) -->
                         <div class="hidden md:grid grid-cols-5 bg-[#0C2E5C] text-white px-4 py-2 rounded-t-md text-sm font-semibold mt-3">
                             <div>Nome</div>
-                            <div>Capacidade</div>
-                            <div>Tipo</div>
-                            <div>Localização</div>
+                            <div class="text-center">Capacidade</div>
+                            <div class="text-center">Tipo</div>
+                            <div class="text-center">Localização</div>
                             <div class="text-center">Ações</div>
                         </div>
 
@@ -59,9 +59,9 @@
                             <!-- Desktop: linha -->
                             <div data-nome="{{ $nome }}" data-tipo="{{ $tipo }}" data-localizacao="{{ $local }}" data-capacidade="{{ $capacidade }}" x-show="matches($el)" class="hidden md:grid grid-cols-5 items-center bg-white px-4 py-2 rounded shadow border border-gray-200 hover:shadow-md transition">
                                 <div class="text-sm text-gray-700">{{ $lab->nome}}</div>
-                                <div class="text-sm text-gray-700">{{ $lab->capacidade}}</div>
-                                <div class="text-sm text-gray-700">{{ $lab->tipo}}</div>
-                                <div class="text-sm text-gray-700">{{ $lab->localizacao}}</div>
+                                <div class="text-sm text-gray-700 text-center">{{ $lab->capacidade}}</div>
+                                <div class="text-sm text-gray-700 text-center">{{ $lab->tipo}}</div>
+                                <div class="text-sm text-gray-700 text-center">{{ $lab->localizacao}}</div>
                                 <div class="text-center flex justify-center gap-2">
                                     @if(in_array(Auth::user()->nivel, [\App\Models\User::NIVEL_TECNICO, \App\Models\User::NIVEL_COORDENADOR_CURSO, \App\Models\User::NIVEL_COORDENADOR_LABORATORIO]))
                                         <a href="{{ route('laboratorios.edit', $lab->id) }}" class="me-2">
@@ -109,7 +109,7 @@
                                         <form action="{{ route('laboratorios.destroy', $lab->id) }}" method="POST" class="inline-block">
                                             @csrf
                                             @method('DELETE')
-                                            <button onclick="return confirm('Deseja excluir?')" type="submit" class="text-sm text-red-600">Excluir</button>
+                                            <button onclick="return confirm('Deseja excluir?')" type="submit" class="cursor-pointer text-sm text-red-600">Excluir</button>
                                         </form>
                                     </div>
                                 @endif

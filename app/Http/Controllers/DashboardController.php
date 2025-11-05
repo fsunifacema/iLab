@@ -34,6 +34,9 @@ class DashboardController extends Controller
             Solicitacao::STATUS_APROVADA, // FINAL (Aprovada)
             Solicitacao::STATUS_RECUSADA,// FINAL (Recusada)
         ]);
+
+        // Limita notificações ao período recente: últimas 7 dias
+        $query->where('updated_at', '>=', Carbon::now()->subDays(7));
         
         // --- 2. FILTRAGEM POR NÍVEL DE USUÁRIO ---
         if ($user->nivel == User::NIVEL_PROFESSOR) {
@@ -83,13 +86,13 @@ class DashboardController extends Controller
                     // --- STATUS DE APROVAÇÃO PENDENTE ---
                     Solicitacao::STATUS_AGUARDANDO_COORDENADOR_CURSO => [
                         'text' => 'APROVAÇÃO PENDENTE', 
-                        'message' => 'Nova solicitação. Requer sua análise.', 
+                        'message' => 'Nova solicitação. Requer análise do Coordenador de Curso.', 
                         'code' => 'review',
                         'is_pending_for_me' => ($user->nivel == User::NIVEL_COORDENADOR_CURSO) 
                     ],
                     Solicitacao::STATUS_AGUARDANDO_COORDENADOR_LAB => [
                         'text' => 'APROVAÇÃO PENDENTE', 
-                        'message' => 'Aprovada pelo CC. Requer sua análise e agendamento.', 
+                        'message' => 'Aprovada pelo CC. Requer análise e agendamento do Coordenador de Laboratório.', 
                         'code' => 'review',
                         'is_pending_for_me' => ($user->nivel == User::NIVEL_COORDENADOR_LABORATORIO) 
                     ],

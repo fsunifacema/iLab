@@ -113,7 +113,7 @@
                     <form action="{{ route('roteiros.destroy', $roteiro->id) }}" method="POST" class="inline-block">
                         @csrf
                         @method('DELETE')
-                        <button type="submit" onclick="return confirm('Deseja excluir esse roteiro?')" class="text-red-600 font-medium px-4 py-2 border border-red-600 rounded-md">
+                        <button type="submit" onclick="return confirm('Deseja excluir esse roteiro?')" class="cursor-pointer text-red-600 font-medium px-4 py-2 border border-red-600 rounded-md">
                             Excluir
                         </button>
                     </form>
