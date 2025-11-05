@@ -156,22 +156,22 @@
                             @endif
                         </x-slot>
 
-                        <x-slot name="content">
-                            <div class="block px-4 py-2 text-xs text-gray-400">
-                                {{ __('Gerenciar conta') }}
-                            </div>
+                            <x-slot name="content">
+                                <div class="block px-4 py-2 text-xs text-gray-400">
+                                    {{ __('Gerenciar conta') }}
+                                </div>
 
-                            <x-dropdown-link href="{{ route('profile.show') }}">
-                                {{ __('Perfil') }}
-                            </x-dropdown-link>
-
-                            @if (Laravel\Jetstream\Jetstream::hasApiFeatures())
-                                <x-dropdown-link href="{{ route('api-tokens.index') }}">
-                                    {{ __('API Tokens') }}
+                                <x-dropdown-link href="{{ route('profile.show') }}">
+                                    {{ __('Perfil') }}
                                 </x-dropdown-link>
-                            @endif
 
-                            <div class="border-t border-gray-200"></div>
+                                @if (Laravel\Jetstream\Jetstream::hasApiFeatures())
+                                    <x-dropdown-link href="{{ route('api-tokens.index') }}">
+                                        {{ __('API Tokens') }}
+                                    </x-dropdown-link>
+                                @endif
+
+                                <div class="border-t border-gray-200"></div>
 
                             <form method="POST" action="{{ route('logout') }}" x-data>
                                 @csrf
@@ -268,6 +268,12 @@
                 <x-responsive-nav-link href="{{ route('equipamentos.index') }}" :active="request()->routeIs('equipamentos.index')">
                     {{ __('Equipamentos') }}
                 </x-responsive-nav-link>
+                <x-responsive-nav-link href="{{ route('insumos.index') }}" :active="request()->routeIs('insumos.index')">
+                    {{ __('Insumos') }}
+                </x-responsive-nav-link>
+                <x-responsive-nav-link href="{{ route('equipamentos.index') }}" :active="request()->routeIs('equipamentos.index')">
+                    {{ __('Equipamentos') }}
+                </x-responsive-nav-link>
                 <x-responsive-nav-link href="{{ route('roteiros.index') }}" :active="request()->routeIs('roteiros.index')">
                     {{ __('Roteiros') }}
                 </x-responsive-nav-link>
@@ -307,6 +313,77 @@
                 <div>
                     <div class="font-medium text-base text-white">{{ Auth::user()->name }}</div>
                     <div class="font-medium text-sm text-gray-500">{{ Auth::user()->email }}</div>
+                </div>
+            </div>
+
+            <div class="mt-3 space-y-1">
+                <!-- Account Management -->
+                <x-responsive-nav-link href="{{ route('profile.show') }}" :active="request()->routeIs('profile.show')">
+                    {{ __('Perfil') }}
+                </x-responsive-nav-link>
+
+                @if (Laravel\Jetstream\Jetstream::hasApiFeatures())
+                    <x-responsive-nav-link href="{{ route('api-tokens.index') }}" :active="request()->routeIs('api-tokens.index')">
+                        {{ __('API Tokens') }}
+                    </x-responsive-nav-link>
+                @endif
+
+                <!-- Authentication -->
+                <form method="POST" action="{{ route('logout') }}" x-data>
+                    @csrf
+
+                    <x-responsive-nav-link href="{{ route('logout') }}"
+                                   @click.prevent="$root.submit();">
+                        {{ __('Sair') }}
+                    </x-responsive-nav-link>
+                </form>
+
+                <!-- Team Management -->
+                @if (Laravel\Jetstream\Jetstream::hasTeamFeatures())
+                    <div class="border-t border-gray-200"></div>
+
+                    <div class="block px-4 py-2 text-xs text-gray-400">
+                        {{ __('Manage Team') }}
+                    </div>
+
+                    <!-- Team Settings -->
+                    <x-responsive-nav-link href="{{ route('teams.show', Auth::user()->currentTeam->id) }}" :active="request()->routeIs('teams.show')">
+                        {{ __('Team Settings') }}
+                    </x-responsive-nav-link>
+
+                    @can('create', Laravel\Jetstream\Jetstream::newTeamModel())
+                        <x-responsive-nav-link href="{{ route('teams.create') }}" :active="request()->routeIs('teams.create')">
+                            {{ __('Create New Team') }}
+                        </x-responsive-nav-link>
+                    @endcan
+
+                    <!-- Team Switcher -->
+                    @if (Auth::user()->allTeams()->count() > 1)
+                        <div class="border-t border-gray-200"></div>
+
+                        <div class="block px-4 py-2 text-xs text-gray-400">
+                            {{ __('Switch Teams') }}
+                        </div>
+
+                        @foreach (Auth::user()->allTeams() as $team)
+                            <x-switchable-team :team="$team" component="responsive-nav-link" />
+                        @endforeach
+                    @endif
+                @endif
+            </div>
+        </div>
+        <!-- Responsive Settings Options -->
+        <div class="pt-4 pb-1 border-t border-gray-200">
+            <div class="flex items-center px-4">
+                @if (Laravel\Jetstream\Jetstream::managesProfilePhotos())
+                    <div class="shrink-0 me-3">
+                        <img class="h-10 w-10 rounded-full object-cover" src="{{ Auth::user()->profile_photo_url }}" alt="{{ Auth::user()->name }}" />
+                    </div>
+                @endif
+
+                <div>
+                    <div class="font-medium text-base text-gray-600">{{ Auth::user()->name }}</div>
+                    <div class="font-medium text-sm text-gray-400">{{ Auth::user()->email }}</div>
                 </div>
             </div>
 

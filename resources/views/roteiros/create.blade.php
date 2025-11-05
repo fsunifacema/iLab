@@ -1,6 +1,7 @@
 <x-app-layout>
     <x-slot name="header">
         <h2 class="text-xl font-semibold text-[#0C2E5C]">Adicionar Roteiro</h2>
+        <h2 class="text-xl font-semibold text-[#0C2E5C]">Adicionar Roteiro</h2>
     </x-slot>
 
     <div class="py-6">
@@ -22,6 +23,9 @@
 
                 <div class="mb-4">
                     <x-label for="professor" value="Professor" class="block text-sm font-medium text-gray-700" />
+                    <x-input id="professor" type="text" name="professor"
+                        value="{{ Auth::user()->name ?? 'Usuário Indefinido' }}" 
+                        readonly class="w-full bg-gray-100 cursor-not-allowed" />
                     <x-input id="professor" type="text" name="professor"
                         value="{{ Auth::user()->name ?? 'Usuário Indefinido' }}" 
                         readonly class="w-full bg-gray-100 cursor-not-allowed" />
@@ -80,7 +84,22 @@
                             </option>
                         @endforeach
                     </select>
+                    <select id="laboratorio" name="laboratorio" required
+                        class="p-1 border-gray-300 focus:border-[#0C2E5C] focus:ring-[#0C2E5C] rounded-md shadow-sm w-full">
+                        <option value="">Selecione um laboratório</option>
+                        @foreach ($laboratorios as $lab)
+                            <option value="{{ $lab->nome }}" {{ old('laboratorio') == $lab->nome ? 'selected' : '' }}>
+                                {{ $lab->nome }}
+                            </option>
+                        @endforeach
+                    </select>
                     <x-input-error for="laboratorio" :messages="$errors->get('laboratorio')" class="mt-2" />
+                </div>
+
+                <div class="mb-4">
+                    <x-label for="tema" value="Tema" class="block text-sm font-medium text-gray-700" />
+                    <x-input id="tema" type="text" name="tema" :value="old('tema')" required class="w-full" />
+                    <x-input-error for="tema" :messages="$errors->get('tema')" class="mt-2" />
                 </div>
 
                 <div class="mb-4">
