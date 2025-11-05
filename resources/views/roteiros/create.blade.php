@@ -47,9 +47,14 @@
                 </div>
 
                 <div class="mb-4">
-                    <x-label for="horario" value="Horário" class="block text-sm font-medium text-gray-700" />
-                    <x-input id="horario" type="text" name="horario" :value="old('horario')" required class="w-full" />
-                    <x-input-error for="horario" :messages="$errors->get('horario')" class="mt-2" />
+                    <x-label for="horario_inicio" value="Horário Inicio" class="block text-sm font-medium text-gray-700" />
+                    <x-input id="horario_inicio" type="time" name="horario_inicio" :value="old('horario_inicio')" required class="w-full" />
+                    <x-input-error for="horario_inicio" :messages="$errors->get('horario_inicio')" class="mt-2" />
+                </div>
+                <div class="mb-4">
+                    <x-label for="horario_fim" value="Horário Fim" class="block text-sm font-medium text-gray-700" />
+                    <x-input id="horario_fim" type="time" name="horario_fim" :value="old('horario_fim')" required class="w-full" />
+                    <x-input-error for="horario_fim" :messages="$errors->get('horario_fim')" class="mt-2" />
                 </div>
 
                 <div class="mb-4">

@@ -169,7 +169,7 @@
     <tr><th>PERÍODO:</th><td>{{ $roteiro->periodo }}</td></tr>
     <tr><th>QUANT. DE ALUNOS:</th><td>{{ $roteiro->quantidade_alunos }}</td></tr>
     <tr><th>DATA:</th><td>{{ \Carbon\Carbon::parse($roteiro->data)->format('d/m/Y') }}</td></tr>
-    <tr><th>HORÁRIO:</th><td>{{ $roteiro->horario }}</td></tr>
+    <tr><th>HORÁRIO:</th><td>{{ $roteiro->horario_inicio }} às {{ $roteiro->horario_fim }} Horas</td></tr>
     <tr><th>CARGA HORÁRIA DA AULA PRÁTICA:</th><td>{{ $roteiro->carga_horaria }}</td></tr>
     <tr><th>Nº DE PRÁTICAS:</th><td>{{ $roteiro->numero_praticas }}</td></tr>
     <tr><th>LABORATÓRIO / CENÁRIO DE PRÁTICA:</th><td>{{ $roteiro->laboratorio }}</td></tr>

@@ -122,7 +122,7 @@ class DashboardController extends Controller
                 // Se estiver pendente para o usuário, ajusta o título
                 $title = ($status_info['is_pending_for_me'] ?? false)
                     ? "🚨 PENDENTE DE APROVAÇÃO: Solicit. #{$solicitacao->id}"
-                    : "Solicitação #{$solicitacao->id}: {$status_info['text']}";
+                    : "Solicitação {$solicitacao->id}: {$status_info['text']}";
                 
 
                 return [
