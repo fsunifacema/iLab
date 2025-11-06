@@ -20,44 +20,41 @@ class SolicitacaoController extends Controller
         if ($user->nivel == User::NIVEL_PROFESSOR) {
             // Professor: Vê TODAS as suas solicitações
             $query->where('professor_id', $user->id);
-
         } elseif ($user->nivel == User::NIVEL_COORDENADOR_CURSO) {
             // Coord. Curso: Vê PENDENTES (status 1) OU JÁ PROCESSADAS POR ELE (status 2, 3, 4)
             $query->where(function ($q) use ($user) {
                 // 1. PENDENTES DELE (Status 1)
                 $q->where('status', Solicitacao::STATUS_AGUARDANDO_COORDENADOR_CURSO)
-                  
-                  // 2. OU JÁ PROCESSADAS POR ELE: Status 2 (encaminhado), Status 3 (aprovado), Status 4 (recusado).
-                  // Filtra pelo autorizante, mas garante que não pegue Status 1 de outras pessoas.
-                  ->orWhere(function ($orQ) use ($user) {
-                      $orQ->whereIn('status', [
+
+                    // 2. OU JÁ PROCESSADAS POR ELE: Status 2 (encaminhado), Status 3 (aprovado), Status 4 (recusado).
+                    // Filtra pelo autorizante, mas garante que não pegue Status 1 de outras pessoas.
+                    ->orWhere(function ($orQ) use ($user) {
+                        $orQ->whereIn('status', [
                             Solicitacao::STATUS_AGUARDANDO_COORDENADOR_LAB, // Status 2 (Ele acabou de criar)
                             Solicitacao::STATUS_APROVADA,                   // Status 3 (Finalizado)
                             Solicitacao::STATUS_RECUSADA                    // Status 4 (Finalizado)
-                          ])
-                          ->where('autorizante_id', $user->id);
-                  });
+                        ])
+                            ->where('autorizante_id', $user->id);
+                    });
             });
-
         } elseif ($user->nivel == User::NIVEL_COORDENADOR_LABORATORIO) {
             // Coord. Lab: Vê PENDENTES (status 2) OU JÁ APROVADAS (autorizante_id = user_id)
             $query->where(function ($q) use ($user) {
                 $q->where('status', Solicitacao::STATUS_AGUARDANDO_COORDENADOR_LAB)
-                  ->orWhere('autorizante_id', $user->id);
+                    ->orWhere('autorizante_id', $user->id);
             });
-            
-        } 
+        }
         // Para outros níveis (Técnico), sem filtro: ele verá todas as solicitações.
 
         // Ordena para que as PENDENTES (menores status) apareçam primeiro,
         // garantindo que as que precisam de ação estejam no topo.
         $solicitacoes = $query->orderBy('status', 'asc')
-                             ->orderBy('created_at', 'desc')
-                             ->get(); // Se quiser paginação, mude para ->paginate(10);
+            ->orderBy('created_at', 'desc')
+            ->get(); // Se quiser paginação, mude para ->paginate(10);
 
         return view('solicitacoes.index', compact('solicitacoes'));
     }
-    
+
     public function create()
     {
         // Verifica se é professor
@@ -81,19 +78,25 @@ class SolicitacaoController extends Controller
         $request->validate([
             'laboratorio_id' => 'required|exists:laboratorios,id',
             'roteiro_id' => 'required|exists:roteiros,id',
+            'data_solicitacao' => 'required|date|after_or_equal:today',
+            'horario_inicio' => 'required|date_format:H:i',
+            'horario_fim' => 'required|date_format:H:i|after:horario_inicio',
         ]);
 
         $solicitacao = Solicitacao::create([
             'professor_id' => auth()->id(),
             'laboratorio_id' => $request->laboratorio_id,
             'roteiro_id' => $request->roteiro_id,
+            'data_solicitacao' => $request->data_solicitacao,
+            'horario_inicio' => $request->horario_inicio,
+            'horario_fim' => $request->horario_fim,
             'status' => Solicitacao::STATUS_AGUARDANDO_COORDENADOR_CURSO
         ]);
 
         return redirect()->route('solicitacoes.index')
             ->with('success', 'Solicitação enviada com sucesso! Aguarde aprovação.');
     }
-    
+
     // --- MÉTODOS DE APROVAÇÃO (mantidos) ---
     public function aprovarCoordenadorCurso($id)
     {

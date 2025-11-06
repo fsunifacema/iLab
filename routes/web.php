@@ -8,6 +8,8 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\RoteiroController;
 use App\Http\Controllers\SolicitacaoController;
 use App\Http\Controllers\DashboardController; // <<<< ADICIONADO: Importação do DashboardController
+use App\Http\Controllers\RedirectController;
+use Illuminate\Support\Facades\Auth;
 
 /*
 |--------------------------------------------------------------------------
@@ -26,16 +28,43 @@ Route::get('/', function () {
 Route::get('/roteiro-pratica/{roteiro}', [RoteiroController::class, 'pdf'])->name('roteiros.pdf');
 
 
+
 Route::middleware([
     'auth:sanctum',
     config('jetstream.auth_session'),
     'verified',
+])->get('/redirect-dashboard', function () {
+    $user = Auth::user();
+
+    if ($user->nivel === 0) {
+        return redirect()->route('dashboard-comum');
+    }
+
+    return redirect()->route('dashboard');
+})->name('redirect-dashboard');
+
+
+Route::middleware([
+    'auth:sanctum',
+    config('jetstream.auth_session'),
+    'verified',
+    'nivel:0'
+])->get('/dashboard-comum', function () {
+    return view('dashboard-comum');
+})->name('dashboard-comum');
+
+
+Route::middleware([
+    'auth:sanctum',
+    config('jetstream.auth_session'),
+    'verified',
+    'nivel:1,2,3,4'
 ])->group(function () {
-    
+
     // ROTA CORRIGIDA: Aponta para o DashboardController@index, que carrega $notifications.
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
-    Route::get('/api/roteiros/eventos', [RoteiroController::class, 'getRoteirosAsEvents'])->name('api.roteiros.eventos'); 
+    Route::get('/api/roteiros/eventos', [RoteiroController::class, 'getRoteirosAsEvents'])->name('api.roteiros.eventos');
 
     // rotas de maneira publica podendo ter visibilidade alteradas futuramente
     Route::resource('laboratorios', LaboratorioController::class);

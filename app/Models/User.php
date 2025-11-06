@@ -74,6 +74,7 @@ class User extends Authenticatable
     public function getTypeAttribute(): string
     {
         return match ($this->nivel) {
+            0 => 'Comum',
             1 => 'Professor',
             2 => 'Tecnico',
             3 => 'Coordenador_curso',
@@ -87,6 +88,7 @@ class User extends Authenticatable
      * Cada constante representa um papel específico atribuído ao usuário,
      * utilizado para controle de permissões e visibilidade de funcionalidades.
      */
+    public const NIVEL_COMUM = 0;
     public const NIVEL_PROFESSOR = 1;
     public const NIVEL_TECNICO = 2;
     public const NIVEL_COORDENADOR_CURSO = 3;

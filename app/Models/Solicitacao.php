@@ -16,6 +16,9 @@ class Solicitacao extends Model
     const STATUS_RECUSADA = 4;
 
     protected $fillable = [
+        'data_solicitacao',
+        'horario_inicio',
+        'horario_fim',
         'professor_id',
         'laboratorio_id',
         'roteiro_id',
