@@ -20,7 +20,7 @@ Route::get('/', function () {
 });
 
 // Desabilita registro público: redireciona qualquer tentativa de /register para login
-Route::match(['get','post'],'/register', function(){
+Route::match(['get', 'post'], '/register', function () {
     return redirect('/login');
 })->name('register');
 
@@ -36,11 +36,11 @@ Route::middleware([
     config('jetstream.auth_session'),
     'verified',
 ])->group(function () {
-    
+
     // ROTA CORRIGIDA: Aponta para o DashboardController@index, que carrega $notifications.
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
-    Route::get('/api/roteiros/eventos', [RoteiroController::class, 'getRoteirosAsEvents'])->name('api.roteiros.eventos'); 
+    Route::get('/api/roteiros/eventos', [RoteiroController::class, 'getRoteirosAsEvents'])->name('api.roteiros.eventos');
 
     // rotas de maneira publica podendo ter visibilidade alteradas futuramente
     Route::resource('laboratorios', LaboratorioController::class);
@@ -67,29 +67,29 @@ Route::middleware([
         ->name('solicitacoes.recusar.coordenador.lab')
         ->middleware('nivel:4');
 
-    // Rotas para gerenciamento interno de usuários (apenas nível 4)
+    // Rotas para gerenciamento interno de usuários (apenas nível 5)
     Route::get('/admin/users/create', [\App\Http\Controllers\Admin\UserController::class, 'create'])
         ->name('admin.users.create')
-        ->middleware('nivel:4');
+        ->middleware('nivel:5');
 
     Route::post('/admin/users', [\App\Http\Controllers\Admin\UserController::class, 'store'])
         ->name('admin.users.store')
-        ->middleware('nivel:4');
+        ->middleware('nivel:5');
 
     // Lista, editar, atualizar e excluir usuários (admin interno)
     Route::get('/admin/users', [\App\Http\Controllers\Admin\UserController::class, 'index'])
         ->name('admin.users.index')
-        ->middleware('nivel:4');
+        ->middleware('nivel:5');
 
     Route::get('/admin/users/{user}/edit', [\App\Http\Controllers\Admin\UserController::class, 'edit'])
         ->name('admin.users.edit')
-        ->middleware('nivel:4');
+        ->middleware('nivel:5');
 
     Route::put('/admin/users/{user}', [\App\Http\Controllers\Admin\UserController::class, 'update'])
         ->name('admin.users.update')
-        ->middleware('nivel:4');
+        ->middleware('nivel:5');
 
     Route::delete('/admin/users/{user}', [\App\Http\Controllers\Admin\UserController::class, 'destroy'])
         ->name('admin.users.destroy')
-        ->middleware('nivel:4');
+        ->middleware('nivel:5');
 });
