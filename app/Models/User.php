@@ -93,4 +93,21 @@ class User extends Authenticatable
     public const NIVEL_TECNICO = 2;
     public const NIVEL_COORDENADOR_CURSO = 3;
     public const NIVEL_COORDENADOR_LABORATORIO = 4;
+
+    /**
+     * Retorna uma lista (nivel => label) dos níveis disponíveis no sistema.
+     * Centraliza os rótulos para uso em selects e formulários, facilitando
+     * a adição futura de novos níveis.
+     *
+     * @return array<int,string>
+     */
+    public static function getNiveisDisponiveis(): array
+    {
+        return [
+            self::NIVEL_PROFESSOR => 'Professor',
+            self::NIVEL_TECNICO => 'Técnico',
+            self::NIVEL_COORDENADOR_CURSO => 'Coordenador de Curso',
+            self::NIVEL_COORDENADOR_LABORATORIO => 'Coordenador de Laboratório',
+        ];
+    }
 }
