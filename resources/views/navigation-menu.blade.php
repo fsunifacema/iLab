@@ -82,6 +82,9 @@
                         <x-nav-link href="{{ route('solicitacoes.index') }}" :active="request()->routeIs('solicitacoes.index')">
                             {{ __('Solicitações') }}
                         </x-nav-link>
+                        <x-nav-link href="{{ route('admin.users.index') }}" :active="request()->routeIs('admin.index')">
+                            {{ __('Admin') }}   
+                        </x-nav-link>
                     @endif
 
                     </div>
