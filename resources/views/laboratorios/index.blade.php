@@ -7,11 +7,17 @@
 
     <div class="py-8">
         <div class="max-w-6xl mx-auto sm:px-6 lg:px-8">
-            @if(in_array(Auth::user()->nivel, [\App\Models\User::NIVEL_TECNICO, \App\Models\User::NIVEL_COORDENADOR_CURSO, \App\Models\User::NIVEL_COORDENADOR_LABORATORIO]))
-                <a href="{{ route('laboratorios.create') }}" class="fixed bottom-6 right-6 bg-[#0C2E5C] text-white text-sm px-4 py-2 rounded-md shadow-md hover:bg-blue-800 transition duration-200">
-                    + Novo Laboratório
-                </a>
-            @endif
+                @if(session('success'))
+                    <div class="p-2 bg-green-50 border border-green-200 text-green-800 rounded mb-4">{{ session('success') }}</div>
+                @endif
+                @if(session('error'))
+                    <div class="p-2 bg-red-50 border border-red-200 text-red-800 rounded mb-4">{{ session('error') }}</div>
+                @endif
+                @if(in_array(Auth::user()->nivel, [\App\Models\User::NIVEL_TECNICO, \App\Models\User::NIVEL_COORDENADOR_CURSO, \App\Models\User::NIVEL_COORDENADOR_LABORATORIO]))
+                    <a href="{{ route('laboratorios.create') }}" class="fixed bottom-6 right-6 bg-[#0C2E5C] text-white text-sm px-4 py-2 rounded-md shadow-md hover:bg-blue-800 transition duration-200">
+                        + Novo Laboratório
+                    </a>
+                @endif
 
             <div class="p-3 overflow-x-auto">
                 <div class="w-full">

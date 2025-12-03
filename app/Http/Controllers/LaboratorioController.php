@@ -1,7 +1,6 @@
 <?php
 
 namespace App\Http\Controllers;
-
 use App\Http\Requests\Laboratorios\StoreLaboratorioRequest;
 use App\Http\Requests\Laboratorios\UpdateLaboratorioRequest;
 use App\Models\Laboratorio;

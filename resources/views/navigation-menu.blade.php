@@ -82,11 +82,12 @@
                         <x-nav-link href="{{ route('solicitacoes.index') }}" :active="request()->routeIs('solicitacoes.index')">
                             {{ __('Solicitações') }}
                         </x-nav-link>
+                    @endif
+                    @if(Auth::user()->nivel == \App\Models\User::NIVEL_ADMINISTRADOR)
                         <x-nav-link href="{{ route('admin.users.index') }}" :active="request()->routeIs('admin.index')">
-                            {{ __('Admin') }}   
+                            {{ __('Usuários') }}
                         </x-nav-link>
                     @endif
-
                     </div>
             </div>
 

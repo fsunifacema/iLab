@@ -48,9 +48,6 @@
                 <div class="lg:col-span-1 bg-white overflow-hidden shadow-xl sm:rounded-lg p-6">
                     <div class="flex items-center justify-between mb-4">
                         <h3 class="text-lg font-bold text-[#0C2E5C] border-b pb-2">Feed de Atividades</h3>
-                        @if(in_array(Auth::user()->nivel, [\App\Models\User::NIVEL_COORDENADOR_LABORATORIO]))
-                            <a href="{{ route('admin.users.create') }}" class="text-sm px-3 py-1 bg-[#0C2E5C] text-white rounded">+ Novo usuário</a>
-                        @endif
                     </div>
 
                     {{-- O feed de atividades com rolagem limitada --}}

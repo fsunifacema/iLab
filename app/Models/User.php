@@ -109,6 +109,7 @@ class User extends Authenticatable
             self::NIVEL_TECNICO => 'Técnico',
             self::NIVEL_COORDENADOR_CURSO => 'Coordenador de Curso',
             self::NIVEL_COORDENADOR_LABORATORIO => 'Coordenador de Laboratório',
+            self::NIVEL_ADMINISTRADOR => 'Administrador',
         ];
     }
 }

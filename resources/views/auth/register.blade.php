@@ -6,60 +6,9 @@
         
         <h1 class="text-center justify-center text-[#0C2E5C] text-3xl font-bold border-">iLab</h1>
         <h2 class="text-center justify-center text-xl text-[#0C2E5C] mt-2 mb-4">Sistema de gerenciamento de laboratórios!</h2>
-        <h2 class="text-center justify-center text-xl font-semibold m-2 text-[#0C2E5C]">Faça seu registro</h2>
-
-
-        <x-validation-errors class="mb-4" />
-
-        <form method="POST" action="{{ route('register') }}">
-            @csrf
-
-            <div>
-                <x-label for="name" value="{{ __('Nome') }}" />
-                <x-input id="name" class="block p-1 mt-1 w-full" type="text" name="name" :value="old('name')" required autofocus autocomplete="name" />
-            </div>
-
-            <div class="mt-4">
-                <x-label for="email" value="{{ __('Email') }}" />
-                <x-input id="email" class="block p-1 mt-1 w-full" type="email" name="email" :value="old('email')" required autocomplete="username" />
-            </div>
-
-            <div class="mt-4">
-                <x-label for="password" value="{{ __('Senha') }}" />
-                <x-input id="password" class="block p-1 mt-1 w-full" type="password" name="password" required autocomplete="new-password" />
-            </div>
-
-            <div class="mt-4">
-                <x-label for="password_confirmation" value="{{ __('Confirme a senha') }}" />
-                <x-input id="password_confirmation" class="block p-1 mt-1 w-full" type="password" name="password_confirmation" required autocomplete="new-password" />
-            </div>
-
-            @if (Laravel\Jetstream\Jetstream::hasTermsAndPrivacyPolicyFeature())
-                <div class="mt-4">
-                    <x-label for="terms">
-                        <div class="flex items-center">
-                            <x-checkbox name="terms" id="terms" required />
-
-                            <div class="ms-2">
-                                {!! __('Estou de acordo com os :terms_of_service e a :privacy_policy', [
-                                        'terms_of_service' => '<a target="_blank" href="'.route('terms.show').'" class="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">'.__('Termos de Serviço').'</a>',
-                                        'privacy_policy' => '<a target="_blank" href="'.route('policy.show').'" class="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">'.__('Política de Privacidade').'</a>',
-                                ]) !!}
-                            </div>
-                        </div>
-                    </x-label>
-                </div>
-            @endif
-
-            <div class="flex items-center justify-end mt-4">
-                <a class="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" href="{{ route('login') }}">
-                    {{ __('Já tem registro?') }}
-                </a>
-
-                <x-button class="ms-4">
-                    {{ __('Registrar') }}
-                </x-button>
-            </div>
-        </form>
+        <div class="mt-6 text-center">
+            <p class="text-gray-700">Registro público desativado. Para criar uma conta, entre em contato com um administrador do sistema ou peça que um coordenador crie sua conta internamente.</p>
+            <p class="mt-4"><a href="{{ route('login') }}" class="font-semibold text-gray-600 hover:text-gray-900">Voltar para Login</a></p>
+        </div>
     </x-authentication-card>
 </x-guest-layout>
