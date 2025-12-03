@@ -37,6 +37,7 @@ class Roteiro extends Model
         'avaliacao',
         'observacoes',
         'data_assinatura',
+        'codigo_solicitacao'
     ];
 
     /**
@@ -45,4 +46,9 @@ class Roteiro extends Model
     protected $casts = [
         'data' => 'date',
     ];
+
+    public function solicitacao()
+    {
+        return $this->belongsTo(Solicitacao::class, 'codigo_solicitacao', 'codigo');
+    }
 }

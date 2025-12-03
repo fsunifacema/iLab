@@ -77,7 +77,6 @@ class SolicitacaoController extends Controller
 
         $request->validate([
             'laboratorio_id' => 'required|exists:laboratorios,id',
-            'roteiro_id' => 'required|exists:roteiros,id',
             'data_solicitacao' => 'required|date|after_or_equal:today',
             'horario_inicio' => 'required|date_format:H:i',
             'horario_fim' => 'required|date_format:H:i|after:horario_inicio',
@@ -86,7 +85,6 @@ class SolicitacaoController extends Controller
         $solicitacao = Solicitacao::create([
             'professor_id' => auth()->id(),
             'laboratorio_id' => $request->laboratorio_id,
-            'roteiro_id' => $request->roteiro_id,
             'data_solicitacao' => $request->data_solicitacao,
             'horario_inicio' => $request->horario_inicio,
             'horario_fim' => $request->horario_fim,

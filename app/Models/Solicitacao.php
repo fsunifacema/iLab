@@ -21,7 +21,7 @@ class Solicitacao extends Model
         'horario_fim',
         'professor_id',
         'laboratorio_id',
-        'roteiro_id',
+        'codigo',
         'status',
         'autorizante_id',
         'parecer'
@@ -39,8 +39,9 @@ class Solicitacao extends Model
 
     public function roteiro()
     {
-        return $this->belongsTo(Roteiro::class, 'roteiro_id');
+        return $this->hasOne(Roteiro::class, 'codigo_solicitacao', 'codigo');
     }
+
 
     public function autorizante()
     {
@@ -57,5 +58,19 @@ class Solicitacao extends Model
             self::STATUS_RECUSADA => 'Recusada',
             default => 'Desconhecido'
         };
+    }
+
+
+    // Método para criar um codigo de solicitacao unico
+    protected static function booted()
+    {
+        static::creating(function ($solicitacao) {
+            // Gera um código único e seguro
+            do {
+                $codigo = strtoupper(bin2hex(random_bytes(4))); // Ex: "A3F9C2B1"
+            } while (Solicitacao::where('codigo', $codigo)->exists());
+
+            $solicitacao->codigo = $codigo;
+        });
     }
 }
