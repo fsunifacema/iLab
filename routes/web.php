@@ -42,6 +42,10 @@ Route::middleware([
 
     Route::get('/api/roteiros/eventos', [RoteiroController::class, 'getRoteirosAsEvents'])->name('api.roteiros.eventos');
 
+    // Rota para criar roteiro a partir de solicitacao aprovada
+    Route::get('/roteiros/criar/{codigo_solicitacao}', [RoteiroController::class, 'createFromSolicitacao'])->name('roteiros.criar-solicitacao');
+    Route::post('/roteiros/armazenar-solicitacao', [RoteiroController::class, 'storeFromSolicitacao'])->name('roteiros.armazenar-solicitacao');
+
     // rotas de maneira publica podendo ter visibilidade alteradas futuramente
     Route::resource('laboratorios', LaboratorioController::class);
     Route::resource('insumos', InsumoController::class);

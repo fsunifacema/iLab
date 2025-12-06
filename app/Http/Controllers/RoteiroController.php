@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Roteiro;
 use App\Models\Laboratorio;
+use App\Models\Solicitacao;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use Dompdf\Dompdf;
@@ -19,7 +20,7 @@ class RoteiroController extends Controller
         $query = Roteiro::query();
 
         // 2. Aplica o filtro SE o usuário for Professor
-        if (Auth::user()->nivel === \App\Models\User::NIVEL_PROFESSOR) {
+        if (Auth::user()->nivel === User::NIVEL_PROFESSOR) {
             // Adiciona a cláusula WHERE para filtrar por professor
             $query->where('professor', Auth::user()->name);
             // Os coordenadores, técnicos, etc. verão todos, pois não entram neste IF
@@ -112,15 +113,162 @@ class RoteiroController extends Controller
         return response()->json($events);
     }
 
-    public function create()
+public function create()
     {
+        // Busca solicitações aprovadas E que ainda NÃO possuem roteiro
+        $query = Solicitacao::where('status', Solicitacao::STATUS_APROVADA)
+        ->doesntHave('roteiro'); // <--- Importante: Filtra apenas as sem roteiro
+        
+        // Se for professor, filtra apenas as dele
+        if (Auth::user()->nivel === User::NIVEL_PROFESSOR) {
+            $query->where('professor_id', Auth::id());
+        }
+        
+        $solicitacoes = $query->get();
         $laboratorios = Laboratorio::all();
-        return view('roteiros.create', compact('laboratorios'));
+        
+        return view('roteiros.create', compact('solicitacoes', 'laboratorios'));
     }
 
+    /**
+     * Criar roteiro a partir de uma solicitacao aprovada
+     * Preenche automaticamente: data, horario_inicio, horario_fim, laboratorio
+     */
+    public function createFromSolicitacao($codigo_solicitacao)
+    {
+        // Busca a solicitação pelo código
+        $solicitacao = Solicitacao::where('codigo', $codigo_solicitacao)->firstOrFail();
+
+        // Validar se a solicitação foi aprovada
+        if ($solicitacao->status !== Solicitacao::STATUS_APROVADA) {
+            return redirect()->route('solicitacoes.index')
+                ->with('error', 'A solicitação deve estar aprovada para criar um roteiro.');
+        }
+
+        // Validar se o usuário é o professor da solicitação ou coordenador
+        $is_authorized = Auth::id() === $solicitacao->professor_id ||
+                         Auth::user()->nivel === User::NIVEL_COORDENADOR_CURSO ||
+                         Auth::user()->nivel === User::NIVEL_COORDENADOR_LABORATORIO;
+
+        if (!$is_authorized) {
+            abort(403, 'Você não tem permissão para criar roteiro para esta solicitação.');
+        }
+
+        $laboratorios = Laboratorio::all();
+        return view('roteiros.create-from-solicitacao', compact('solicitacao', 'laboratorios'));
+    }
+
+    /**
+     * Armazenar roteiro criado a partir de solicitacao
+     */
+    /**
+     * Armazenar roteiro criado a partir de solicitacao
+     */
+    public function storeFromSolicitacao(Request $request)
+    {
+        // Busca a solicitação
+        $solicitacao = Solicitacao::where('codigo', $request->codigo_solicitacao)->firstOrFail();
+
+        // Validação de status
+        if ($solicitacao->status !== Solicitacao::STATUS_APROVADA) {
+            return redirect()->back()
+                ->with('error', 'A solicitação deve estar aprovada.');
+        }
+
+        // Validação de autorização
+        $is_authorized = Auth::id() === $solicitacao->professor_id ||
+                         Auth::user()->nivel === User::NIVEL_COORDENADOR_CURSO ||
+                         Auth::user()->nivel === User::NIVEL_COORDENADOR_LABORATORIO;
+
+        if (!$is_authorized) {
+            abort(403, 'Acesso negado.');
+        }
+
+        // 1. CORREÇÃO: Validar TODOS os campos para que eles entrem na variável $dados
+        $dados = $request->validate([
+            'codigo_solicitacao' => 'required|string',
+            'unidade_curricular' => 'required|string|max:255',
+            'tema'          => 'required|string|max:255',
+            'curso'         => 'nullable|string|max:255', // Adicionado
+            'periodo'       => 'nullable|string|max:50',   // Adicionado
+            'data'          => 'nullable|date',            // Adicionado
+            'horario_inicio'=> 'nullable|date_format:H:i', // Adicionado
+            'horario_fim'   => 'nullable|date_format:H:i', // Adicionado
+            'carga_horaria' => 'nullable|string',          // Adicionado
+            'numero_praticas'=> 'nullable|integer',        // Adicionado
+            'laboratorio'   => 'nullable|string',          // Adicionado
+            'conteudo'      => 'nullable|string',
+            'objetivos'     => 'nullable|string',
+            'metodologia'   => 'nullable|string',
+            'recursos'      => 'nullable|string',
+            'avaliacao'     => 'nullable|string',
+            'observacoes'   => 'nullable|string',
+        ]);
+
+        // 2. CORREÇÃO: Lógica de Fallback (Prioridade: Formulário > Solicitação > Padrão)
+        
+        // Curso
+        if (empty($dados['curso'])) {
+            $dados['curso'] = $solicitacao->curso ?? '';
+        }
+
+        // Professor (Sempre pega da solicitação ou do usuário logado se não vier no form)
+        $dados['professor'] = $solicitacao->professor->name ?? Auth::user()->name;
+
+        // Período
+        if (empty($dados['periodo'])) {
+            $dados['periodo'] = $solicitacao->periodo ?? '';
+        }
+
+        // Quantidade de Alunos (não estava no validate, adicionei lógica direta)
+        $dados['quantidade_alunos'] = $request->input('quantidade_alunos') ?? $solicitacao->quantidade_alunos ?? 1;
+
+        // Data
+        if (empty($dados['data'])) {
+            // Tenta pegar data da solicitação, se não tiver, pega created_at
+            $dados['data'] = $solicitacao->data_solicitacao 
+                             ?? $solicitacao->data 
+                             ?? $solicitacao->created_at->toDateString();
+        }
+
+        // Horários
+        if (empty($dados['horario_inicio'])) {
+            $dados['horario_inicio'] = $solicitacao->horario_inicio ?? null;
+        }
+        if (empty($dados['horario_fim'])) {
+            $dados['horario_fim'] = $solicitacao->horario_fim ?? null;
+        }
+
+        // Carga Horária
+        if (empty($dados['carga_horaria'])) {
+             // Tenta pegar do roteiro antigo vinculado (se existir) ou define padrão
+            $dados['carga_horaria'] = $solicitacao->carga_horaria 
+                                      ?? ($solicitacao->roteiro?->carga_horaria ?? 'Não Definida');
+        }
+
+        // Número de Práticas
+        if (empty($dados['numero_praticas'])) {
+            $dados['numero_praticas'] = $solicitacao->numero_praticas 
+                                        ?? ($solicitacao->roteiro?->numero_praticas ?? 1);
+        }
+
+        // Laboratório
+        if (empty($dados['laboratorio'])) {
+            // Uso optional() para evitar erro se laboratorio for nulo
+            $dados['laboratorio'] = optional($solicitacao->laboratorio)->nome 
+                                    ?? ($solicitacao->laboratorio_nome ?? '');
+        }
+
+        // Criar o roteiro
+        $roteiro = Roteiro::create($dados);
+
+        return redirect()->route('roteiros.show', $roteiro->id)
+            ->with('success', 'Roteiro criado com sucesso a partir da solicitação!');
+    }
     public function store(Request $request)
     {
         $dados = $request->validate([
+            'codigo_solicitacao' => 'required|string|exists:solicitacoes,codigo',
             'curso' => 'nullable|string|max:255',
             'unidade_curricular' => 'nullable|string|max:255',
             'periodo' => 'nullable|string|max:50',
@@ -140,6 +288,14 @@ class RoteiroController extends Controller
             'observacoes' => 'nullable|string',
             'data_assinatura' => 'nullable|date',
         ]);
+
+        // Valida se a solicitação está aprovada
+        $solicitacao = Solicitacao::where('codigo', $dados['codigo_solicitacao'])->firstOrFail();
+        if ($solicitacao->status !== Solicitacao::STATUS_APROVADA) {
+            return redirect()->back()
+                ->with('error', 'A solicitação deve estar aprovada para criar um roteiro.')
+                ->withInput();
+        }
 
         // Adiciona automaticamente o professor logado
         $dados['professor'] = auth()->user()->name ?? 'Usuário Indefinido';
