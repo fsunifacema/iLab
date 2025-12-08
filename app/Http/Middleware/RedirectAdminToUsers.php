@@ -20,7 +20,7 @@ class RedirectAdminToUsers
         if (auth()->check() && auth()->user()->nivel === User::NIVEL_ADMINISTRADOR) {
             // Se está tentando acessar a dashboard, redireciona para users
             if ($request->routeIs('dashboard')) {
-                return redirect()->route('users.index');
+                return redirect()->route('admin.users.index');
             }
             
             // Bloqueia acesso a outras páginas que não sejam admin

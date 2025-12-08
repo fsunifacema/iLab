@@ -64,7 +64,7 @@ class Kernel extends HttpKernel
         'signed' => \App\Http\Middleware\ValidateSignature::class,
         'throttle' => \Illuminate\Routing\Middleware\ThrottleRequests::class,
         'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
-        'nivel' => \App\Http\Middleware\CheckNivel::class, // alias para o middleware CheckNivel para facilitar sua utilização
-        'redirect.admin' => \App\Http\Middleware\RedirectAdminToUsers::class, // alias para redirecionar admin para users
+        'nivel' => \App\Http\Middleware\CheckNivel::class, 
+        'redirect.admin' => \App\Http\Middleware\RedirectAdminToUsers::class, 
     ];
 }

@@ -9,33 +9,20 @@
                 x-data="roteirosForm()" @submit="onSubmit">
                 @csrf
 
-                {{-- Seleção de Solicitação Aprovada --}}
+                {{-- Seleção de Solicitação (MANTÉM IGUAL) --}}
                 <div class="mb-6 p-4 bg-blue-50 rounded border border-blue-200">
                     <x-label for="codigo_solicitacao" value="Solicitação Aprovada *" class="block text-sm font-medium text-gray-700" />
                     
                     <select id="codigo_solicitacao" name="codigo_solicitacao" required x-model="selectedSolicitacao" @change="preencherDados()"
                         class="p-2 border-gray-300 focus:border-[#0C2E5C] focus:ring-[#0C2E5C] rounded-md shadow-sm w-full mt-1">
                         <option value="">Selecione uma solicitação aprovada</option>
-                        
                         @foreach ($solicitacoes as $sol)
-                            {{-- BLOCO PHP: Prepara e formata os dados para evitar erros no Javascript --}}
-                            @php
-                                // Formatar Data (Y-m-d para input type="date")
-                                $dataFormatada = $sol->data_solicitacao 
-                                    ? \Carbon\Carbon::parse($sol->data_solicitacao)->format('Y-m-d') 
-                                    : ($sol->data ? \Carbon\Carbon::parse($sol->data)->format('Y-m-d') : '');
-                                
-                                // Formatar Hora (H:i para input type="time")
-                                $inicioFormatado = $sol->horario_inicio 
-                                    ? \Carbon\Carbon::parse($sol->horario_inicio)->format('H:i') 
-                                    : '';
-                                
-                                $fimFormatado = $sol->horario_fim 
-                                    ? \Carbon\Carbon::parse($sol->horario_fim)->format('H:i') 
-                                    : '';
+                             {{-- (Seu código PHP do option aqui continua igual...) --}}
+                             @php
+                                $dataFormatada = $sol->data_solicitacao ? \Carbon\Carbon::parse($sol->data_solicitacao)->format('Y-m-d') : ($sol->data ? \Carbon\Carbon::parse($sol->data)->format('Y-m-d') : '');
+                                $inicioFormatado = $sol->horario_inicio ? \Carbon\Carbon::parse($sol->horario_inicio)->format('H:i') : '';
+                                $fimFormatado = $sol->horario_fim ? \Carbon\Carbon::parse($sol->horario_fim)->format('H:i') : '';
                             @endphp
-
-                            {{-- OPTION: O JSON agora recebe as strings limpas e formatadas --}}
                             <option value="{{ $sol->codigo }}" data-json="{{ json_encode([
                                 'data' => $dataFormatada,
                                 'horario_inicio' => $inicioFormatado,
@@ -50,9 +37,7 @@
                             </option>
                         @endforeach
                     </select>
-
                     <x-input-error for="codigo_solicitacao" :messages="$errors->get('codigo_solicitacao')" class="mt-2" />
-                    <p class="text-sm text-blue-600 mt-2">Os dados serão preenchidos automaticamente ao selecionar.</p>
                 </div>
 
                 <div class="mb-4">
@@ -75,32 +60,39 @@
                     <x-input-error for="professor" :messages="$errors->get('professor')" class="mt-2" />
                 </div>
 
+                {{-- PERIODO: Bloqueado --}}
                 <div class="mb-4">
                     <x-label for="periodo" value="Período" class="block text-sm font-medium text-gray-700" />
                     <x-input id="periodo" type="text" name="periodo" :value="old('periodo')" x-model="dados.periodo" class="w-full" />
                     <x-input-error for="periodo" :messages="$errors->get('periodo')" class="mt-2" />
                 </div>
 
+                {{-- QUANTIDADE ALUNOS --}}
                 <div class="mb-4">
                     <x-label for="quantidade_alunos" value="Quantidade de Alunos" class="block text-sm font-medium text-gray-700" />
                     <x-input id="quantidade_alunos" type="number" name="quantidade_alunos" :value="old('quantidade_alunos')" x-model="dados.quantidade_alunos" min="0" step="1" class="w-full" />
                     <x-input-error for="quantidade_alunos" :messages="$errors->get('quantidade_alunos')" class="mt-2" />
                 </div>
 
+                {{-- DATA: Bloqueado --}}
                 <div class="mb-4">
                     <x-label for="data" value="Data" class="block text-sm font-medium text-gray-700" />
-                    <x-input id="data" type="date" name="data" :value="old('data')" x-model="dados.data" class="w-full" />
+                    <x-input id="data" type="date" name="data" :value="old('data')" x-model="dados.data" 
+                        readonly class="w-full bg-gray-100 cursor-not-allowed text-gray-500 focus:ring-0" />
                     <x-input-error for="data" :messages="$errors->get('data')" class="mt-2" />
                 </div>
 
+                {{-- HORARIOS: Bloqueados --}}
                 <div class="mb-4">
                     <x-label for="horario_inicio" value="Horário Inicio" class="block text-sm font-medium text-gray-700" />
-                    <x-input id="horario_inicio" type="time" name="horario_inicio" :value="old('horario_inicio')" x-model="dados.horario_inicio" class="w-full" />
+                    <x-input id="horario_inicio" type="time" name="horario_inicio" :value="old('horario_inicio')" x-model="dados.horario_inicio" 
+                        readonly class="w-full bg-gray-100 cursor-not-allowed text-gray-500 focus:ring-0" />
                     <x-input-error for="horario_inicio" :messages="$errors->get('horario_inicio')" class="mt-2" />
                 </div>
                 <div class="mb-4">
                     <x-label for="horario_fim" value="Horário Fim" class="block text-sm font-medium text-gray-700" />
-                    <x-input id="horario_fim" type="time" name="horario_fim" :value="old('horario_fim')" x-model="dados.horario_fim" class="w-full" />
+                    <x-input id="horario_fim" type="time" name="horario_fim" :value="old('horario_fim')" x-model="dados.horario_fim" 
+                        readonly class="w-full bg-gray-100 cursor-not-allowed text-gray-500 focus:ring-0" />
                     <x-input-error for="horario_fim" :messages="$errors->get('horario_fim')" class="mt-2" />
                 </div>
 
@@ -116,10 +108,11 @@
                     <x-input-error for="numero_praticas" :messages="$errors->get('numero_praticas')" class="mt-2" />
                 </div>
 
+                {{-- LABORATORIO: Bloqueado (Select precisa de tratamento especial) --}}
                 <div class="mb-4">
                     <x-label for="laboratorio" value="Laboratório" class="block text-sm font-medium text-gray-700" />
-                    <select id="laboratorio" name="laboratorio" x-model="dados.laboratorio"
-                        class="p-2 border-gray-300 focus:border-[#0C2E5C] focus:ring-[#0C2E5C] rounded-md shadow-sm w-full">
+                    <select id="laboratorio" name="laboratorio" x-model="dados.laboratorio" tabindex="-1"
+                        class="p-2 border-gray-300 rounded-md shadow-sm w-full pointer-events-none bg-gray-100 text-gray-500 cursor-not-allowed">
                         <option value="">Selecione um laboratório</option>
                         @foreach ($laboratorios as $lab)
                             <option value="{{ $lab->nome }}" {{ old('laboratorio') == $lab->nome ? 'selected' : '' }}>

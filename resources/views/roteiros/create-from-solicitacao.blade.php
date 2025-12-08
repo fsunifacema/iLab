@@ -170,7 +170,7 @@
 
                 {{-- Botões --}}
                 <div class="flex justify-end space-x-2 mt-4">
-                    <a href="{{ route('roteiros.index') }}" class="inline-flex items-center px-4 py-2 text-white bg-gray-800 rounded-md hover:bg-red-600 transition">Cancelar</a>
+                    <a href="{{ route('solicitacoes.index') }}" class="inline-flex items-center px-4 py-2 text-white bg-gray-800 rounded-md hover:bg-red-600 transition">Cancelar</a>
                     <x-button type="submit" class="bg-[#0C2E5C]">Salvar</x-button>
                 </div>
             </form>
