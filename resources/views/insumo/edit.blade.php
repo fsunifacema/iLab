@@ -52,8 +52,9 @@
 
                 <div class="mb-4">
                     <label class="inline-flex items-center">
-                        <input type="checkbox" id="drq" name="drq" @checked($insumo->drq) class="form-checkbox h-4 w-4 text-indigo-600 transition duration-150 ease-in-out" />
+                        <input type="checkbox" id="drq" name="drq" value="1" @checked($insumo->drq) class="form-checkbox h-4 w-4 text-indigo-600 transition duration-150 ease-in-out" />
                         <span class="ml-2 text-sm text-gray-700">{{ __('Possui DRQ?') }}</span>
+                        <x-input-error for="drq" class="mt-2" />
                     </label>
                 </div>
 

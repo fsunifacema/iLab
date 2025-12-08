@@ -31,13 +31,13 @@
 
                 <div class="mb-4">
                     <label class="inline-flex items-center">
-                        <input type="checkbox" id="manutencao" name="manutencao" class="form-checkbox h-4 w-4 text-indigo-600 transition duration-150 ease-in-out" />
+                        <input type="checkbox" id="manutencao" name="manutencao" value="1" class="form-checkbox h-4 w-4 text-indigo-600 transition duration-150 ease-in-out" />
                         <span class="ml-2 text-sm text-gray-700">{{ __('Está em Manutenção?') }}</span>
                     </label>
                 </div>
                 <div class="mb-4">
                     <label class="inline-flex items-center">
-                        <input type="checkbox" id="calibracao" name="calibracao" class="form-checkbox h-4 w-4 text-indigo-600 transition duration-150 ease-in-out" />
+                        <input type="checkbox" id="calibracao" name="calibracao" value="1" class="form-checkbox h-4 w-4 text-indigo-600 transition duration-150 ease-in-out" />
                         <span class="ml-2 text-sm text-gray-700">{{ __('Necessita Calibração?') }}</span>
                     </label>
                 </div>

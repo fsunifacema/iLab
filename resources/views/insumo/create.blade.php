@@ -51,14 +51,15 @@
 
                 <div class="mb-4">
                     <label class="inline-flex items-center">
-                        <input type="checkbox" id="drq" name="drq" class="form-checkbox h-4 w-4 text-indigo-600 transition duration-150 ease-in-out" />
+                        <input type="checkbox" id="drq" name="drq" value="1" class="form-checkbox h-4 w-4 text-indigo-600 transition duration-150 ease-in-out" />
                         <span class="ml-2 text-sm text-gray-700">{{ __('Possui DRQ?') }}</span>
+                        <x-input-error for="drq" class="mt-2" />
                     </label>
                 </div>
 
 
                 <div class="flex justify-end space-x-2 mt-4">
-                    <a href="{{ route('insumos.index') }}" class="px-4 py-2 text-white bg-red-700 border rounded hover:bg-red-600">Cancelar</a>
+                    <a href="{{ route('insumos.index') }}"  class="px-4 py-2 text-white bg-red-700 border rounded hover:bg-red-600">Cancelar</a>
                     <x-button type="submit" class="bg-[#0C2E5C] hover:bg-blue-700">
                         {{ __('Salvar Insumo') }}
                     </x-button>
