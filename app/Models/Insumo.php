@@ -19,7 +19,7 @@ class Insumo extends Model
         'drq'
     ];
 
-    protected $cast = [
+    protected $casts = [
         'drq' => 'boolean'
     ];
 }

@@ -38,16 +38,21 @@
 
                         <!-- Cabeçalho da Tabela (apenas desktop) -->
                         @php $nivel = Auth::user()->nivel; @endphp
-                        @php $desktopCols = $nivel != \App\Models\User::NIVEL_PROFESSOR ? 'grid-cols-6' : 'grid-cols-4'; @endphp
+                        @php $desktopCols = $nivel != \App\Models\User::NIVEL_PROFESSOR ? 'grid-cols-8' : 'grid-cols-4'; @endphp
                         <div class="hidden md:grid {{ $desktopCols }} bg-[#0C2E5C] text-white px-4 py-2 rounded-t-md text-sm font-semibold">
-                            <div class="text-center">Nome</div>
-                            <div class="text-center">Marca</div>
-                            <div class="text-center">Modelo</div>
                             @if($nivel != \App\Models\User::NIVEL_PROFESSOR)
-                                <div class="text-center">Validade</div>
+                                <div class="text-center">Quantidade</div>
+                                <div class="text-center">Nome</div>
+                                <div class="text-center">Marca</div>
+                                <div class="text-center">Modelo</div>
                                 <div class="text-center">Descrição</div>
+                                <div class="text-center">Validade</div>
+                                <div class="text-center">DRQ</div>
                                 <div class="text-center">Ações</div>
                             @else
+                                <div class="text-center">Nome</div>
+                                <div class="text-center">Marca</div>
+                                <div class="text-center">Modelo</div>
                                 <div class="text-center">Descrição</div>
                             @endif
                         </div>
@@ -66,16 +71,22 @@
                                 $vencido = $validade ? $validade->isPast() : false;
                             @endphp
                             <div data-vencido="{{ $vencido ? 'true' : 'false' }}" data-proximo="{{ $proximo ? 'true' : 'false' }}" data-sem="{{ $validade ? 'false' : 'true' }}" data-nome="{{ strtolower($insumo->nome) }}" data-marca="{{ strtolower($insumo->marca) }}" data-modelo="{{ strtolower($insumo->modelo) }}" x-show="(filter==='all' || (filter==='vencidos' && $el.dataset.vencido === 'true') || (filter==='proximos' && $el.dataset.proximo === 'true') || (filter==='sem' && $el.dataset.sem === 'true')) && (query === '' || $el.dataset.nome.includes(query.toLowerCase().trim()) || $el.dataset.marca.includes(query.toLowerCase().trim()) || $el.dataset.modelo.includes(query.toLowerCase().trim()))" class="hidden md:grid {{ $desktopCols }} items-center bg-white px-4 py-2 rounded shadow border border-gray-200 hover:shadow-md transition">
+                                @if($nivel != \App\Models\User::NIVEL_PROFESSOR)
+                                    <div class="text-sm text-center text-gray-700">{{ $insumo->quantidade ?? 0 }}</div>
                                 <div class="text-sm text-center text-gray-700">{{ $insumo->nome }}</div>
                                 <div class="text-sm text-center text-gray-700">{{ $insumo->marca }}</div>
                                 <div class="text-sm text-center text-gray-700">{{ $insumo->modelo }}</div>
-                                @if($nivel != \App\Models\User::NIVEL_PROFESSOR)
+                                    <div class="text-sm text-center text-gray-700 truncate max-w-xs">{{ Str::limit($insumo->descricao, 50) }}</div>
                                     @php
                                         $validade = $insumo->validade ? \Carbon\Carbon::parse($insumo->validade) : null;
                                         $vencido = $validade ? $validade->isPast() : false;
                                     @endphp
                                     <div class="text-sm text-center {{ $vencido ? 'text-red-600 font-semibold' : 'text-gray-700' }}">{{ $validade ? $validade->format('d/m/Y') : 'N/A' }}</div>
-                                    <div class="text-sm text-center text-gray-700 truncate max-w-xs">{{ Str::limit($insumo->descricao, 50) }}</div>
+                                    <div class="text-sm text-center text-gray-700">
+                                        <span class="px-2 py-1 rounded text-xs font-semibold {{ $insumo->drq ? 'bg-green-200 text-green-800' : 'bg-gray-200 text-gray-800' }}">
+                                            {{ $insumo->drq ? 'Sim' : 'Não' }}
+                                        </span>
+                                    </div>
                                     <div class="text-center flex justify-center gap-2">
                                         @if(in_array(Auth::user()->nivel, [\App\Models\User::NIVEL_TECNICO, \App\Models\User::NIVEL_COORDENADOR_CURSO, \App\Models\User::NIVEL_COORDENADOR_LABORATORIO]))
                                             <a href="{{ route('insumos.edit', $insumo->id) }}" class="me-2">
@@ -92,6 +103,9 @@
                                         @endif
                                     </div>
                                 @else
+                                    <div class="text-sm text-center text-gray-700">{{ $insumo->nome }}</div>
+                                    <div class="text-sm text-center text-gray-700">{{ $insumo->marca }}</div>
+                                    <div class="text-sm text-center text-gray-700">{{ $insumo->modelo }}</div>
                                     <div class="text-sm text-gray-700 truncate max-w-xs text-center">{{ Str::limit($insumo->descricao, 50) }}</div>
                                 @endif
                             </div>
@@ -125,6 +139,23 @@
                                         <div>{{ $insumo->modelo }}</div>
                                     </div>
                                 </div>
+
+                                @if($nivel != \App\Models\User::NIVEL_PROFESSOR)
+                                    <div class="mt-2 grid grid-cols-2 gap-2 text-sm text-gray-700">
+                                        <div>
+                                            <div class="text-xs text-gray-500">Quantidade</div>
+                                            <div class="font-medium">{{ $insumo->quantidade ?? 0 }}</div>
+                                        </div>
+                                        <div>
+                                            <div class="text-xs text-gray-500">DRQ</div>
+                                            <div>
+                                                <span class="px-2 py-1 rounded text-xs font-semibold {{ $insumo->drq ? 'bg-green-200 text-green-800' : 'bg-gray-200 text-gray-800' }}">
+                                                    {{ $insumo->drq ? 'Sim' : 'Não' }}
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                @endif
 
                                 <div class="mt-2">
                                     <div class="text-xs text-gray-500">Descrição</div>

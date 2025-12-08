@@ -35,11 +35,10 @@
                         </div>
                         <!-- Cabeçalho (desktop) --> 
                         @php $nivel = Auth::user()->nivel; @endphp
-                        @php $nivel = Auth::user()->nivel; @endphp
-                        @php $desktopCols = $nivel != \App\Models\User::NIVEL_PROFESSOR ? 'grid-cols-4' : 'grid-cols-3'; @endphp
+                        @php $desktopCols = $nivel != \App\Models\User::NIVEL_PROFESSOR ? 'grid-cols-6' : 'grid-cols-3'; @endphp
 
                         @if($nivel != \App\Models\User::NIVEL_PROFESSOR)
-                            <div class="hidden md:grid bg-[#0C2E5C] text-white px-4 py-2 rounded-t-md text-sm font-semibold mt-3" style="grid-template-columns: 0.5fr 1fr 1fr 1fr;">
+                            <div class="hidden md:grid bg-[#0C2E5C] text-white px-4 py-2 rounded-t-md text-sm font-semibold mt-3" style="grid-template-columns: 0.5fr 1fr 1fr 0.7fr 0.7fr 1fr;">
                         @else
                             <div class="hidden md:grid bg-[#0C2E5C] text-white px-4 py-2 rounded-t-md text-sm font-semibold mt-3" style="grid-template-columns: 0.5fr 1fr 1fr;">
                         @endif
@@ -47,6 +46,8 @@
                             <div class="text-center">Marca</div>
                             <div class="text-center">Modelo</div>
                             @if($nivel != \App\Models\User::NIVEL_PROFESSOR)
+                                <div class="text-center">Calibração</div>
+                                <div class="text-center">Manutenção</div>
                                 <div class="text-center">Ações</div>
                             @endif
                         </div>
@@ -61,7 +62,7 @@
                                 @endphp
                                 <!-- Desktop: linha -->
                                 @if ($nivel != \App\Models\User::NIVEL_PROFESSOR)
-                                    <div data-nome="{{ $nome }}" data-marca="{{ $marca }}" data-modelo="{{ $modelo }}" x-show="matches($el)" class="hidden md:grid items-center bg-white px-4 py-2 rounded shadow border border-gray-200 hover:shadow-md transition" style="grid-template-columns: 0.5fr 1fr 1fr 1fr;">
+                                    <div data-nome="{{ $nome }}" data-marca="{{ $marca }}" data-modelo="{{ $modelo }}" x-show="matches($el)" class="hidden md:grid items-center bg-white px-4 py-2 rounded shadow border border-gray-200 hover:shadow-md transition" style="grid-template-columns: 0.5fr 1fr 1fr 0.7fr 0.7fr 1fr;">
                                 @else
                                     <div data-nome="{{ $nome }}" data-marca="{{ $marca }}" data-modelo="{{ $modelo }}" x-show="matches($el)" class="hidden md:grid items-center bg-white px-4 py-2 rounded shadow border border-gray-200 hover:shadow-md transition" style="grid-template-columns: 0.5fr 1fr 1fr;">
                                 @endif
@@ -70,6 +71,16 @@
                                     <div class="text-sm text-gray-700 text-center truncate">{{ $equipamento->modelo }}</div>
 
                                     @if($nivel != \App\Models\User::NIVEL_PROFESSOR)
+                                        <div class="text-center">
+                                            <span class="px-2 py-1 rounded text-xs font-semibold {{ $equipamento->calibracao ? 'bg-green-200 text-green-800' : 'bg-gray-200 text-gray-800' }}">
+                                                {{ $equipamento->calibracao ? 'Sim' : 'Não' }}
+                                            </span>
+                                        </div>
+                                        <div class="text-center">
+                                            <span class="px-2 py-1 rounded text-xs font-semibold {{ $equipamento->manutencao ? 'bg-blue-200 text-blue-800' : 'bg-gray-200 text-gray-800' }}">
+                                                {{ $equipamento->manutencao ? 'Sim' : 'Não' }}
+                                            </span>
+                                        </div>
                                         <div class="text-center flex justify-center gap-2">
                                             @if(in_array(Auth::user()->nivel, [\App\Models\User::NIVEL_TECNICO, \App\Models\User::NIVEL_COORDENADOR_CURSO, \App\Models\User::NIVEL_COORDENADOR_LABORATORIO]))
                                                 <a href="{{ route('equipamentos.edit', $equipamento->id) }}" class="me-2">
@@ -105,17 +116,37 @@
                                             <div class="text-xs text-gray-500">Marca</div>
                                             <div>{{ $equipamento->marca }}</div>
                                         </div>
-                                        @if(in_array(Auth::user()->nivel, [\App\Models\User::NIVEL_TECNICO, \App\Models\User::NIVEL_COORDENADOR_CURSO, \App\Models\User::NIVEL_COORDENADOR_LABORATORIO]))
-                                            <div class="mt-3 flex items-center gap-3">
-                                                <a href="{{ route('equipamentos.edit', $equipamento->id) }}" class="text-sm text-[#0C2E5C] font-medium">Editar</a>
-                                                <form action="{{ route('equipamentos.destroy', $equipamento->id) }}" method="POST" class="inline-block">
-                                                    @csrf
-                                                    @method('DELETE')
-                                                    <button onclick="return confirm('Deseja excluir?')" type="submit" class="cursor-pointer text-sm text-red-600 font-medium">Excluir</button>
-                                                </form>
+                                        @if($nivel != \App\Models\User::NIVEL_PROFESSOR)
+                                            <div>
+                                                <div class="text-xs text-gray-500">Calibração</div>
+                                                <span class="px-2 py-1 rounded text-xs font-semibold {{ $equipamento->calibracao ? 'bg-green-200 text-green-800' : 'bg-gray-200 text-gray-800' }}">
+                                                    {{ $equipamento->calibracao ? 'Sim' : 'Não' }}
+                                                </span>
                                             </div>
                                         @endif
                                     </div>
+
+                                    @if($nivel != \App\Models\User::NIVEL_PROFESSOR)
+                                        <div class="mt-2 grid grid-cols-1 gap-2 text-sm text-gray-700">
+                                            <div>
+                                                <div class="text-xs text-gray-500">Manutenção</div>
+                                                <span class="px-2 py-1 rounded text-xs font-semibold {{ $equipamento->manutencao ? 'bg-blue-200 text-blue-800' : 'bg-gray-200 text-gray-800' }}">
+                                                    {{ $equipamento->manutencao ? 'Sim' : 'Não' }}
+                                                </span>
+                                            </div>
+                                        </div>
+                                    @endif
+
+                                    @if(in_array(Auth::user()->nivel, [\App\Models\User::NIVEL_TECNICO, \App\Models\User::NIVEL_COORDENADOR_CURSO, \App\Models\User::NIVEL_COORDENADOR_LABORATORIO]))
+                                        <div class="mt-3 flex items-center gap-3">
+                                            <a href="{{ route('equipamentos.edit', $equipamento->id) }}" class="text-sm text-[#0C2E5C] font-medium">Editar</a>
+                                            <form action="{{ route('equipamentos.destroy', $equipamento->id) }}" method="POST" class="inline-block">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button onclick="return confirm('Deseja excluir?')" type="submit" class="cursor-pointer text-sm text-red-600 font-medium">Excluir</button>
+                                            </form>
+                                        </div>
+                                    @endif
                                 </div>
                             @empty
                                 <div class="text-center text-gray-500 py-4">

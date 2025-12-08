@@ -69,19 +69,20 @@ class RoteiroController extends Controller
 
             $start = $dateOnly;
             $end = null;
+            $allDay = true;
 
             // Lógica de Formatação para ISO 8601 (YYYY-MM-DDTHH:MM:SS)
-            if (!empty($roteiro->horario) && str_contains($roteiro->horario, ':')) {
-
-                $horarios = explode('-', $roteiro->horario);
-                $hora_inicio = trim($horarios[0]);
+            // Usa os campos horario_inicio e horario_fim (separados)
+            if (!empty($roteiro->horario_inicio)) {
+                $hora_inicio = $roteiro->horario_inicio;
 
                 // GARANTE O FORMATO ISO: YYYY-MM-DDTHH:MM:SS
                 $start = "{$dateOnly}T{$hora_inicio}:00";
+                $allDay = false;
 
-                // Calcula o 'end'
-                if (count($horarios) > 1) {
-                    $hora_fim = trim($horarios[1]);
+                // Calcula o 'end' se houver horario_fim
+                if (!empty($roteiro->horario_fim)) {
+                    $hora_fim = $roteiro->horario_fim;
                     $end = "{$dateOnly}T{$hora_fim}:00";
                 }
             }
@@ -93,7 +94,7 @@ class RoteiroController extends Controller
                 'start' => $start,
                 'end' => $end,
                 'color' => 'rgba(255, 255, 255, 1)',
-                'allDay' => empty($roteiro->horario),
+                'allDay' => $allDay,
 
                 // Informações adicionais para o modal
                 'extendedProps' => [
