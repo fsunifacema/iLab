@@ -16,6 +16,10 @@ class DashboardController extends Controller
      */
     public function index()
     {
+        // Bloquear acesso de Admins à dashboard
+        if (auth()->user()->nivel === User::NIVEL_ADMINISTRADOR) {
+            return redirect()->route('users.index');
+        }
 
         // --- ADIÇÃO: Configura o locale para português do Brasil (pt-BR) ---
         Carbon::setLocale('pt_BR');
@@ -26,6 +30,7 @@ class DashboardController extends Controller
 
         // --- NOTIFICAÇÕES DE FLUXO DE APROVAÇÃO DE SOLICITAÇÃO ---
         // Visible to: Professors, Coordenadores de Curso, Coordenadores de Lab
+        // NÃO inclui Admin (nível 5)
         if (in_array($user->nivel, [User::NIVEL_PROFESSOR, User::NIVEL_COORDENADOR_CURSO, User::NIVEL_COORDENADOR_LABORATORIO])) {
             
             $query = Solicitacao::query();
@@ -121,6 +126,7 @@ class DashboardController extends Controller
 
         // --- NOTIFICAÇÕES DE NOVO ROTEIRO ---
         // Visible to: Técnico, Coordenadores de Curso, Coordenadores de Lab
+        // NÃO inclui Admin (nível 5)
         if (in_array($user->nivel, [User::NIVEL_TECNICO, User::NIVEL_COORDENADOR_CURSO, User::NIVEL_COORDENADOR_LABORATORIO])) {
             
             $queryRoteiros = Roteiro::query();

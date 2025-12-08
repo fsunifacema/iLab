@@ -38,7 +38,8 @@ Route::middleware([
 ])->group(function () {
 
     // ROTA CORRIGIDA: Aponta para o DashboardController@index, que carrega $notifications.
-    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    // Aplicar middleware de redirecionamento para admin
+    Route::get('/dashboard', [DashboardController::class, 'index'])->middleware('redirect.admin')->name('dashboard');
 
     Route::get('/api/roteiros/eventos', [RoteiroController::class, 'getRoteirosAsEvents'])->name('api.roteiros.eventos');
 

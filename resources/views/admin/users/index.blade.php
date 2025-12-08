@@ -26,13 +26,12 @@
                             query: '',
                             matches(el){
                                 const q = this.query.toLowerCase().trim();
-                                if(q === '') return true;
-                                const qDigits = q.replace(/\D/g, '');
-                                const nome = el.dataset.nome || '';
-                                const email = el.dataset.email || '';
-                                const nivel = (el.dataset.nivel || '').toString();
-                                if(nome.includes(q) || tipo.includes(q) || local.includes(q) || capacidade.includes(q)) return true;
-                                if(qDigits !== '' && capacidade.replace(/\D/g, '').includes(qDigits)) return true;
+                                if(q === '') return true; 
+                                const nome = (el.dataset.nome || '').toLowerCase();
+                                const email = (el.dataset.email || '').toLowerCase();
+                                const nivel = (el.dataset.nivel || '').toLowerCase();
+                                if(nome.includes(q) || email.includes(q) || nivel.includes(q)) return true;
+                                
                                 return false;
                             }
                         }">
@@ -43,38 +42,60 @@
                             </div>
                         </div>
 
+                        @php $nivel = Auth::user()->nivel; @endphp
+                        @php $desktopCols = 'grid-cols-4'; @endphp
 
-
-                        <thead class="bg-gray-50">
-                            <tr>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nome</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nível</th>
-                                <th class="px-6 py-3"></th>
-                            </tr>
-                        </thead>
-                        <tbody class="bg-white divide-y divide-gray-200">
-                            @foreach($users as $user)
-                                <tr>
-                                    <td class="px-6 py-4 whitespace-nowrap">{{ $user->name }}</td>
-                                    <td class="px-6 py-4 whitespace-nowrap">{{ $user->email }}</td>
-                                    <td class="px-6 py-4 whitespace-nowrap">{{ $user->nivel }}</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-right">
-                                        <a href="{{ route('admin.users.edit', $user->id) }}" class="text-sm text-[#0C2E5C] mr-3">Editar</a>
-                                        <form action="{{ route('admin.users.destroy', $user->id) }}" method="POST" class="inline-block" onsubmit="return confirm('Deseja excluir este usuário?')">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit" class="text-sm text-red-600">Excluir</button>
-                                        </form>
-                                    </td>
-                                </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
+                        @if($nivel != \App\Models\User::NIVEL_PROFESSOR)
+                        <!-- Cabeçalho (desktop) -->
+                        <div class="hidden md:grid {{ $desktopCols }} bg-[#0C2E5C] text-white px-4 py-2 rounded-t-md text-sm font-semibold mt-3">
+                            <div>Nome</div>
+                            <div>Email</div>
+                            <div>Nível</div>
+                            <div class="text-center">Ações</div>
+                        </div>
+                        @endif
+                        <!-- Lista -->
+                        <div class="space-y-3 mt-2">
+                        @forelse($users as $user)
+                            @php
+                                $nome = strtolower($user->name);
+                                $email = strtolower($user->email);
+                                $nivelUser = strtolower((string) $user->nivel);
+                            @endphp
+                            <div 
+                                x-show="matches($el)" 
+                                data-nome="{{ $nome }}" 
+                                data-email="{{ $email }}" 
+                                data-nivel="{{ $nivelUser }}" 
+                                class="hidden md:grid {{ $desktopCols }} items-center bg-white px-4 py-2 rounded shadow border border-gray-200 hover:shadow-md transition"
+                            >
+                                <div class="text-sm text-gray-700">{{ $user->name }}</div>
+                                <div class="text-sm text-gray-700">{{ $user->email }}</div>
+                                <div class="text-sm text-gray-700">{{ $user->nivel }}</div>     
+                                @if($nivel = \App\Models\User::NIVEL_ADMINISTRADOR)
+                                <div class="text-center flex justify-center gap-2">
+                                    <a href="{{ route('admin.users.edit', $user->id) }}" class="me-2">
+                                        <x-icons-logo name="edit"/>
+                                    </a>            
+                                    <form action="{{ route('admin.users.destroy', $user->id) }}" method="POST" class="inline-block">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button onclick="return confirm('Deseja excluir este usuário?')" type="submit">
+                                            <div class="cursor-pointer relative group inline-block">
+                                                <x-icons-logo name="delete"/>
+                                            </div>
+                                        </button>
+                                    </form>
+                                </div>
+                                @endif
+                            </div>
+                        @empty
+                            <p class="text-gray-500">Nenhum usuário encontrado.</p>
+                        @endforelse
+                        </div>
+                    </div>
+                </div>  
                 </div>
-
-                <div class="mt-4">{{ $users->links() }}</div>
-            </div>
         </div>
     </div>
 </x-app-layout>
