@@ -7,7 +7,7 @@
 
     <div class="py-6">
         <div class="max-w-xl mx-auto bg-white p-6 rounded shadow">
-            
+
             <form method="POST" action="{{ route('insumos.update', $insumo) }}" onsubmit="return trimFormInputs(this)">
                 @csrf
                 @method('PUT')
@@ -31,7 +31,7 @@
                     <x-input id="marca" type="text" name="marca" value="{{ old('marca', $insumo->marca) }}" required class="w-full border border-gray-300 mt-1 p-2 rounded-md" />
                     <x-input-error :messages="$errors->get('marca')" class="mt-2" />
                 </div>
-                
+
                 <div class="mb-4">
                     <x-label for="modelo" value="Modelo" class="block text-sm font-medium" />
                     <x-input id="modelo" type="text" name="modelo" value="{{ old('modelo', $insumo->modelo) }}" required class="w-full border border-gray-300 mt-1 p-2 rounded-md" />
@@ -43,6 +43,21 @@
                     <textarea id="descricao" name="descricao" rows="3" class="w-full border border-gray-300 mt-1 p-2 rounded-md focus:border-indigo-500 focus:ring-indigo-500 shadow-sm">{{ old('descricao', $insumo->descricao) }}</textarea>
                     <x-input-error :messages="$errors->get('descricao')" class="mt-2" />
                 </div>
+
+                <div class="mb-4">
+                    <x-label for="quantidade" value="Quantidade" class="block text-sm font-medium" />
+                    <x-input id="quantidade" type="number" name="quantidade" value="{{ old('quantidade', $insumo->quantidade) }}" required class="w-full border border-gray-300 mt-1 p-2 rounded-md" min="1" />
+                    <x-input-error :messages="$errors->get('quantidade')" class="mt-2" />
+                </div>
+
+                <div class="mb-4">
+                    <label class="inline-flex items-center">
+                        <input type="checkbox" id="drq" name="drq" @checked($insumo->drq) class="form-checkbox h-4 w-4 text-indigo-600 transition duration-150 ease-in-out" />
+                        <span class="ml-2 text-sm text-gray-700">{{ __('Possui DRQ?') }}</span>
+                    </label>
+                </div>
+
+
 
                 <div class="flex justify-end space-x-2 mt-4">
                     <a href="{{ route('insumos.index') }}" class="px-4 py-2 text-white bg-red-700 border rounded hover:bg-red-600">Cancelar</a>

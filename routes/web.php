@@ -53,6 +53,12 @@ Route::middleware([
     Route::resource('roteiros', RoteiroController::class);
     Route::resource('solicitacoes', SolicitacaoController::class);
 
+    // Rota para gerenciamento de estoque - Tecnico
+    Route::get('insumos/{insumo}/estoque', [InsumoController::class, 'estoque'])
+        ->name('insumos.estoque')
+        ->middleware('nivel:2');
+
+
     // Coordenador de Curso (nível 3)
     Route::post('/solicitacoes/{id}/aprovar-coordenador-curso', [SolicitacaoController::class, 'aprovarCoordenadorCurso'])
         ->name('solicitacoes.aprovar.coordenador.curso')

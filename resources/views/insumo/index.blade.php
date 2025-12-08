@@ -134,6 +134,9 @@
                                 @if(in_array(Auth::user()->nivel, [\App\Models\User::NIVEL_TECNICO, \App\Models\User::NIVEL_COORDENADOR_CURSO, \App\Models\User::NIVEL_COORDENADOR_LABORATORIO]))
                                     <div class="mt-3 flex items-center gap-3">
                                         <a href="{{ route('insumos.edit', $insumo->id) }}" class="text-sm text-[#0C2E5C] font-medium">Editar</a>
+                                        <a href="{{ route('insumos.estoque', $insumo) }}" class="px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700">
+                                            Gerenciar Estoque
+                                        </a>
                                         <form action="{{ route('insumos.destroy', $insumo->id) }}" method="POST" class="inline-block">
                                             @csrf
                                             @method('DELETE')

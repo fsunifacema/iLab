@@ -32,7 +32,10 @@ class InsumoController extends Controller
     public function store(StoreInsumoRequest $request)
     {
         try {
-            Insumo::create($request->validated());
+            $data = $request->validated();
+            $data['drq'] = $request->has('drq');
+            Insumo::create($data);
+
             return redirect()->route('insumos.index')->with('success', 'Insumo criado com sucesso!');
         } catch (\Exception $e) {
             return redirect()->route('insumos.index')->with('error', 'Erro ao criar insumo.');
@@ -63,7 +66,10 @@ class InsumoController extends Controller
     public function update(UpdateInsumoRequest $request, string $id)
     {
         try {
-            Insumo::findOrFail($id)->update($request->validated());
+            $data = $request->validated();
+            $data['drq'] = $request->has('drq');
+            Insumo::findOrFail($id)->update($data);
+
             return redirect()->route('insumos.index')->with('success', 'Insumo atualizado com sucesso!');
         } catch (\Exception $e) {
             return redirect()->route('insumos.index')->with('error', 'Erro ao atualizar insumo.');
@@ -81,5 +87,10 @@ class InsumoController extends Controller
         } catch (\Exception $e) {
             return redirect()->route('insumos.index')->with('error', 'Erro ao deletar insumo.');
         }
+    }
+
+    public function estoque(Insumo $insumo)
+    {
+        return view('insumo.estoque', compact('insumo'));
     }
 }
