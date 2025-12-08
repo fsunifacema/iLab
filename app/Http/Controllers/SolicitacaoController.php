@@ -149,7 +149,8 @@ class SolicitacaoController extends Controller
         // so that the original approver can still see the request after final approval.
         $solicitacao->update([
             'status' => Solicitacao::STATUS_APROVADA,
-            'autorizante_id' => $solicitacao->autorizante_id ?: auth()->id(), // keep previous autorizante if any
+            // Marca o Coordenador de Laboratório atual como autorizante da decisão final
+            'autorizante_id' => auth()->id(),
             'parecer' => null
         ]);
 
@@ -173,7 +174,8 @@ class SolicitacaoController extends Controller
         // (e.g., coordenador de curso) remains recorded for visibility/audit.
         $solicitacao->update([
             'status' => Solicitacao::STATUS_RECUSADA,
-            'autorizante_id' => $solicitacao->autorizante_id ?: auth()->id(), // keep previous autorizante if any
+            // Marca o Coordenador de Laboratório atual como autorizante da recusa
+            'autorizante_id' => auth()->id(),
             'parecer' => $request->parecer
         ]);
 
