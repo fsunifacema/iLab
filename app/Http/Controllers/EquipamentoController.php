@@ -33,7 +33,12 @@ class EquipamentoController extends Controller
     {
 
         try {
-            Equipamento::create($request->validated());
+            // Preparar dados antes de criar
+            $data = $request->validated();
+            $data['manutencao'] = $request->has('manutencao');
+            $data['calibracao'] = $request->has('calibracao');
+
+            Equipamento::create($data);
             return redirect()->route('equipamentos.index')->with('success', 'Equipamento criado com sucesso!');
         } catch (\Exception $e) {
             return redirect()->route('equipamentos.index')->with('error', 'Erro ao criar equipamento.');
@@ -62,7 +67,13 @@ class EquipamentoController extends Controller
     public function update(UpdateEquipamentoRequest $request, Equipamento $equipamento)
     {
         try {
-            $equipamento->update($request->validated());
+            // Preparar dados antes de atualizar
+            $data = $request->validated();
+            $data['manutencao'] = $request->has('manutencao');
+            $data['calibracao'] = $request->has('calibracao');
+
+            $equipamento->update($data);
+
             return redirect()->route('equipamentos.index')->with('success', 'Equipamento atualizado com sucesso!');
         } catch (\Exception $e) {
             return redirect()->route('equipamentos.index')->with('error', 'Erro ao atualizar equipamento.');

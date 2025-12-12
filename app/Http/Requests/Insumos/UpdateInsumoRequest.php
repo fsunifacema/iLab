@@ -38,6 +38,9 @@ class UpdateInsumoRequest extends FormRequest
             'marca' => 'required|string',
             'modelo' => 'required|string',
             'descricao' => 'required|string',
+            'quantidade' => 'required|integer',
+            'quantidade' => 'required|integer|min:1',
+            'drq' => 'nullable|boolean',
 
         ];
     }
@@ -49,6 +52,8 @@ class UpdateInsumoRequest extends FormRequest
             'marca.required' => 'O campo marca é obrigatório.',
             'modelo.required' => 'O campo modelo é obrigatório.',
             'descricao.required' => 'O campo descricao é obrigatório.',
+            'quantidade.required' => 'O campo quantidade é obrigatório.',
+            'quantidade.min' => 'O campo quantidade deve ser maior que 0.',
 
             'nome.string' => 'O campo nome deve ser uma string.',
             'validade.date' => 'O campo validade deve ser uma data.',

@@ -15,5 +15,11 @@ class Insumo extends Model
         'marca',
         'modelo',
         'descricao',
+        'quantidade',
+        'drq'
+    ];
+
+    protected $casts = [
+        'drq' => 'boolean'
     ];
 }

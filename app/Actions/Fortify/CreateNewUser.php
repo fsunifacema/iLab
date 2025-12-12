@@ -31,7 +31,7 @@ class CreateNewUser implements CreatesNewUsers
             'name' => $input['name'],
             'email' => $input['email'],
             'password' => Hash::make($input['password']),
-            'nivel' => User::NIVEL_PROFESSOR, // usuário se registra com um nível padrão, podendo ser alterado posteriormente
+            'nivel' => User::NIVEL_COMUM, // usuário se registra com um nível padrão, podendo ser alterado posteriormente
         ]);
     }
 }

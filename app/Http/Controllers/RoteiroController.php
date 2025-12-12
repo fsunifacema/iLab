@@ -4,11 +4,12 @@ namespace App\Http\Controllers;
 
 use App\Models\Roteiro;
 use App\Models\Laboratorio;
+use App\Models\Solicitacao;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use Dompdf\Dompdf;
 use Dompdf\Options;
-use Carbon\Carbon; 
+use Carbon\Carbon;
 use App\Models\User;
 
 class RoteiroController extends Controller
@@ -19,12 +20,12 @@ class RoteiroController extends Controller
         $query = Roteiro::query();
 
         // 2. Aplica o filtro SE o usuário for Professor
-        if (Auth::user()->nivel === \App\Models\User::NIVEL_PROFESSOR) {
+        if (Auth::user()->nivel === User::NIVEL_PROFESSOR) {
             // Adiciona a cláusula WHERE para filtrar por professor
             $query->where('professor', Auth::user()->name);
             // Os coordenadores, técnicos, etc. verão todos, pois não entram neste IF
-        } 
-        
+        }
+
         // 3. Executa a query final (com ou sem o filtro de professor)
         //    e aplica a ordenação e a paginação para todos os resultados.
         $roteiros = $query->latest()->paginate(10);
@@ -46,7 +47,7 @@ class RoteiroController extends Controller
         if (Auth::user()->nivel === User::NIVEL_PROFESSOR) {
             $query->where('professor', Auth::user()->name);
         }
-        
+
         // Filtro de segurança para ignorar datas obviamente inválidas
         $query->where('data', '>', '2020-01-01');
 
@@ -54,7 +55,7 @@ class RoteiroController extends Controller
 
         // 3. Formata os dados para o FullCalendar
         $events = $roteiros->map(function ($roteiro) {
-            
+
             $title = "{$roteiro->unidade_curricular} - {$roteiro->tema} ({$roteiro->laboratorio})";
 
             // CORREÇÃO DEFINITIVA: Usa Carbon para garantir APENAS a data pura (YYYY-MM-DD).
@@ -63,24 +64,25 @@ class RoteiroController extends Controller
                 $dateOnly = $carbonDate->format('Y-m-d');
             } catch (\Exception $e) {
                 // Ignora roteiros com datas inválidas
-                return null; 
+                return null;
             }
-            
-            $start = $dateOnly; 
-            $end = null; 
-            
+
+            $start = $dateOnly;
+            $end = null;
+            $allDay = true;
+
             // Lógica de Formatação para ISO 8601 (YYYY-MM-DDTHH:MM:SS)
-            if (!empty($roteiro->horario) && str_contains($roteiro->horario, ':')) {
-                
-                $horarios = explode('-', $roteiro->horario);
-                $hora_inicio = trim($horarios[0]);
-                
+            // Usa os campos horario_inicio e horario_fim (separados)
+            if (!empty($roteiro->horario_inicio)) {
+                $hora_inicio = $roteiro->horario_inicio;
+
                 // GARANTE O FORMATO ISO: YYYY-MM-DDTHH:MM:SS
-                $start = "{$dateOnly}T{$hora_inicio}:00"; 
-                
-                // Calcula o 'end'
-                if (count($horarios) > 1) {
-                    $hora_fim = trim($horarios[1]);
+                $start = "{$dateOnly}T{$hora_inicio}:00";
+                $allDay = false;
+
+                // Calcula o 'end' se houver horario_fim
+                if (!empty($roteiro->horario_fim)) {
+                    $hora_fim = $roteiro->horario_fim;
                     $end = "{$dateOnly}T{$hora_fim}:00";
                 }
             }
@@ -89,11 +91,11 @@ class RoteiroController extends Controller
             return [
                 'id' => $roteiro->id,
                 'title' => $title,
-                'start' => $start, 
+                'start' => $start,
                 'end' => $end,
-                'color' => 'rgba(255, 255, 255, 1)', 
-                'allDay' => empty($roteiro->horario), 
-                
+                'color' => 'rgba(255, 255, 255, 1)',
+                'allDay' => $allDay,
+
                 // Informações adicionais para o modal
                 'extendedProps' => [
                     'professor' => $roteiro->professor,
@@ -112,15 +114,162 @@ class RoteiroController extends Controller
         return response()->json($events);
     }
 
-    public function create()
+public function create()
     {
+        // Busca solicitações aprovadas E que ainda NÃO possuem roteiro
+        $query = Solicitacao::where('status', Solicitacao::STATUS_APROVADA)
+        ->doesntHave('roteiro'); // <--- Importante: Filtra apenas as sem roteiro
+        
+        // Se for professor, filtra apenas as dele
+        if (Auth::user()->nivel === User::NIVEL_PROFESSOR) {
+            $query->where('professor_id', Auth::id());
+        }
+        
+        $solicitacoes = $query->get();
         $laboratorios = Laboratorio::all();
-        return view('roteiros.create', compact('laboratorios'));
+        
+        return view('roteiros.create', compact('solicitacoes', 'laboratorios'));
     }
 
+    /**
+     * Criar roteiro a partir de uma solicitacao aprovada
+     * Preenche automaticamente: data, horario_inicio, horario_fim, laboratorio
+     */
+    public function createFromSolicitacao($codigo_solicitacao)
+    {
+        // Busca a solicitação pelo código
+        $solicitacao = Solicitacao::where('codigo', $codigo_solicitacao)->firstOrFail();
+
+        // Validar se a solicitação foi aprovada
+        if ($solicitacao->status !== Solicitacao::STATUS_APROVADA) {
+            return redirect()->route('solicitacoes.index')
+                ->with('error', 'A solicitação deve estar aprovada para criar um roteiro.');
+        }
+
+        // Validar se o usuário é o professor da solicitação ou coordenador
+        $is_authorized = Auth::id() === $solicitacao->professor_id ||
+                         Auth::user()->nivel === User::NIVEL_COORDENADOR_CURSO ||
+                         Auth::user()->nivel === User::NIVEL_COORDENADOR_LABORATORIO;
+
+        if (!$is_authorized) {
+            abort(403, 'Você não tem permissão para criar roteiro para esta solicitação.');
+        }
+
+        $laboratorios = Laboratorio::all();
+        return view('roteiros.create-from-solicitacao', compact('solicitacao', 'laboratorios'));
+    }
+
+    /**
+     * Armazenar roteiro criado a partir de solicitacao
+     */
+    /**
+     * Armazenar roteiro criado a partir de solicitacao
+     */
+    public function storeFromSolicitacao(Request $request)
+    {
+        // Busca a solicitação
+        $solicitacao = Solicitacao::where('codigo', $request->codigo_solicitacao)->firstOrFail();
+
+        // Validação de status
+        if ($solicitacao->status !== Solicitacao::STATUS_APROVADA) {
+            return redirect()->back()
+                ->with('error', 'A solicitação deve estar aprovada.');
+        }
+
+        // Validação de autorização
+        $is_authorized = Auth::id() === $solicitacao->professor_id ||
+                         Auth::user()->nivel === User::NIVEL_COORDENADOR_CURSO ||
+                         Auth::user()->nivel === User::NIVEL_COORDENADOR_LABORATORIO;
+
+        if (!$is_authorized) {
+            abort(403, 'Acesso negado.');
+        }
+
+        // 1. CORREÇÃO: Validar TODOS os campos para que eles entrem na variável $dados
+        $dados = $request->validate([
+            'codigo_solicitacao' => 'required|string',
+            'unidade_curricular' => 'required|string|max:255',
+            'tema'          => 'required|string|max:255',
+            'curso'         => 'nullable|string|max:255', // Adicionado
+            'periodo'       => 'nullable|string|max:50',   // Adicionado
+            'data'          => 'nullable|date',            // Adicionado
+            'horario_inicio'=> 'nullable|date_format:H:i', // Adicionado
+            'horario_fim'   => 'nullable|date_format:H:i', // Adicionado
+            'carga_horaria' => 'nullable|string',          // Adicionado
+            'numero_praticas'=> 'nullable|integer',        // Adicionado
+            'laboratorio'   => 'nullable|string',          // Adicionado
+            'conteudo'      => 'nullable|string',
+            'objetivos'     => 'nullable|string',
+            'metodologia'   => 'nullable|string',
+            'recursos'      => 'nullable|string',
+            'avaliacao'     => 'nullable|string',
+            'observacoes'   => 'nullable|string',
+        ]);
+
+        // 2. CORREÇÃO: Lógica de Fallback (Prioridade: Formulário > Solicitação > Padrão)
+        
+        // Curso
+        if (empty($dados['curso'])) {
+            $dados['curso'] = $solicitacao->curso ?? '';
+        }
+
+        // Professor (Sempre pega da solicitação ou do usuário logado se não vier no form)
+        $dados['professor'] = $solicitacao->professor->name ?? Auth::user()->name;
+
+        // Período
+        if (empty($dados['periodo'])) {
+            $dados['periodo'] = $solicitacao->periodo ?? '';
+        }
+
+        // Quantidade de Alunos (não estava no validate, adicionei lógica direta)
+        $dados['quantidade_alunos'] = $request->input('quantidade_alunos') ?? $solicitacao->quantidade_alunos ?? 1;
+
+        // Data
+        if (empty($dados['data'])) {
+            // Tenta pegar data da solicitação, se não tiver, pega created_at
+            $dados['data'] = $solicitacao->data_solicitacao 
+                             ?? $solicitacao->data 
+                             ?? $solicitacao->created_at->toDateString();
+        }
+
+        // Horários
+        if (empty($dados['horario_inicio'])) {
+            $dados['horario_inicio'] = $solicitacao->horario_inicio ?? null;
+        }
+        if (empty($dados['horario_fim'])) {
+            $dados['horario_fim'] = $solicitacao->horario_fim ?? null;
+        }
+
+        // Carga Horária
+        if (empty($dados['carga_horaria'])) {
+             // Tenta pegar do roteiro antigo vinculado (se existir) ou define padrão
+            $dados['carga_horaria'] = $solicitacao->carga_horaria 
+                                      ?? ($solicitacao->roteiro?->carga_horaria ?? 'Não Definida');
+        }
+
+        // Número de Práticas
+        if (empty($dados['numero_praticas'])) {
+            $dados['numero_praticas'] = $solicitacao->numero_praticas 
+                                        ?? ($solicitacao->roteiro?->numero_praticas ?? 1);
+        }
+
+        // Laboratório
+        if (empty($dados['laboratorio'])) {
+            // Uso optional() para evitar erro se laboratorio for nulo
+            $dados['laboratorio'] = optional($solicitacao->laboratorio)->nome 
+                                    ?? ($solicitacao->laboratorio_nome ?? '');
+        }
+
+        // Criar o roteiro
+        $roteiro = Roteiro::create($dados);
+
+        return redirect()->route('roteiros.show', $roteiro->id)
+            ->with('success', 'Roteiro criado com sucesso a partir da solicitação!');
+    }
     public function store(Request $request)
     {
         $dados = $request->validate([
+            'codigo_solicitacao' => 'required|string|exists:solicitacoes,codigo',
             'curso' => 'nullable|string|max:255',
             'unidade_curricular' => 'nullable|string|max:255',
             'periodo' => 'nullable|string|max:50',
@@ -140,6 +289,14 @@ class RoteiroController extends Controller
             'observacoes' => 'nullable|string',
             'data_assinatura' => 'nullable|date',
         ]);
+
+        // Valida se a solicitação está aprovada
+        $solicitacao = Solicitacao::where('codigo', $dados['codigo_solicitacao'])->firstOrFail();
+        if ($solicitacao->status !== Solicitacao::STATUS_APROVADA) {
+            return redirect()->back()
+                ->with('error', 'A solicitação deve estar aprovada para criar um roteiro.')
+                ->withInput();
+        }
 
         // Adiciona automaticamente o professor logado
         $dados['professor'] = auth()->user()->name ?? 'Usuário Indefinido';
@@ -166,7 +323,7 @@ class RoteiroController extends Controller
             User::NIVEL_COORDENADOR_CURSO,
             User::NIVEL_COORDENADOR_LABORATORIO,
         ];
-        
+
         // A autorização é concedida se o nível do usuário estiver na lista de permitidos
         $is_authorized = in_array($user_nivel, $allowed_levels);
 
@@ -174,7 +331,7 @@ class RoteiroController extends Controller
             // Bloqueia se for NIVEL_TECNICO ou qualquer outro não listado
             abort(403, 'Acesso não autorizado. Você não tem permissão para editar roteiros.');
         }
-        
+
         // 2. Continua se a autorização for bem-sucedida
         $laboratorios = Laboratorio::all();
         return view('roteiros.edit', compact('roteiro', 'laboratorios'));
@@ -201,7 +358,6 @@ class RoteiroController extends Controller
         $dados = $request->validate([
             'curso' => 'nullable|string|max:255',
             'unidade_curricular' => 'nullable|string|max:255',
-            'professor' => 'nullable|string|max:255',
             'periodo' => 'nullable|string|max:50',
             'quantidade_alunos' => 'nullable|integer',
             'data' => 'nullable|date|after_or_equal:today',

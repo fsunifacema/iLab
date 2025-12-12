@@ -78,6 +78,7 @@ class User extends Authenticatable
             2 => 'Tecnico',
             3 => 'Coordenador_curso',
             4 => 'Coordenador_laboratorio',
+            5 => 'Administrador',
         };
     }
 
@@ -91,4 +92,24 @@ class User extends Authenticatable
     public const NIVEL_TECNICO = 2;
     public const NIVEL_COORDENADOR_CURSO = 3;
     public const NIVEL_COORDENADOR_LABORATORIO = 4;
+    public const NIVEL_ADMINISTRADOR = 5;
+
+
+    /**
+     * Retorna uma lista (nivel => label) dos níveis disponíveis no sistema.
+     * Centraliza os rótulos para uso em selects e formulários, facilitando
+     * a adição futura de novos níveis.
+     *
+     * @return array<int,string>
+     */
+    public static function getNiveisDisponiveis(): array
+    {
+        return [
+            self::NIVEL_PROFESSOR => 'Professor',
+            self::NIVEL_TECNICO => 'Técnico',
+            self::NIVEL_COORDENADOR_CURSO => 'Coordenador de Curso',
+            self::NIVEL_COORDENADOR_LABORATORIO => 'Coordenador de Laboratório',
+            self::NIVEL_ADMINISTRADOR => 'Administrador',
+        ];
+    }
 }

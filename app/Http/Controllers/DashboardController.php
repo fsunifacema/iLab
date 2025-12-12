@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Solicitacao;
+use App\Models\Roteiro;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Database\Eloquent\Builder;
@@ -15,133 +16,152 @@ class DashboardController extends Controller
      */
     public function index()
     {
+        // Bloquear acesso de Admins à dashboard
+        if (auth()->user()->nivel === User::NIVEL_ADMINISTRADOR) {
+            return redirect()->route('users.index');
+        }
+
         // --- ADIÇÃO: Configura o locale para português do Brasil (pt-BR) ---
         Carbon::setLocale('pt_BR');
         // --------------------------------------------------------------------
-        
+
         $user = auth()->user();
-        
-        // --- 1. CONFIGURAÇÃO BASE DA QUERY DE NOTIFICAÇÕES ---
-        $query = Solicitacao::query();
+        $notifications = collect(); // Inicializa uma coleção vazia
 
-        // CORRIGIDO: Removido 'roteiro.curso' e deixado apenas 'roteiro'.
-        $query->with(['professor', 'roteiro', 'laboratorio', 'autorizante']); 
-
-        // Filtro de status: Busca todos os status que geram notificação
-        $query->whereIn('status', [
-            Solicitacao::STATUS_AGUARDANDO_COORDENADOR_CURSO, // PENDENTE (Nova)
-            Solicitacao::STATUS_AGUARDANDO_COORDENADOR_LAB, // PENDENTE (Passou 1ª fase)
-            Solicitacao::STATUS_APROVADA, // FINAL (Aprovada)
-            Solicitacao::STATUS_RECUSADA,// FINAL (Recusada)
-        ]);
-
-        // Limita notificações ao período recente: últimas 7 dias
-        $query->where('updated_at', '>=', Carbon::now()->subDays(7));
-        
-        // --- 2. FILTRAGEM POR NÍVEL DE USUÁRIO ---
-        if ($user->nivel == User::NIVEL_PROFESSOR) {
-            // Professor: Vê apenas atualizações de SUAS solicitações, mas só após o primeiro passo (Status 2, 3, 4).
-            $query->where('professor_id', $user->id)
-                  ->whereIn('status', [Solicitacao::STATUS_AGUARDANDO_COORDENADOR_LAB, Solicitacao::STATUS_APROVADA, Solicitacao::STATUS_RECUSADA]);
-
-        } elseif ($user->nivel == User::NIVEL_COORDENADOR_CURSO) {
-            // Coordenador de Curso (CC):
-            $query->where(function (Builder $q) use ($user) {
-                // PENDENTE: Status 1 - Requer aprovação dele. 
-                // MOSTRA TODAS as pendentes de Status 1 (Filtro de Curso removido).
-                $q->where('status', Solicitacao::STATUS_AGUARDANDO_COORDENADOR_CURSO)
-                  
-                // AUTORIZADAS/RECUSADAS: Vê as solicitações que ELE já autorizou/recusou (Status 3 e 4).
-                  ->orWhere(function(Builder $orQ) use ($user) {
-                      $orQ->whereIn('status', [Solicitacao::STATUS_APROVADA, Solicitacao::STATUS_RECUSADA])
-                          ->where('autorizante_id', $user->id);
-                  });
-            });
-
-        } elseif ($user->nivel == User::NIVEL_COORDENADOR_LABORATORIO) {
-            // Coordenador de Laboratório (CL):
-            $query->where(function (Builder $q) use ($user) {
-                // PENDENTE: Status 2 - Requer aprovação dele. 
-                // FILTRO DE LABORATÓRIO REMOVIDO: MOSTRA TODAS as pendentes de Status 2.
-                $q->where('status', Solicitacao::STATUS_AGUARDANDO_COORDENADOR_LAB)
-                
-                // AUTORIZADAS/RECUSADAS: Vê as solicitações que ELE já autorizou/recusou (Status 3 e 4)
-                  ->orWhere('autorizante_id', $user->id);
-            });
+        // --- NOTIFICAÇÕES DE FLUXO DE APROVAÇÃO DE SOLICITAÇÃO ---
+        // Visible to: Professors, Coordenadores de Curso, Coordenadores de Lab
+        // NÃO inclui Admin (nível 5)
+        if (in_array($user->nivel, [User::NIVEL_PROFESSOR, User::NIVEL_COORDENADOR_CURSO, User::NIVEL_COORDENADOR_LABORATORIO])) {
             
-        } 
-        // Admin/Técnico veem as últimas 10 alterações (sem filtro adicional).
-        
-        // --- 3. EXECUÇÃO DA QUERY E FORMATAÇÃO ---
-        
-        $notifications = $query
-            ->orderBy('updated_at', 'desc')
-            ->limit(10)
-            ->get()
-            ->map(function ($solicitacao) use ($user) {
-                
-                // Determina o texto e o código de status para exibição
+            $query = Solicitacao::query();
+            $query->with(['professor', 'roteiro', 'laboratorio', 'autorizante']);
+
+            // Filtro de status: Busca todos os status que geram notificação
+            $query->whereIn('status', [
+                Solicitacao::STATUS_AGUARDANDO_COORDENADOR_CURSO,
+                Solicitacao::STATUS_AGUARDANDO_COORDENADOR_LAB,
+                Solicitacao::STATUS_APROVADA,
+                Solicitacao::STATUS_RECUSADA,
+            ]);
+
+            // Limita notificações ao período recente: últimas 7 dias
+            $query->where('updated_at', '>=', Carbon::now()->subDays(7));
+
+            // --- FILTRAGEM POR NÍVEL DE USUÁRIO ---
+            if ($user->nivel == User::NIVEL_PROFESSOR) {
+                // Professor: Vê apenas atualizações de SUAS solicitações, mas só após o primeiro passo
+                $query->where('professor_id', $user->id)
+                    ->whereIn('status', [Solicitacao::STATUS_AGUARDANDO_COORDENADOR_LAB, Solicitacao::STATUS_APROVADA, Solicitacao::STATUS_RECUSADA]);
+            } elseif ($user->nivel == User::NIVEL_COORDENADOR_CURSO) {
+                // Coordenador de Curso (CC):
+                $query->where(function (Builder $q) use ($user) {
+                    $q->where('status', Solicitacao::STATUS_AGUARDANDO_COORDENADOR_CURSO)
+                        ->orWhere(function (Builder $orQ) use ($user) {
+                            $orQ->whereIn('status', [Solicitacao::STATUS_APROVADA, Solicitacao::STATUS_RECUSADA])
+                                ->where('autorizante_id', $user->id);
+                        });
+                });
+            } elseif ($user->nivel == User::NIVEL_COORDENADOR_LABORATORIO) {
+                // Coordenador de Laboratório (CL):
+                $query->where(function (Builder $q) use ($user) {
+                    $q->where('status', Solicitacao::STATUS_AGUARDANDO_COORDENADOR_LAB)
+                        ->orWhere('autorizante_id', $user->id);
+                });
+            }
+
+            $solicitacoes = $query->orderBy('updated_at', 'desc')->limit(10)->get();
+
+            $notificacoesSolicitacoes = $solicitacoes->map(function ($solicitacao) use ($user) {
                 $status_info = match ($solicitacao->status) {
-                    
-                    // --- STATUS DE APROVAÇÃO PENDENTE ---
                     Solicitacao::STATUS_AGUARDANDO_COORDENADOR_CURSO => [
-                        'text' => 'APROVAÇÃO PENDENTE', 
-                        'message' => 'Nova solicitação. Requer análise do Coordenador de Curso.', 
+                        'text' => 'APROVAÇÃO PENDENTE',
+                        'message' => 'Nova solicitação. Requer análise do Coordenador de Curso.',
                         'code' => 'review',
-                        'is_pending_for_me' => ($user->nivel == User::NIVEL_COORDENADOR_CURSO) 
+                        'is_pending_for_me' => ($user->nivel == User::NIVEL_COORDENADOR_CURSO)
                     ],
                     Solicitacao::STATUS_AGUARDANDO_COORDENADOR_LAB => [
-                        'text' => 'APROVAÇÃO PENDENTE', 
-                        'message' => 'Aprovada pelo CC. Requer análise e agendamento do Coordenador de Laboratório.', 
+                        'text' => 'APROVAÇÃO PENDENTE',
+                        'message' => 'Aprovada pelo CC. Requer análise e agendamento do Coordenador de Laboratório.',
                         'code' => 'review',
-                        'is_pending_for_me' => ($user->nivel == User::NIVEL_COORDENADOR_LABORATORIO) 
+                        'is_pending_for_me' => ($user->nivel == User::NIVEL_COORDENADOR_LABORATORIO)
                     ],
-                    
-                    // --- STATUS FINAIS ---
                     Solicitacao::STATUS_APROVADA => [
-                        'text' => 'APROVADA E AGENDADA', 
-                        'message' => 'A solicitação foi aprovada pelo Coordenador do Laboratório.', 
+                        'text' => 'APROVADA E AGENDADA',
+                        'message' => 'A solicitação foi aprovada pelo Coordenador do Laboratório.',
                         'code' => 'approved',
                         'is_pending_for_me' => false
                     ],
                     Solicitacao::STATUS_RECUSADA => [
-                        'text' => 'RECUSADA', 
-                        'message' => 'Parecer: ' . ($solicitacao->parecer ?: 'Não informado.'), 
+                        'text' => 'RECUSADA',
+                        'message' => 'Parecer: ' . ($solicitacao->parecer ?: 'Não informado.'),
                         'code' => 'rejected',
                         'is_pending_for_me' => false
                     ],
-                    
                     default => [
-                        'text' => 'MUDANÇA DE STATUS', 
-                        'message' => 'Verifique os detalhes.', 
+                        'text' => 'MUDANÇA DE STATUS',
+                        'message' => 'Verifique os detalhes.',
                         'code' => 'pending',
                         'is_pending_for_me' => false
                     ],
                 };
-                
-                // Se estiver pendente para o usuário, ajusta o título
+
                 $title = ($status_info['is_pending_for_me'] ?? false)
-                    ? "🚨 PENDENTE DE APROVAÇÃO: Solicit. #{$solicitacao->id}"
+                    ? "PENDENTE DE APROVAÇÃO: Solicit. #{$solicitacao->id}"
                     : "Solicitação {$solicitacao->id}: {$status_info['text']}";
-                
 
                 return [
                     'id' => $solicitacao->id,
+                    'type' => 'solicitacao',
                     'status' => $status_info['code'],
                     'title' => $title,
                     'message' => $status_info['message'],
-                    
-                    // RETORNA O TEMPO RELATIVO ("há X tempo")
-                    'time_ago' => $solicitacao->updated_at->diffForHumans(), 
-                    // NOVO CAMPO: RETORNA O TEMPO EXATO ("DD/MM/AAAA HH:MM")
+                    'time_ago' => $solicitacao->updated_at->diffForHumans(),
                     'time_exact' => $solicitacao->updated_at->format('d/m/Y \à\s H:i'),
-                    
                     'link' => route('solicitacoes.show', $solicitacao->id),
                 ];
             });
 
-        // --- 4. Renderiza a View ---
-        
+            $notifications = $notifications->merge($notificacoesSolicitacoes);
+        }
+
+        // --- NOTIFICAÇÕES DE NOVO ROTEIRO ---
+        // Visible to: Técnico, Coordenadores de Curso, Coordenadores de Lab
+        // NÃO inclui Admin (nível 5)
+        if (in_array($user->nivel, [User::NIVEL_TECNICO, User::NIVEL_COORDENADOR_CURSO, User::NIVEL_COORDENADOR_LABORATORIO])) {
+            
+            $queryRoteiros = Roteiro::query();
+            $queryRoteiros->with(['solicitacao', 'solicitacao.professor', 'solicitacao.laboratorio']);
+            $queryRoteiros->where('created_at', '>=', Carbon::now()->subDays(7));
+
+            // Filtrar roteiros apenas daqueles com solicitação aprovada
+            $queryRoteiros->whereHas('solicitacao', function (Builder $q) {
+                $q->where('status', Solicitacao::STATUS_APROVADA);
+            });
+
+            $roteiros = $queryRoteiros->orderBy('created_at', 'desc')->limit(10)->get();
+
+            $notificacoesRoteiros = $roteiros->map(function ($roteiro) {
+                return [
+                    'id' => $roteiro->id,
+                    'type' => 'roteiro',
+                    'status' => 'approved',
+                    'title' => "NOVO ROTEIRO: {$roteiro->unidade_curricular}",
+                    'message' => "Novo roteiro foi anexado à solicitação. Laboratório: {$roteiro->laboratorio}. Professor: {$roteiro->professor}",
+                    'time_ago' => $roteiro->created_at->diffForHumans(),
+                    'time_exact' => $roteiro->created_at->format('d/m/Y \à\s H:i'),
+                    'link' => route('roteiros.show', $roteiro->id),
+                ];
+            });
+
+            $notifications = $notifications->merge($notificacoesRoteiros);
+        }
+
+        // --- ORDENA TODAS AS NOTIFICAÇÕES POR TEMPO (MAIS RECENTES PRIMEIRO) ---
+        $notifications = $notifications->sortByDesc(function ($notif) {
+            // Extrai o timestamp do campo time_exact para ordenação
+            return \Carbon\Carbon::createFromFormat('d/m/Y \à\s H:i', $notif['time_exact']);
+        })->take(10); // Limita a 10 notificações totais
+
         return view('dashboard', [
             'notifications' => $notifications,
         ]);

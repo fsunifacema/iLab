@@ -35,6 +35,8 @@ class UpdateEquipamentoRequest extends FormRequest
             ],
             'marca' => 'required|string',
             'modelo' => 'required|string',
+            'manutencao' => 'nullable|boolean',
+            'calibracao' => 'nullable|boolean',
         ];
     }
 

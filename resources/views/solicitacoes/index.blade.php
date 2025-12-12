@@ -55,7 +55,7 @@
                         {{-- Cabeçalho (desktop) --}}
                         <div class="hidden md:grid bg-[#0C2E5C] text-white px-4 py-3 rounded-t-md text-sm font-semibold mt-3" style="grid-template-columns: 0.75fr 1.25fr 1fr 1fr 1fr 1.25fr;">
                             <div class="text-left">Data Solicitada</div>
-                            <div class="text-center">Unidade Curricular</div>
+                            <div class="text-center">Horário</div>
                             <div class="text-center">Laboratório</div>
                             <div class="text-center">Professor</div>
                             <div class="text-center">Status</div>
@@ -73,7 +73,7 @@
                                 );
                                 
                                 // Prepara dados para busca (usando status_texto para busca)
-                                $unidade = strtolower($solicitacao->roteiro->unidade_curricular ?? '');
+                                $unidade = strtolower($solicitacao->horario_inicio ?? '');
                                 $laboratorio = strtolower($solicitacao->laboratorio->nome ?? '');
                                 $status = strtolower($solicitacao->status_texto); // Usando status_texto para busca!
                                 $professor = strtolower($solicitacao->professor->name ?? '');
@@ -86,7 +86,7 @@
                                 {{ $requerAcao ? 'border-l-4 border-yellow-500' : '' }}"> {{-- DESTAQUE VISUAL AQUI --}}
                                 
                                 <div class="text-sm text-gray-700 text-left">{{ $dataDisplay }}</div>
-                                <div class="text-sm text-gray-700 text-center">{{ $solicitacao->roteiro->unidade_curricular ?? 'Roteiro Excluído' }}</div>
+                                <div class="text-sm text-gray-700 text-center">{{ \Carbon\Carbon::parse($solicitacao->horario_inicio)->format('H:i') }} - {{ \Carbon\Carbon::parse($solicitacao->horario_fim)->format(format: 'H:i') }}</div>
                                 <div class="text-sm text-gray-700 text-center">{{ $solicitacao->laboratorio->nome ?? 'N/A' }}</div>
                                 <div class="text-sm text-gray-700 text-center">{{ $solicitacao->professor->name ?? 'N/A' }}</div>
                                 
@@ -140,7 +140,7 @@
                                     </span>
                                 </div>
 
-                                <div class="text-base text-gray-800 font-semibold mb-1">{{ $solicitacao->roteiro->unidade_curricular ?? 'Roteiro Excluído'}}</div>
+                                <div class="text-base text-gray-800 font-semibold mb-1">{{ $solicitacao->roteiro->horario_inicio ?? 'N/A' }} - {{ $solicitacao->roteiro->horario_fim ?? 'N/A' }}</div>
                                 <div class="text-sm text-gray-600 mb-2">Lab: {{ $solicitacao->laboratorio->nome ?? 'N/A' }}</div>
 
                                 <div class="grid grid-cols-2 gap-2 text-sm text-gray-700 border-t pt-2">

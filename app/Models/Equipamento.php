@@ -7,11 +7,16 @@ use Illuminate\Database\Eloquent\Model;
 
 class Equipamento extends Model
 {
-    use HasFactory;
-
     protected $fillable = [
         'nome',
         'marca',
         'modelo',
+        'manutencao',
+        'calibracao',
+    ];
+
+    protected $casts = [
+        'manutencao' => 'boolean',
+        'calibracao' => 'boolean',
     ];
 }
