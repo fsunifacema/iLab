@@ -69,6 +69,43 @@
                                 @enderror
                             </div>
 
+                            <div class="space-y-4 mb-6">
+                                <div class="flex items-center justify-between">
+                                    <label class="block text-sm font-medium text-gray-700">Insumos</label>
+                                    <button type="button" onclick="addInput('insumos-container')" class="text-blue-600 hover:text-blue-800 text-sm font-bold">+ Adicionar Insumo</button>
+                                </div>
+                                
+                                <div id="insumos-container" class="space-y-2">
+                                    <div class="flex gap-2">
+                                        <select name="insumos_id[]" required class="block w-full border border-gray-300 rounded-md shadow-sm p-2">
+                                            <option value="">Selecione o insumo</option>
+                                            @foreach($insumos as $insumo)
+                                                <option value="{{ $insumo->id }}">{{ $insumo->nome }}</option>
+                                            @endforeach
+                                        </select>
+                                        <button type="button" onclick="removeInput(this)" class="text-red-500 px-2">✕</button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="space-y-4">
+                                <div class="flex items-center justify-between">
+                                    <label class="block text-sm font-medium text-gray-700">Equipamentos</label>
+                                    <button type="button" onclick="addInput('equipamentos-container')" class="text-blue-600 hover:text-blue-800 text-sm font-bold">+ Adicionar Equipamento</button>
+                                </div>
+
+                                <div id="equipamentos-container" class="space-y-2">
+                                    <div class="flex gap-2">
+                                        <select name="equipamentos_id[]" required class="block w-full border border-gray-300 rounded-md shadow-sm p-2">
+                                            <option value="">Selecione o equipamento</option>
+                                            @foreach($equipamentos as $equipamento)
+                                                <option value="{{ $equipamento->id }}">{{ $equipamento->nome }}</option>
+                                            @endforeach
+                                        </select>
+                                        <button type="button" onclick="removeInput(this)" class="text-red-500 px-2">✕</button>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
 
                         <div class="mt-6">
@@ -84,4 +121,26 @@
             </div>
         </div>
     </div>
+    <script>
+        function addInput(containerId) {
+            const container = document.getElementById(containerId);
+            const div = container.querySelector('div').cloneNode(true);
+            
+            // Limpa o valor selecionado no novo campo
+            div.querySelector('select').value = "";
+            
+            // Adiciona o novo campo ao container
+            container.appendChild(div);
+        }
+
+        function removeInput(button) {
+            const container = button.parentNode.parentNode;
+            // Evita remover se for o único campo
+            if (container.querySelectorAll('.flex').length > 1) {
+                button.parentNode.remove();
+            } else {
+                alert("Pelo menos um item deve ser selecionado.");
+            }
+        }
+    </script>
 </x-app-layout>

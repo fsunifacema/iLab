@@ -21,6 +21,9 @@ class Solicitacao extends Model
         'horario_fim',
         'professor_id',
         'laboratorio_id',
+        'roteiro_id',
+        'insumos',
+        'equipamentos',
         'codigo',
         'status',
         'autorizante_id',
@@ -41,6 +44,18 @@ class Solicitacao extends Model
     {
         return $this->hasOne(Roteiro::class, 'codigo_solicitacao', 'codigo');
     }
+    
+    public function insumos()
+    {
+        return $this->belongsToMany(Insumo::class, 'solicitacao_insumo', 'solicitacao_id', 'insumo_id');
+    }
+
+    public function equipamentos()
+    {
+        return $this->belongsToMany(Equipamento::class, 'solicitacao_equipamento', 'solicitacao_id', 'equipamento_id');
+    }
+
+
 
 
     public function autorizante()

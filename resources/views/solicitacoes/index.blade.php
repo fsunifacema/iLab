@@ -140,7 +140,7 @@
                                     </span>
                                 </div>
 
-                                <div class="text-base text-gray-800 font-semibold mb-1">{{ $solicitacao->roteiro->horario_inicio ?? 'N/A' }} - {{ $solicitacao->roteiro->horario_fim ?? 'N/A' }}</div>
+                                <div class="text-base text-gray-800 font-semibold mb-1">{{ \Carbon\Carbon::parse($solicitacao->horario_inicio)->format('H:i') }} - {{ \Carbon\Carbon::parse($solicitacao->horario_fim)->format('H:i') }}</div>
                                 <div class="text-sm text-gray-600 mb-2">Lab: {{ $solicitacao->laboratorio->nome ?? 'N/A' }}</div>
 
                                 <div class="grid grid-cols-2 gap-2 text-sm text-gray-700 border-t pt-2">

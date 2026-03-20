@@ -76,6 +76,34 @@
                                 {{ $solicitacao->horario_fim ? \Carbon\Carbon::parse($solicitacao->horario_fim)->format('H:i') : '--' }}
                             </span>
                         </div>
+                        {{-- Insumos --}}
+                        <div class="flex justify-between border-b pb-2 items-start">
+                            <span class="font-medium text-gray-700">Insumos Solicitados:</span>
+                            <div class="flex flex-col text-right">
+                                @forelse ($solicitacao->insumos as $insumo)
+                                    <span class="text-gray-900 bg-gray-100 px-2 py-0.5 rounded text-start mb-1 text-xs font-semibold border border-gray-200">
+                                        {{ $insumo->nome }}
+                                    </span>
+                                @empty
+                                    <span class="text-gray-400 italic">Nenhum</span>
+                                @endforelse
+                            </div>
+                        </div>
+
+                        {{-- Equipamentos --}}
+                        <div class="flex justify-between border-b pb-2 items-start mt-2">
+                            <span class="font-medium text-gray-700">Equipamentos Solicitados:</span>
+                            <div class="flex flex-col text-right">
+                                @forelse ($solicitacao->equipamentos as $equipamento)
+                                    <span class="text-gray-900 bg-gray-100 px-2 py-0.5 rounded mb-1 texte-start text-xs font-semibold border border-gray-200">
+                                        {{ $equipamento->nome }}
+                                    </span>
+                                @empty
+                                    <span class="text-gray-400 italic">Nenhum</span>
+                                @endforelse
+                            </div>
+                        </div>
+
                     </div>
                     
                     <h4 class="text-lg font-bold text-gray-700 pt-4 border-b pb-2">Detalhes do Roteiro</h4>

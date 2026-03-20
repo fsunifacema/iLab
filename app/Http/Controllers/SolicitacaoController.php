@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Laboratorio;
 use App\Models\Roteiro;
+use App\Models\Insumo;
+use App\Models\Equipamento;
 use App\Models\Solicitacao;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -64,32 +66,49 @@ class SolicitacaoController extends Controller
 
         $laboratorios = Laboratorio::all();
         $roteiros = Roteiro::where('professor', auth()->user()->name)->get();
+        $insumos = Insumo::all();
+        $equipamentos = Equipamento::all();
 
-        return view('solicitacoes.create', compact('laboratorios', 'roteiros'));
+        return view('solicitacoes.create', compact('laboratorios', 'roteiros', 'insumos', 'equipamentos'));
     }
 
     public function store(Request $request)
     {
-        // Verifica se é professor
+        // 1. Verifica se é professor
         if (auth()->user()->nivel != User::NIVEL_PROFESSOR) {
             abort(403, 'Apenas professores podem criar solicitações.');
         }
 
+        // 2. Validação (incluindo os arrays de IDs)
         $request->validate([
-            'laboratorio_id' => 'required|exists:laboratorios,id',
+            'laboratorio_id'   => 'required|exists:laboratorios,id',
             'data_solicitacao' => 'required|date|after_or_equal:today',
-            'horario_inicio' => 'required|date_format:H:i',
-            'horario_fim' => 'required|date_format:H:i|after:horario_inicio',
+            'horario_inicio'   => 'required|date_format:H:i',
+            'horario_fim'      => 'required|date_format:H:i|after:horario_inicio',
+            'insumos_id'       => 'nullable|array', // Valida que é um array
+            'insumos_id.*'     => 'exists:insumos,id', // Valida cada ID dentro do array
+            'equipamentos_id'  => 'nullable|array',
+            'equipamentos_id.*'=> 'exists:equipamentos,id',
         ]);
 
+        // 3. Cria a Solicitação (sem os insumos/equipamentos ainda)
         $solicitacao = Solicitacao::create([
-            'professor_id' => auth()->id(),
-            'laboratorio_id' => $request->laboratorio_id,
+            'professor_id'     => auth()->id(),
+            'laboratorio_id'   => $request->laboratorio_id,
             'data_solicitacao' => $request->data_solicitacao,
-            'horario_inicio' => $request->horario_inicio,
-            'horario_fim' => $request->horario_fim,
-            'status' => Solicitacao::STATUS_AGUARDANDO_COORDENADOR_CURSO
+            'horario_inicio'   => $request->horario_inicio,
+            'horario_fim'      => $request->horario_fim,
+            'status'           => Solicitacao::STATUS_AGUARDANDO_COORDENADOR_CURSO
         ]);
+
+        // 4. Salva os relacionamentos nas tabelas pivot usando attach()
+        if ($request->has('insumos_id')) {
+            $solicitacao->insumos()->attach($request->insumos_id);
+        }
+
+        if ($request->has('equipamentos_id')) {
+            $solicitacao->equipamentos()->attach($request->equipamentos_id);
+        }
 
         return redirect()->route('solicitacoes.index')
             ->with('success', 'Solicitação enviada com sucesso! Aguarde aprovação.');
@@ -184,8 +203,16 @@ class SolicitacaoController extends Controller
 
     public function show($id)
     {
-        $solicitacao = Solicitacao::with(['laboratorio', 'roteiro', 'professor', 'autorizante'])
-            ->findOrFail($id);
+        // O Eager Loading (with) garante que insumos e equipamentos 
+        // sejam coleções, mesmo que vazias, evitando erros no foreach.
+        $solicitacao = Solicitacao::with([
+            'laboratorio', 
+            'roteiro', 
+            'insumos', 
+            'equipamentos', 
+            'professor', 
+            'autorizante'
+        ])->findOrFail($id);
 
         return view('solicitacoes.show', compact('solicitacao'));
     }
