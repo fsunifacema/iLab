@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('solicitacoes', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('professor_id')->constrained('users');
+            $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
             $table->foreignId('laboratorio_id')->constrained('laboratorios');
             $table->foreignId('roteiro_id')->constrained('roteiros');
             $table->integer('status')->default(1); // 1 = Aguardando coord. curso

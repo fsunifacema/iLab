@@ -42,7 +42,7 @@
                 'show_for' => [$prof, $tec, $coordCurso, $coordLab]
             ],
             [
-                'label' => 'Solicitações',
+                'label' => 'Quadro de Práticas',
                 'route' => 'solicitacoes.index',
                 'show_for' => [$prof, $coordCurso, $coordLab]
             ],

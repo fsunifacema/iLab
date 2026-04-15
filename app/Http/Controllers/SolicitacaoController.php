@@ -17,32 +17,35 @@ class SolicitacaoController extends Controller
         $user = auth()->user();
         $query = Solicitacao::query();
 
-        $query->with(['laboratorio', 'roteiro', 'professor', 'autorizante']);
+        $query->with(['laboratorio', 'roteiro', 'user', 'autorizante']);
 
         if ($user->nivel == User::NIVEL_PROFESSOR) {
             // Professor: Vê TODAS as suas solicitações
-            $query->where('professor_id', $user->id);
+            $query->where('user_id', $user->id);
         } elseif ($user->nivel == User::NIVEL_COORDENADOR_CURSO) {
-            // Coord. Curso: Vê PENDENTES (status 1) OU JÁ PROCESSADAS POR ELE (status 2, 3, 4)
+            // Coord. Curso: Vê PENDENTES atribuídas a ele (status 1) OU JÁ PROCESSADAS POR ELE (status 2, 3, 4)
             $query->where(function ($q) use ($user) {
-                // 1. PENDENTES DELE (Status 1)
+                // 1. PENDENTES atribuídas a ele (Status 1)
                 $q->where('status', Solicitacao::STATUS_AGUARDANDO_COORDENADOR_CURSO)
+                    ->where('coordenador_curso_id', $user->id)
 
                     // 2. OU JÁ PROCESSADAS POR ELE: Status 2 (encaminhado), Status 3 (aprovado), Status 4 (recusado).
-                    // Filtra pelo autorizante, mas garante que não pegue Status 1 de outras pessoas.
+                    // Usa coordenador_curso_id para rastrear quem do curso processou
                     ->orWhere(function ($orQ) use ($user) {
                         $orQ->whereIn('status', [
-                            Solicitacao::STATUS_AGUARDANDO_COORDENADOR_LAB, // Status 2 (Ele acabou de criar)
-                            Solicitacao::STATUS_APROVADA,                   // Status 3 (Finalizado)
-                            Solicitacao::STATUS_RECUSADA                    // Status 4 (Finalizado)
+                            Solicitacao::STATUS_AGUARDANDO_COORDENADOR_LAB, // Status 2
+                            Solicitacao::STATUS_APROVADA,                   // Status 3
+                            Solicitacao::STATUS_RECUSADA                    // Status 4
                         ])
-                            ->where('autorizante_id', $user->id);
+                            ->where('coordenador_curso_id', $user->id);
                     });
             });
-        } elseif ($user->nivel == User::NIVEL_COORDENADOR_LABORATORIO) {
+        }elseif ($user->nivel == User::NIVEL_COORDENADOR_LABORATORIO) {
             // Coord. Lab: Vê PENDENTES (status 2) OU JÁ APROVADAS (autorizante_id = user_id)
+            // Agora também filtra por solicitações onde ele foi selecionado como coordenador_lab_id
             $query->where(function ($q) use ($user) {
                 $q->where('status', Solicitacao::STATUS_AGUARDANDO_COORDENADOR_LAB)
+                    ->where('coordenador_lab_id', $user->id)
                     ->orWhere('autorizante_id', $user->id);
             });
         }
@@ -50,11 +53,36 @@ class SolicitacaoController extends Controller
 
         // Ordena para que as PENDENTES (menores status) apareçam primeiro,
         // garantindo que as que precisam de ação estejam no topo.
-        $solicitacoes = $query->orderBy('status', 'asc')
+        $todasSolicitacoes = $query->orderBy('status', 'asc')
             ->orderBy('created_at', 'desc')
             ->get(); // Se quiser paginação, mude para ->paginate(10);
 
-        return view('solicitacoes.index', compact('solicitacoes'));
+        // Agrupa por Professor (user) -> Unidade Curricular (campo unidade_curricular ou unidade_curricular do roteiro)
+        $solicitacoesPorProfessor = $todasSolicitacoes->groupBy('user_id')->map(function ($solicitacoesPorProf) {
+            return [
+                'professor' => $solicitacoesPorProf->first()->user,
+                'disciplinas' => $solicitacoesPorProf->groupBy(function ($sol) {
+                    $unidadeCurricular = $sol->unidade_curricular ?? $sol->roteiro?->unidade_curricular ?? 'Sem Unidade Curricular';
+
+                    // Normalizar nome da unidade curricular para agrupamento inteligente
+                    if ($unidadeCurricular !== 'Sem Unidade Curricular') {
+                        $unidadeCurricular = $this->normalizarNomeDisciplina($unidadeCurricular);
+                    }
+
+                    return $unidadeCurricular;
+                })->map(function ($solicitacoesPorDis) {
+                    // Pegar o nome original da primeira solicitação para exibição
+                    $nomeOriginal = $solicitacoesPorDis->first()->unidade_curricular ?? $solicitacoesPorDis->first()->roteiro?->unidade_curricular ?? 'Sem Unidade Curricular';
+
+                    return [
+                        'nome_disciplina' => $nomeOriginal,
+                        'solicitacoes' => $solicitacoesPorDis->sortBy('status')
+                    ];
+                })
+            ];
+        });
+
+        return view('solicitacoes.index', compact('solicitacoesPorProfessor', 'todasSolicitacoes'));
     }
 
     public function create()
@@ -65,11 +93,14 @@ class SolicitacaoController extends Controller
         }
 
         $laboratorios = Laboratorio::all();
-        $roteiros = Roteiro::where('professor', auth()->user()->name)->get();
         $insumos = Insumo::all();
         $equipamentos = Equipamento::all();
 
-        return view('solicitacoes.create', compact('laboratorios', 'roteiros', 'insumos', 'equipamentos'));
+        // Buscar coordenadores disponíveis
+        $coordenadoresCurso = User::where('nivel', User::NIVEL_COORDENADOR_CURSO)->get();
+        $coordenadoresLab = User::where('nivel', User::NIVEL_COORDENADOR_LABORATORIO)->get();
+
+        return view('solicitacoes.create', compact('laboratorios', 'insumos', 'equipamentos', 'coordenadoresCurso', 'coordenadoresLab'));
     }
 
     public function store(Request $request)
@@ -79,42 +110,56 @@ class SolicitacaoController extends Controller
             abort(403, 'Apenas professores podem criar solicitações.');
         }
 
-        // 2. Validação (incluindo os arrays de IDs)
+        // 2. Validação das arrays aninhadas
         $request->validate([
-            'laboratorio_id'   => 'required|exists:laboratorios,id',
-            'data_solicitacao' => 'required|date|after_or_equal:today',
-            'horario_inicio'   => 'required|date_format:H:i',
-            'horario_fim'      => 'required|date_format:H:i|after:horario_inicio',
-            'insumos_id'       => 'nullable|array', // Valida que é um array
-            'insumos_id.*'     => 'exists:insumos,id', // Valida cada ID dentro do array
-            'equipamentos_id'  => 'nullable|array',
-            'equipamentos_id.*'=> 'exists:equipamentos,id',
+            'coordenador_curso_id'             => 'required|exists:users,id',
+            'coordenador_lab_id'               => 'required|exists:users,id',
+            'agendamentos'                      => 'required|array|min:1',
+            'agendamentos.*.laboratorio_id'     => 'required|exists:laboratorios,id',
+            'agendamentos.*.unidade_curricular' => 'required|string|max:255',
+            'agendamentos.*.data_solicitacao'   => 'required|date|after_or_equal:today',
+            'agendamentos.*.horario_inicio'     => 'required|date_format:H:i',
+            'agendamentos.*.horario_fim'        => 'required|date_format:H:i',
+            'agendamentos.*.insumos_id'         => 'nullable|array',
+            'agendamentos.*.insumos_id.*'       => 'exists:insumos,id',
+            'agendamentos.*.equipamentos_id'    => 'nullable|array',
+            'agendamentos.*.equipamentos_id.*'  => 'exists:equipamentos,id',
         ]);
 
-        // 3. Cria a Solicitação (sem os insumos/equipamentos ainda)
-        $solicitacao = Solicitacao::create([
-            'professor_id'     => auth()->id(),
-            'laboratorio_id'   => $request->laboratorio_id,
-            'data_solicitacao' => $request->data_solicitacao,
-            'horario_inicio'   => $request->horario_inicio,
-            'horario_fim'      => $request->horario_fim,
-            'status'           => Solicitacao::STATUS_AGUARDANDO_COORDENADOR_CURSO
-        ]);
+        $agendamentos = $request->input('agendamentos', []);
+        $quantas = count($agendamentos);
 
-        // 4. Salva os relacionamentos nas tabelas pivot usando attach()
-        if ($request->has('insumos_id')) {
-            $solicitacao->insumos()->attach($request->insumos_id);
-        }
+        // 3. Cria as Solicitações em loop para CADA agendamento
+        foreach ($agendamentos as $agendamento) {
+            $solicitacao = Solicitacao::create([
+                'user_id'                => auth()->id(),
+                'laboratorio_id'         => $agendamento['laboratorio_id'],
+                'unidade_curricular'     => $agendamento['unidade_curricular'],
+                'data_solicitacao'       => $agendamento['data_solicitacao'],
+                'horario_inicio'         => $agendamento['horario_inicio'],
+                'horario_fim'            => $agendamento['horario_fim'],
+                'coordenador_curso_id'   => $request->coordenador_curso_id,
+                'coordenador_lab_id'     => $request->coordenador_lab_id,
+                'status'                 => Solicitacao::STATUS_AGUARDANDO_COORDENADOR_CURSO
+            ]);
 
-        if ($request->has('equipamentos_id')) {
-            $solicitacao->equipamentos()->attach($request->equipamentos_id);
+            // 4. Salva os relacionamentos nas tabelas pivot usando attach() (Filtrando os campos não preenchidos)
+            $insumosIds = array_filter($agendamento['insumos_id'] ?? []);
+            if (!empty($insumosIds)) {
+                $solicitacao->insumos()->attach($insumosIds);
+            }
+
+            $equiposIds = array_filter($agendamento['equipamentos_id'] ?? []);
+            if (!empty($equiposIds)) {
+                $solicitacao->equipamentos()->attach($equiposIds);
+            }
         }
 
         return redirect()->route('solicitacoes.index')
-            ->with('success', 'Solicitação enviada com sucesso! Aguarde aprovação.');
+            ->with('success', $quantas . ' Solicitação(ões) enviada(s) com sucesso! Aguarde aprovação.');
     }
 
-    // --- MÉTODOS DE APROVAÇÃO (mantidos) ---
+    // --- MÉTODOS DE APROVAÇÃO ---
     public function aprovarCoordenadorCurso($id)
     {
         // Verifica se é coordenador de curso
@@ -127,6 +172,7 @@ class SolicitacaoController extends Controller
         $solicitacao->update([
             'status' => Solicitacao::STATUS_AGUARDANDO_COORDENADOR_LAB,
             'autorizante_id' => auth()->id(), // Define o ID de quem autorizou
+            'coordenador_curso_id' => auth()->id(), // Rastreia qual coord. curso processou
             'parecer' => null
         ]);
 
@@ -149,6 +195,7 @@ class SolicitacaoController extends Controller
         $solicitacao->update([
             'status' => Solicitacao::STATUS_RECUSADA,
             'autorizante_id' => auth()->id(), // Define o ID de quem autorizou
+            'coordenador_curso_id' => auth()->id(), // Rastreia qual coord. curso processou
             'parecer' => $request->parecer
         ]);
 
@@ -164,12 +211,13 @@ class SolicitacaoController extends Controller
 
         $solicitacao = Solicitacao::findOrFail($id);
 
-        // Preserve the existing autorizante_id (e.g., coordenador de curso) when present,
-        // so that the original approver can still see the request after final approval.
+        // Preserve both coordenador_curso_id and autorizante_id for audit trail
         $solicitacao->update([
             'status' => Solicitacao::STATUS_APROVADA,
             // Marca o Coordenador de Laboratório atual como autorizante da decisão final
             'autorizante_id' => auth()->id(),
+            // Preserva o coordenador_curso_id para que ele continue vendo a solicitação
+            'coordenador_curso_id' => $solicitacao->coordenador_curso_id,
             'parecer' => null
         ]);
 
@@ -189,12 +237,13 @@ class SolicitacaoController extends Controller
 
         $solicitacao = Solicitacao::findOrFail($id);
 
-        // Preserve the existing autorizante_id if present so the earlier autorizante
-        // (e.g., coordenador de curso) remains recorded for visibility/audit.
+        // Preserve both coordenador_curso_id and autorizante_id for audit trail
         $solicitacao->update([
             'status' => Solicitacao::STATUS_RECUSADA,
             // Marca o Coordenador de Laboratório atual como autorizante da recusa
             'autorizante_id' => auth()->id(),
+            // Preserva o coordenador_curso_id para que ele continue vendo a solicitação
+            'coordenador_curso_id' => $solicitacao->coordenador_curso_id,
             'parecer' => $request->parecer
         ]);
 
@@ -210,7 +259,7 @@ class SolicitacaoController extends Controller
             'roteiro', 
             'insumos', 
             'equipamentos', 
-            'professor', 
+            'user', 
             'autorizante'
         ])->findOrFail($id);
 
@@ -241,7 +290,7 @@ class SolicitacaoController extends Controller
         $solicitacao = Solicitacao::findOrFail($id);
 
         // Verifica se o usuário tem permissão para excluir
-        if (auth()->user()->nivel != User::NIVEL_PROFESSOR || $solicitacao->professor_id != auth()->id()) {
+        if (auth()->user()->nivel != User::NIVEL_PROFESSOR || $solicitacao->user_id != auth()->id()) {
             abort(403, 'Acesso não autorizado.');
         }
 
@@ -249,5 +298,57 @@ class SolicitacaoController extends Controller
 
         return redirect()->route('solicitacoes.index')
             ->with('success', 'Solicitação excluída com sucesso!');
+    }
+
+    /**
+     * Normaliza o nome da disciplina para agrupamento inteligente
+     * Remove variações comuns e padroniza o formato
+     */
+    private function normalizarNomeDisciplina(string $disciplina): string
+    {
+        // Converter para minúsculo
+        $normalizada = strtolower(trim($disciplina));
+
+        // Remover acentos e caracteres especiais
+        $normalizada = $this->removerAcentos($normalizada);
+
+        // Padronizar termos comuns (apenas números romanos por enquanto)
+        $padroes = [
+            // Números romanos
+            '/\bi\b/' => '1', '/\bii\b/' => '2', '/\biii\b/' => '3',
+            '/\biv\b/' => '4', '/\bv\b/' => '5', '/\bvi\b/' => '6',
+
+            // Remover palavras irrelevantes comuns
+            '/\b(a|o|as|os|de|do|da|dos|das|e|ou|para|com|em|no|na|nos|nas)\b/' => '',
+
+            // Padronizar espaços
+            '/\s+/' => ' ',
+        ];
+
+        foreach ($padroes as $padrao => $substituicao) {
+            $normalizada = preg_replace($padrao, $substituicao, $normalizada);
+        }
+
+        // Remover espaços extras e trim final
+        $normalizada = trim(preg_replace('/\s+/', ' ', $normalizada));
+
+        return $normalizada;
+    }
+
+    /**
+     * Remove acentos e caracteres especiais
+     */
+    private function removerAcentos(string $string): string
+    {
+        $mapa = [
+            'á' => 'a', 'à' => 'a', 'â' => 'a', 'ã' => 'a', 'ä' => 'a',
+            'é' => 'e', 'è' => 'e', 'ê' => 'e', 'ë' => 'e',
+            'í' => 'i', 'ì' => 'i', 'î' => 'i', 'ï' => 'i',
+            'ó' => 'o', 'ò' => 'o', 'ô' => 'o', 'õ' => 'o', 'ö' => 'o',
+            'ú' => 'u', 'ù' => 'u', 'û' => 'u', 'ü' => 'u',
+            'ç' => 'c', 'ñ' => 'n'
+        ];
+
+        return strtr($string, $mapa);
     }
 }

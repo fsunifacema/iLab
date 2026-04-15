@@ -22,7 +22,7 @@ class RoteiroController extends Controller
         // 2. Aplica o filtro SE o usuário for Professor
         if (Auth::user()->nivel === User::NIVEL_PROFESSOR) {
             // Adiciona a cláusula WHERE para filtrar por professor
-            $query->where('professor', Auth::user()->name);
+            $query->where('user_id', Auth::id());
             // Os coordenadores, técnicos, etc. verão todos, pois não entram neste IF
         }
 
@@ -45,7 +45,7 @@ class RoteiroController extends Controller
         // **FILTRO DE ACESSO DO USUÁRIO:**
         // Se for Professor, filtra apenas os seus roteiros.
         if (Auth::user()->nivel === User::NIVEL_PROFESSOR) {
-            $query->where('professor', Auth::user()->name);
+            $query->where('user_id', Auth::id());
         }
 
         // Filtro de segurança para ignorar datas obviamente inválidas
@@ -98,7 +98,7 @@ class RoteiroController extends Controller
 
                 // Informações adicionais para o modal
                 'extendedProps' => [
-                    'professor' => $roteiro->professor,
+                    'professor' => $roteiro->user ? $roteiro->user->name : 'Indefinido',
                     'curso' => $roteiro->curso,
                     'unidade_curricular' => $roteiro->unidade_curricular,
                     'periodo' => $roteiro->periodo,
@@ -122,7 +122,7 @@ public function create()
         
         // Se for professor, filtra apenas as dele
         if (Auth::user()->nivel === User::NIVEL_PROFESSOR) {
-            $query->where('professor_id', Auth::id());
+            $query->where('user_id', Auth::id());
         }
         
         $solicitacoes = $query->get();
@@ -147,7 +147,7 @@ public function create()
         }
 
         // Validar se o usuário é o professor da solicitação ou coordenador
-        $is_authorized = Auth::id() === $solicitacao->professor_id ||
+        $is_authorized = Auth::id() === $solicitacao->user_id ||
                          Auth::user()->nivel === User::NIVEL_COORDENADOR_CURSO ||
                          Auth::user()->nivel === User::NIVEL_COORDENADOR_LABORATORIO;
 
@@ -177,7 +177,7 @@ public function create()
         }
 
         // Validação de autorização
-        $is_authorized = Auth::id() === $solicitacao->professor_id ||
+        $is_authorized = Auth::id() === $solicitacao->user_id ||
                          Auth::user()->nivel === User::NIVEL_COORDENADOR_CURSO ||
                          Auth::user()->nivel === User::NIVEL_COORDENADOR_LABORATORIO;
 
@@ -213,8 +213,8 @@ public function create()
             $dados['curso'] = $solicitacao->curso ?? '';
         }
 
-        // Professor (Sempre pega da solicitação ou do usuário logado se não vier no form)
-        $dados['professor'] = $solicitacao->professor->name ?? Auth::user()->name;
+        // Usuário (Sempre pega da solicitação ou do usuário logado se não vier no form)
+        $dados['user_id'] = $solicitacao->user_id ?? Auth::id();
 
         // Período
         if (empty($dados['periodo'])) {
@@ -298,8 +298,8 @@ public function create()
                 ->withInput();
         }
 
-        // Adiciona automaticamente o professor logado
-        $dados['professor'] = auth()->user()->name ?? 'Usuário Indefinido';
+        // Adiciona automaticamente o usuário logado
+        $dados['user_id'] = auth()->id();
 
         $roteiro = Roteiro::create($dados);
 

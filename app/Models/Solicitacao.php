@@ -19,20 +19,33 @@ class Solicitacao extends Model
         'data_solicitacao',
         'horario_inicio',
         'horario_fim',
-        'professor_id',
+        'user_id',
         'laboratorio_id',
+        'unidade_curricular',
         'roteiro_id',
         'insumos',
         'equipamentos',
         'codigo',
         'status',
         'autorizante_id',
-        'parecer'
+        'parecer',
+        'coordenador_curso_id',
+        'coordenador_lab_id'
     ];
+
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'user_id');
+    }
 
     public function professor()
     {
-        return $this->belongsTo(User::class, 'professor_id');
+        return $this->belongsTo(User::class, 'user_id');
+    }
+
+    public function getProfessorIdAttribute()
+    {
+        return $this->user_id;
     }
 
     public function laboratorio()
@@ -61,6 +74,16 @@ class Solicitacao extends Model
     public function autorizante()
     {
         return $this->belongsTo(User::class, 'autorizante_id');
+    }
+
+    public function coordenadorCurso()
+    {
+        return $this->belongsTo(User::class, 'coordenador_curso_id');
+    }
+
+    public function coordenadorLab()
+    {
+        return $this->belongsTo(User::class, 'coordenador_lab_id');
     }
 
     // Método para obter o status em formato legível

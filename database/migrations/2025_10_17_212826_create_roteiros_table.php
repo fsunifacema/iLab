@@ -17,7 +17,7 @@ return new class extends Migration
             // Informações gerais
             $table->string('curso')->nullable();
             $table->string('unidade_curricular')->nullable();
-            $table->string('professor')->nullable();
+            $table->foreignId('user_id')->nullable()->constrained('users')->onDelete('cascade');
             $table->string('periodo')->nullable();
             $table->integer('quantidade_alunos')->nullable();
             $table->date('data')->nullable();
