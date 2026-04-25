@@ -64,7 +64,7 @@
                                                 <input type="text" name="agendamentos[0][unidade_curricular]" id="unidade_curricular_0" required maxlength="255" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 unidade-curricular-input" placeholder="Informe a unidade curricular" />
                                             </div>
                                             <div class="flex-1">
-                                                <label class="block text-sm font-medium text-gray-700">Data da Solicitação</label>
+                                                <label class="block text-sm font-medium text-gray-700">Data da Prática</label>
                                                 <input type="date" name="agendamentos[0][data_solicitacao]" required class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2">
                                             </div>
                                             <div class="flex-1">

@@ -206,7 +206,7 @@
                         @endforelse
 
                     @else
-                        {{-- PARA PROFESSOR: Mostrar Vista em Tabela semelhante à listagem de roteiros --}}
+                        {{-- PARA PROFESSOR: --}}
                         <div class="overflow-x-auto bg-white rounded-lg shadow border border-gray-200">
                             <table class="min-w-full divide-y divide-gray-200">
                                 <thead class="bg-[#0C2E5C] text-white">
