@@ -23,10 +23,12 @@
             {{-- Variáveis de Controle --}}
             @php
                 $podeAprovarCurso = $solicitacao->status == \App\Models\Solicitacao::STATUS_AGUARDANDO_COORDENADOR_CURSO 
-                                    && auth()->user()->nivel == \App\Models\User::NIVEL_COORDENADOR_CURSO;
+                                    && auth()->user()->nivel == \App\Models\User::NIVEL_COORDENADOR_CURSO
+                                    && auth()->id() == $solicitacao->coordenador_curso_id;
                 
                 $podeAprovarLab = $solicitacao->status == \App\Models\Solicitacao::STATUS_AGUARDANDO_COORDENADOR_LAB 
-                                    && auth()->user()->nivel == \App\Models\User::NIVEL_COORDENADOR_LABORATORIO;
+                                    && auth()->user()->nivel == \App\Models\User::NIVEL_COORDENADOR_LABORATORIO
+                                    && auth()->id() == $solicitacao->coordenador_lab_id;
 
                 $statusFinalizado = in_array($solicitacao->status, [\App\Models\Solicitacao::STATUS_APROVADA, \App\Models\Solicitacao::STATUS_RECUSADA]);
             @endphp
@@ -66,7 +68,7 @@
                             <span class="text-gray-900">{{ $solicitacao->laboratorio->localizacao ?? 'N/A' }}</span>
                         </div>
                         <div class="flex justify-between">
-                            <span class="font-medium text-gray-700">Data Solicitada:</span>
+                            <span class="font-medium text-gray-700">Data Solicitada da Prática:</span>
                             <span class="text-gray-900">{{ $solicitacao->data_solicitacao ? \Carbon\Carbon::parse($solicitacao->data_solicitacao)->format('d/m/Y') : 'N/A' }}</span>
                         </div>
                         <div class="flex justify-between">
@@ -135,7 +137,7 @@
                         </div>
                     @else
                         <div class="bg-yellow-50 border border-yellow-200 text-yellow-700 px-4 py-3 rounded">
-                            <p class="text-sm">Roteiro ainda não foi criado para esta solicitação.</p>
+                            <p class="text-sm">O roteiro ainda não foi criado para esta solicitação.</p>
                         </div>
                     @endif
                 </div>
@@ -261,6 +263,20 @@
                 <a href="{{ route('solicitacoes.index') }}" class="bg-gray-500 text-white px-4 py-2 rounded-md hover:bg-gray-600 transition">
                     Voltar para a Lista
                 </a>
+                
+                @php
+                    $podeEditar = (
+                        (auth()->id() == $solicitacao->user_id && $solicitacao->status == \App\Models\Solicitacao::STATUS_AGUARDANDO_COORDENADOR_CURSO) ||
+                        (auth()->id() == $solicitacao->coordenador_curso_id && $solicitacao->status == \App\Models\Solicitacao::STATUS_AGUARDANDO_COORDENADOR_CURSO) ||
+                        (auth()->id() == $solicitacao->coordenador_lab_id && $solicitacao->status == \App\Models\Solicitacao::STATUS_AGUARDANDO_COORDENADOR_LAB)
+                    );
+                @endphp
+                
+                @if($podeEditar)
+                    <a href="{{ route('solicitacoes.edit', $solicitacao->id) }}" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition">
+                        Editar Solicitação
+                    </a>
+                @endif
                 
                 @if(auth()->user()->nivel == \App\Models\User::NIVEL_PROFESSOR 
                     && $solicitacao->professor_id == auth()->id() 

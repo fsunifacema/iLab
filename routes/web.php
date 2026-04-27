@@ -70,7 +70,8 @@ Route::middleware([
         // Quem acessa: Professor (1), Coords (3, 4)
         // Bloqueado para: Técnico (2) -> Note que o número 2 NÃO está na lista abaixo
         Route::middleware('nivel:1,3,4')->group(function () {
-            Route::resource('solicitacoes', SolicitacaoController::class);
+            Route::resource('solicitacoes', SolicitacaoController::class)
+                ->parameters(['solicitacoes' => 'solicitacao']);
         });
 
 

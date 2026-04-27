@@ -118,8 +118,8 @@ class SolicitacaoController extends Controller
             'agendamentos.*.laboratorio_id'     => 'required|exists:laboratorios,id',
             'agendamentos.*.unidade_curricular' => 'required|string|max:255',
             'agendamentos.*.data_solicitacao'   => 'required|date|after_or_equal:today',
-            'agendamentos.*.horario_inicio'     => 'required|date_format:H:i',
-            'agendamentos.*.horario_fim'        => 'required|date_format:H:i',
+            'agendamentos.*.horario_inicio'     => 'required|regex:/^\d{2}:\d{2}(:\d{2})?$/',
+            'agendamentos.*.horario_fim'        => 'required|regex:/^\d{2}:\d{2}(:\d{2})?$/',
             'agendamentos.*.insumos_id'         => 'nullable|array',
             'agendamentos.*.insumos_id.*'       => 'exists:insumos,id',
             'agendamentos.*.equipamentos_id'    => 'nullable|array',
@@ -271,7 +271,41 @@ class SolicitacaoController extends Controller
      */
     public function edit(Solicitacao $solicitacao)
     {
-        //
+        // Verificar permissões
+        $user = auth()->user();
+        $podeEditarTudo = (
+            ($user->id == $solicitacao->user_id || empty($solicitacao->user_id)) &&
+            $solicitacao->status == Solicitacao::STATUS_AGUARDANDO_COORDENADOR_CURSO
+        );
+        $podeEditarLaboratorio = (
+            (($user->id == $solicitacao->coordenador_curso_id && $solicitacao->status == Solicitacao::STATUS_AGUARDANDO_COORDENADOR_CURSO) ||
+             ($user->id == $solicitacao->coordenador_lab_id && $solicitacao->status == Solicitacao::STATUS_AGUARDANDO_COORDENADOR_LAB)) &&
+            !in_array($solicitacao->status, [Solicitacao::STATUS_APROVADA, Solicitacao::STATUS_RECUSADA])
+        );
+        $podeEditar = $podeEditarTudo || $podeEditarLaboratorio;
+
+        if (!$podeEditar) {
+            return redirect()->route('solicitacoes.show', $solicitacao)->withErrors('Você não tem permissão para editar esta solicitação.');
+        }
+
+        // Carregar dados necessários
+        $laboratorios = Laboratorio::all();
+        $insumos = Insumo::all();
+        $equipamentos = Equipamento::all();
+        $coordenadoresCurso = User::where('nivel', User::NIVEL_COORDENADOR_CURSO)->get();
+        $coordenadoresLab = User::where('nivel', User::NIVEL_COORDENADOR_LABORATORIO)->get();
+
+        return view('solicitacoes.edit', compact(
+            'solicitacao',
+            'laboratorios',
+            'insumos',
+            'equipamentos',
+            'coordenadoresCurso',
+            'coordenadoresLab',
+            'podeEditarTudo',
+            'podeEditarLaboratorio',
+            'podeEditar'
+        ));
     }
 
     /**
@@ -279,7 +313,87 @@ class SolicitacaoController extends Controller
      */
     public function update(Request $request, Solicitacao $solicitacao)
     {
-        //
+        // Verificar permissões
+        $user = auth()->user();
+        $podeEditarTudo = (
+            ($user->id == $solicitacao->user_id || empty($solicitacao->user_id)) &&
+            !in_array($solicitacao->status, [Solicitacao::STATUS_APROVADA, Solicitacao::STATUS_RECUSADA])
+        );
+        $podeEditarLaboratorio = (
+            ($user->id == $solicitacao->coordenador_curso_id || $user->id == $solicitacao->coordenador_lab_id) &&
+            !in_array($solicitacao->status, [Solicitacao::STATUS_APROVADA, Solicitacao::STATUS_RECUSADA])
+        );
+
+        if (!$podeEditarTudo && !$podeEditarLaboratorio) {
+            abort(403, 'Você não tem permissão para editar esta solicitação.');
+        }
+
+        if ($podeEditarTudo) {
+            // Professor pode editar tudo
+            $request->validate([
+                'coordenador_curso_id' => $solicitacao->coordenador_curso_id ? 'nullable|exists:users,id' : 'required|exists:users,id',
+                'coordenador_lab_id' => $solicitacao->coordenador_lab_id ? 'nullable|exists:users,id' : 'required|exists:users,id',
+                'laboratorio_id' => 'required|exists:laboratorios,id',
+                'unidade_curricular' => 'required|string|max:255',
+                'data_solicitacao' => 'required|date|after_or_equal:today',
+                'horario_inicio' => 'required|regex:/^\d{2}:\d{2}(:\d{2})?$/',
+                'horario_fim' => 'required|regex:/^\d{2}:\d{2}(:\d{2})?$/',
+                'insumos_id' => 'nullable|array',
+                'insumos_id.*' => 'exists:insumos,id',
+                'equipamentos_id' => 'nullable|array',
+                'equipamentos_id.*' => 'exists:equipamentos,id',
+            ]);
+
+            try {
+                $updateData = [
+                    'laboratorio_id' => $request->laboratorio_id,
+                    'unidade_curricular' => $request->unidade_curricular,
+                    'data_solicitacao' => $request->data_solicitacao,
+                    'horario_inicio' => $request->horario_inicio,
+                    'horario_fim' => $request->horario_fim,
+                ];
+
+                if ($request->has('coordenador_curso_id')) {
+                    $updateData['coordenador_curso_id'] = $request->coordenador_curso_id;
+                }
+
+                if ($request->has('coordenador_lab_id')) {
+                    $updateData['coordenador_lab_id'] = $request->coordenador_lab_id;
+                }
+
+                $solicitacao->update($updateData);
+
+                // Sync insumos e equipamentos
+                $insumos = $request->input('insumos_id', []);
+                $equipamentos = $request->input('equipamentos_id', []);
+
+                // Filtrar valores vazios e duplicados
+                $insumos = array_unique(array_filter($insumos, fn($id) => !empty($id)));
+                $equipamentos = array_unique(array_filter($equipamentos, fn($id) => !empty($id)));
+
+                $solicitacao->insumos()->sync($insumos);
+                $solicitacao->equipamentos()->sync($equipamentos);
+
+                return redirect()->route('solicitacoes.index')->with('success', 'Solicitação atualizada com sucesso!');
+            } catch (\Exception $e) {
+                return back()->withErrors(['error' => 'Erro ao atualizar: ' . $e->getMessage()]);
+            }
+        } elseif ($podeEditarLaboratorio) {
+            // Coordenador pode editar apenas laboratório
+            $request->validate([
+                'laboratorio_id' => 'required|exists:laboratorios,id',
+            ]);
+
+            try {
+                $solicitacao->update([
+                    'laboratorio_id' => $request->laboratorio_id,
+                ]);
+
+                return redirect()->route('solicitacoes.index')->with('success', 'Laboratório atualizado com sucesso!');
+            } catch (\Exception $e) {
+                return back()->withErrors(['error' => 'Erro ao atualizar laboratório: ' . $e->getMessage()]);
+            }
+        }
     }
 
     /**

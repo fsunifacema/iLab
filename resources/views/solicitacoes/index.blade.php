@@ -157,6 +157,18 @@
                                                                     <a href="{{ route('solicitacoes.show', $solicitacao->id) }}" class="text-[#0C2E5C] hover:text-blue-800 font-semibold text-sm">
                                                                         Ver Detalhes
                                                                     </a>
+                                                                    @php
+                                                                        $podeEditar = (
+                                                                            (auth()->id() == $solicitacao->user_id && $solicitacao->status == \App\Models\Solicitacao::STATUS_AGUARDANDO_COORDENADOR_CURSO) ||
+                                                                            (auth()->id() == $solicitacao->coordenador_curso_id && $solicitacao->status == \App\Models\Solicitacao::STATUS_AGUARDANDO_COORDENADOR_CURSO) ||
+                                                                            (auth()->id() == $solicitacao->coordenador_lab_id && $solicitacao->status == \App\Models\Solicitacao::STATUS_AGUARDANDO_COORDENADOR_LAB)
+                                                                        );
+                                                                    @endphp
+                                                                    @if($podeEditar)
+                                                                        <a href="{{ route('solicitacoes.edit', $solicitacao->id) }}" class="text-green-600 hover:text-green-800 font-semibold text-sm">
+                                                                            Editar
+                                                                        </a>
+                                                                    @endif
 
                                                                     {{-- Botões de Aprovação Rápida --}}
                                                                     @if($requerAcao)
@@ -207,71 +219,115 @@
 
                     @else
                         {{-- PARA PROFESSOR: --}}
-                        <div class="overflow-x-auto bg-white rounded-lg shadow border border-gray-200">
-                            <table class="min-w-full divide-y divide-gray-200">
-                                <thead class="bg-[#0C2E5C] text-white">
-                                    <tr>
-                                        <th scope="col" class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider">Horário</th>
-                                        <th scope="col" class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider">Laboratório</th>
-                                        <th scope="col" class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider">Unidade Curricular</th>
-                                        <th scope="col" class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider">Data Solicitada</th>
-                                        <th scope="col" class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider">Status</th>
-                                        <th scope="col" class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider">Ações</th>
-                                    </tr>
-                                </thead>
-                                <tbody class="bg-white divide-y divide-gray-200">
-                                    @forelse($todasSolicitacoes as $solicitacao)
-                                        <tr class="hover:bg-gray-50">
-                                            <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-700">
-                                                {{ \Carbon\Carbon::parse($solicitacao->horario_inicio)->format('H:i') }} - {{ \Carbon\Carbon::parse($solicitacao->horario_fim)->format('H:i') }}
-                                            </td>
-                                            <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-700">
-                                                {{ $solicitacao->laboratorio->nome ?? 'N/A' }}
-                                            </td>
-                                            <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-700">
-                                                {{ $solicitacao->unidade_curricular ?? $solicitacao->roteiro?->unidade_curricular ?? 'Sem unidade curricular' }}
-                                            </td>
-                                            <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-700">
-                                                {{ $solicitacao->data_solicitacao ? \Carbon\Carbon::parse($solicitacao->data_solicitacao)->format('d/m/Y') : 'N/A' }}
-                                            </td>
-                                            <td class="px-4 py-4 whitespace-nowrap">
-                                                <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold 
-                                                    @if ($solicitacao->status === \App\Models\Solicitacao::STATUS_APROVADA) bg-green-100 text-green-800 
-                                                    @elseif ($solicitacao->status === \App\Models\Solicitacao::STATUS_RECUSADA) bg-red-100 text-red-800 
-                                                    @else bg-yellow-100 text-yellow-800 @endif">
-                                                    {{ $solicitacao->status_texto }}
-                                                </span>
-                                            </td>
-                                            <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-700">
-                                                <div class="flex flex-col gap-2">
-                                                    <a href="{{ route('solicitacoes.show', $solicitacao->id) }}" class="text-blue-600 hover:text-blue-800 font-semibold text-sm">
-                                                        Ver Detalhes
-                                                    </a>
-                                                    @if($solicitacao->status != \App\Models\Solicitacao::STATUS_APROVADA && $solicitacao->status != \App\Models\Solicitacao::STATUS_RECUSADA)
-                                                        <form action="{{ route('solicitacoes.destroy', $solicitacao->id) }}" method="POST" class="inline-block" onsubmit="return confirm('Deseja realmente excluir esta solicitação?');">
-                                                            @csrf
-                                                            @method('DELETE')
-                                                            <button type="submit" class="text-red-600 hover:text-red-800 font-semibold text-sm">Excluir</button>
-                                                        </form>
-                                                    @endif
+                            <div class="hidden md:grid grid-cols-6 space-x-2 bg-[#0C2E5C] text-white px-4 py-2 rounded-t-md text-sm font-semibold mt-3">
+                                <div class="text-left">Horário</div>
+                                <div class="text-center">Laboratório</div>
+                                <div class="text-center">Unidade Curricular</div>
+                                <div class="text-center">Data Solicitada</div>
+                                <div class="text-center">Status</div>
+                                <div class="text-center">Ações</div>
+                            </div>
+
+                            <div class="space-y-3 mt-2">
+                                @forelse($todasSolicitacoes as $solicitacao)
+                                    <!-- Desktop row -->
+                                    <div class="hidden md:grid grid-cols-6 space-x-2 items-center bg-white px-4 py-2 rounded shadow border border-gray-200 hover:shadow-md transition">
+                                        <div class="text-sm text-gray-700 text-left">{{ \Carbon\Carbon::parse($solicitacao->horario_inicio)->format('H:i') }} - {{ \Carbon\Carbon::parse($solicitacao->horario_fim)->format('H:i') }}</div>
+                                        <div class="text-sm text-gray-700 text-center">{{ $solicitacao->laboratorio->nome ?? 'N/A' }}</div>
+                                        <div class="text-sm text-gray-700 text-center">{{ $solicitacao->unidade_curricular ?? $solicitacao->roteiro?->unidade_curricular ?? 'Sem unidade curricular' }}</div>
+                                        <div class="text-sm text-gray-700 text-center">{{ $solicitacao->data_solicitacao ? \Carbon\Carbon::parse($solicitacao->data_solicitacao)->format('d/m/Y') : 'N/A' }}</div>
+                                        <div class="text-sm text-gray-700 text-center">
+                                            <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold 
+                                                @if ($solicitacao->status === \App\Models\Solicitacao::STATUS_APROVADA) bg-green-100 text-green-800 
+                                                @elseif ($solicitacao->status === \App\Models\Solicitacao::STATUS_RECUSADA) bg-red-100 text-red-800 
+                                                @else bg-yellow-100 text-yellow-800 @endif">
+                                                {{ $solicitacao->status_texto }}
+                                            </span>
+                                        </div>
+                                        <div class="text-center flex justify-center gap-2">
+                                            <a href="{{ route('solicitacoes.show', $solicitacao->id) }}" class="text-blue-600 hover:text-blue-800 font-semibold text-sm">Ver Detalhes</a>
+                                            @php
+                                                $podeEditar = (
+                                                    (auth()->id() == $solicitacao->user_id && $solicitacao->status == \App\Models\Solicitacao::STATUS_AGUARDANDO_COORDENADOR_CURSO) ||
+                                                    (auth()->id() == $solicitacao->coordenador_curso_id && $solicitacao->status == \App\Models\Solicitacao::STATUS_AGUARDANDO_COORDENADOR_CURSO) ||
+                                                    (auth()->id() == $solicitacao->coordenador_lab_id && $solicitacao->status == \App\Models\Solicitacao::STATUS_AGUARDANDO_COORDENADOR_LAB)
+                                                );
+                                            @endphp
+                                            @if($podeEditar)
+                                                <a href="{{ route('solicitacoes.edit', $solicitacao->id) }}" class="text-green-600 hover:text-green-800 font-semibold text-sm">Editar</a>
+                                            @endif
+                                            @if($solicitacao->status != \App\Models\Solicitacao::STATUS_APROVADA && $solicitacao->status != \App\Models\Solicitacao::STATUS_RECUSADA)
+                                                <form action="{{ route('solicitacoes.destroy', $solicitacao->id) }}" method="POST" class="inline-block" onsubmit="return confirm('Deseja realmente excluir esta solicitação?');">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <button type="submit" class="text-red-600 hover:text-red-800 font-semibold text-sm">Excluir</button>
+                                                </form>
+                                            @endif
+                                        </div>
+                                    </div>
+
+                                    <!-- Mobile card -->
+                                    <div class="md:hidden bg-white px-4 py-3 rounded shadow border border-gray-200">
+                                        <div class="flex justify-between items-start">
+                                            <div>
+                                                <div class="text-xs text-gray-500">Horário</div>
+                                                <div class="text-sm text-gray-700 font-medium">{{ \Carbon\Carbon::parse($solicitacao->horario_inicio)->format('H:i') }} - {{ \Carbon\Carbon::parse($solicitacao->horario_fim)->format('H:i') }}</div>
+                                            </div>
+                                            <div class="text-right">
+                                                <div class="text-xs text-gray-500">Data Solicitada</div>
+                                                <div class="text-sm text-gray-700">{{ $solicitacao->data_solicitacao ? \Carbon\Carbon::parse($solicitacao->data_solicitacao)->format('d/m/Y') : 'N/A' }}</div>
+                                            </div>
+                                        </div>
+
+                                        <div class="mt-2 grid grid-cols-2 gap-2 text-sm text-gray-700">
+                                            <div>
+                                                <div class="text-xs text-gray-500">Laboratório</div>
+                                                <div>{{ $solicitacao->laboratorio->nome ?? 'N/A' }}</div>
+                                            </div>
+                                            <div>
+                                                <div class="text-xs text-gray-500">Status</div>
+                                                <div>
+                                                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold 
+                                                        @if ($solicitacao->status === \App\Models\Solicitacao::STATUS_APROVADA) bg-green-100 text-green-800 
+                                                        @elseif ($solicitacao->status === \App\Models\Solicitacao::STATUS_RECUSADA) bg-red-100 text-red-800 
+                                                        @else bg-yellow-100 text-yellow-800 @endif">
+                                                        {{ $solicitacao->status_texto }}
+                                                    </span>
                                                 </div>
-                                            </td>
-                                        </tr>
-                                    @empty
-                                        <tr>
-                                            <td colspan="6" class="px-4 py-8 text-center text-gray-500">
-                                                Nenhuma solicitação encontrada.
-                                                <div class="mt-2">
-                                                    <a href="{{ route('solicitacoes.create') }}" class="text-blue-600 hover:text-blue-800 font-semibold">
-                                                        Faça sua primeira solicitação
-                                                    </a>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    @endforelse
-                                </tbody>
-                            </table>
-                        </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="mt-2">
+                                            <div class="text-xs text-gray-500">Unidade Curricular</div>
+                                            <div class="text-sm text-gray-700">{{ $solicitacao->unidade_curricular ?? $solicitacao->roteiro?->unidade_curricular ?? 'Sem unidade curricular' }}</div>
+                                        </div>
+                                        
+                                        <div class="mt-3 flex items-center gap-2">
+                                            <a href="{{ route('solicitacoes.show', $solicitacao->id) }}" class="text-blue-600 hover:text-blue-800 font-semibold text-sm">Ver Detalhes</a>
+                                            @if($podeEditar)
+                                                <a href="{{ route('solicitacoes.edit', $solicitacao->id) }}" class="text-green-600 hover:text-green-800 font-semibold text-sm">Editar</a>
+                                            @endif
+                                            @if($solicitacao->status != \App\Models\Solicitacao::STATUS_APROVADA && $solicitacao->status != \App\Models\Solicitacao::STATUS_RECUSADA)
+                                                <form action="{{ route('solicitacoes.destroy', $solicitacao->id) }}" method="POST" class="inline-block" onsubmit="return confirm('Deseja realmente excluir esta solicitação?');">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <button type="submit" class="text-red-600 hover:text-red-800 font-semibold text-sm">Excluir</button>
+                                                </form>
+                                            @endif
+                                        </div>
+                                    </div>
+                                @empty
+                                    <div class="text-center text-gray-500 py-4">
+                                        Nenhuma solicitação encontrada.
+                                        <div class="mt-2">
+                                            <a href="{{ route('solicitacoes.create') }}" class="text-blue-600 hover:text-blue-800 font-semibold">
+                                                Faça sua primeira solicitação
+                                            </a>
+                                        </div>
+                                    </div>
+                                @endforelse
+                            </div>
+                    
                     @endif
 
                 </div>
