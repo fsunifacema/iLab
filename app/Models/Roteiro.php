@@ -20,7 +20,7 @@ class Roteiro extends Model
     protected $fillable = [
         'curso',
         'unidade_curricular',
-        'professor',
+        'user_id',
         'periodo',
         'quantidade_alunos',
         'data',
@@ -50,5 +50,15 @@ class Roteiro extends Model
     public function solicitacao()
     {
         return $this->belongsTo(Solicitacao::class, 'codigo_solicitacao', 'codigo');
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'user_id');
+    }
+
+    public function getProfessorAttribute()
+    {
+        return $this->user ? $this->user->name : 'Indefinido';
     }
 }

@@ -34,7 +34,7 @@ class DashboardController extends Controller
         if (in_array($user->nivel, [User::NIVEL_PROFESSOR, User::NIVEL_COORDENADOR_CURSO, User::NIVEL_COORDENADOR_LABORATORIO])) {
             
             $query = Solicitacao::query();
-            $query->with(['professor', 'roteiro', 'laboratorio', 'autorizante']);
+            $query->with(['user', 'roteiro', 'laboratorio', 'autorizante']);
 
             // Filtro de status: Busca todos os status que geram notificação
             $query->whereIn('status', [
@@ -50,7 +50,7 @@ class DashboardController extends Controller
             // --- FILTRAGEM POR NÍVEL DE USUÁRIO ---
             if ($user->nivel == User::NIVEL_PROFESSOR) {
                 // Professor: Vê apenas atualizações de SUAS solicitações, mas só após o primeiro passo
-                $query->where('professor_id', $user->id)
+                $query->where('user_id', $user->id)
                     ->whereIn('status', [Solicitacao::STATUS_AGUARDANDO_COORDENADOR_LAB, Solicitacao::STATUS_APROVADA, Solicitacao::STATUS_RECUSADA]);
             } elseif ($user->nivel == User::NIVEL_COORDENADOR_CURSO) {
                 // Coordenador de Curso (CC):
@@ -130,7 +130,7 @@ class DashboardController extends Controller
         if (in_array($user->nivel, [User::NIVEL_TECNICO, User::NIVEL_COORDENADOR_CURSO, User::NIVEL_COORDENADOR_LABORATORIO])) {
             
             $queryRoteiros = Roteiro::query();
-            $queryRoteiros->with(['solicitacao', 'solicitacao.professor', 'solicitacao.laboratorio']);
+            $queryRoteiros->with(['solicitacao', 'solicitacao.user', 'solicitacao.laboratorio']);
             $queryRoteiros->where('created_at', '>=', Carbon::now()->subDays(7));
 
             // Filtrar roteiros apenas daqueles com solicitação aprovada
@@ -146,7 +146,7 @@ class DashboardController extends Controller
                     'type' => 'roteiro',
                     'status' => 'approved',
                     'title' => "NOVO ROTEIRO: {$roteiro->unidade_curricular}",
-                    'message' => "Novo roteiro foi anexado à solicitação. Laboratório: {$roteiro->laboratorio}. Professor: {$roteiro->professor}",
+                    'message' => "Novo roteiro foi anexado à solicitação. Laboratório: {$roteiro->laboratorio}. Professor: " . ($roteiro->user ? $roteiro->user->name : 'Indefinido'),
                     'time_ago' => $roteiro->created_at->diffForHumans(),
                     'time_exact' => $roteiro->created_at->format('d/m/Y \à\s H:i'),
                     'link' => route('roteiros.show', $roteiro->id),
