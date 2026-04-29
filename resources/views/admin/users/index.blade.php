@@ -40,7 +40,7 @@
                     }">
                         <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
                             <div class="flex items-center gap-2">
-                                <input x-model="query" type="text" placeholder="Buscar por nome, email ou nível..." class="border rounded px-3 py-2 text-sm w-full md:w-80" />
+                                <input x-model="query" type="text" placeholder="Buscar por nome, e-mail ou nível..." class="border rounded px-3 py-2 text-sm w-full md:w-80" />
                                 <button type="button" @click="query=''" class="cursor-pointer px-3 py-2 bg-gray-100 rounded text-sm">Limpar</button>
                             </div>
                         </div>
@@ -103,7 +103,7 @@
                                             <div class="text-xs text-gray-500">Nome</div>
                                             <div class="text-sm text-gray-700 font-medium mb-2">{{ $user->name }}</div>
                                             
-                                            <div class="text-xs text-gray-500">Email</div>
+                                            <div class="text-xs text-gray-500">E-mail</div>
                                             <div class="text-sm text-gray-700 mb-2 break-all">{{ $user->email }}</div>
 
                                             <div class="text-xs text-gray-500">Nível</div>

@@ -1,7 +1,7 @@
 <x-app-layout>
     <x-slot name="header">
         <h2 class="text-xl font-semibold text-[#0C2E5C]">
-            Gerenciamento de Roteiros
+            Gerenciamento de roteiros
         </h2>
     </x-slot>
 
@@ -9,7 +9,7 @@
         <div class="max-w-6xl mx-auto sm:px-6 lg:px-8">
             @if(in_array(Auth::user()->nivel, [\App\Models\User::NIVEL_PROFESSOR]))
                 <a href="{{ route('roteiros.create') }}" class="fixed bottom-6 right-6 bg-[#0C2E5C] text-white text-sm px-4 py-2 rounded-md shadow-md hover:bg-blue-800 transition duration-200">
-                    + Novo Roteiro
+                    + Novo roteiro
                 </a>
             @endif
 
@@ -41,10 +41,10 @@
                         <!-- Cabeçalho (desktop) -->
                         <div class="hidden md:grid grid-cols-7 space-x-2 flex bg-[#0C2E5C] text-white px-4 py-2 rounded-t-md text-sm font-semibold mt-3">
                             <div class="text-left">Curso</div>
-                            <div class="text-center">Unidade Curricular</div>
+                            <div class="text-center">Unidade curricular</div>
                             <div class="text-center">Professor</div>
                             <div class="text-center">Período</div>
-                            <div class="text-center">Qtd. Alunos</div>
+                            <div class="text-center">Qtd. alunos</div>
                             <div class="text-center">Data</div>                  
                             <div class="text-center">Ações</div>
                         </div>
@@ -121,7 +121,7 @@
                                     </div>
 
                                     <div class="mt-2">
-                                        <div class="text-xs text-gray-500">Quantidade de Alunos</div>
+                                        <div class="text-xs text-gray-500">Quantidade de alunos</div>
                                         <div class="text-sm text-gray-700">{{ $roteiro->quantidade_alunos }}</div>
                                     </div>
                                     
@@ -129,20 +129,20 @@
                                         @if(in_array(Auth::user()->nivel, [\App\Models\User::NIVEL_PROFESSOR, \App\Models\User::NIVEL_COORDENADOR_LABORATORIO]))
                                         <!-- Botão para Gerar PDF -->
                                         <a href="{{ route('roteiros.pdf', $roteiro->id) }}" class="text-sm text-blue-600 font-medium" target="_blank" title="Criar PDF">Criar PDF</a>
-                                        <a href="{{ route('roteiros.edit', $roteiro->id) }}" class="text-sm text-[#0C2E5C] font-medium" title="Editar Roteiro">Editar</a>
+                                        <a href="{{ route('roteiros.edit', $roteiro->id) }}" class="text-sm text-[#0C2E5C] font-medium" title="Editar roteiro">Editar</a>
                                         <form action="{{ route('roteiros.destroy', $roteiro->id) }}" method="POST" class="inline-block">
                                             @csrf
                                             @method('DELETE')
-                                            <button onclick="return confirm('Deseja excluir?')" type="submit" class="cursor-pointer text-sm text-red-600 font-medium" title="Excluir Roteiro">Excluir</button>
+                                            <button onclick="return confirm('Deseja excluir?')" type="submit" class="cursor-pointer text-sm text-red-600 font-medium" title="Excluir roteiro">Excluir</button>
                                         </form>
                                         <!-- Ícone de Visualizar (Olho) -->
-                                        <a href="{{ route('roteiros.show', $roteiro->id) }}" class="text-sm text-yellow-600 font-medium size-4" title="Visualizar Roteiro">
+                                        <a href="{{ route('roteiros.show', $roteiro->id) }}" class="text-sm text-yellow-600 font-medium size-4" title="Visualizar roteiro">
                                             <x-icons-logo name="show"/>
                                         </a> 
                                         @else
                                         <a href="{{ route('roteiros.pdf', $roteiro->id) }}" class="text-sm text-blue-600 font-medium" target="_blank" title="Criar PDF">Criar PDF</a>
                                         <!-- Ícone de Visualizar (Olho) -->
-                                        <a href="{{ route('roteiros.show', $roteiro->id) }}" class="text-sm text-yellow-600 font-medium size-4" title="Visualizar Roteiro">
+                                        <a href="{{ route('roteiros.show', $roteiro->id) }}" class="text-sm text-yellow-600 font-medium size-4" title="Visualizar roteiro">
                                             <x-icons-logo name="show"/>
                                         </a> 
                                         @endif

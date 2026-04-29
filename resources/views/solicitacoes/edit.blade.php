@@ -2,7 +2,7 @@
 <x-app-layout>
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            Editar Solicitação
+            Editar solicitação
         </h2>
     </x-slot>
 
@@ -41,7 +41,7 @@
                             {{-- Seleção de Coordenadores --}}
                             @if($podeEditarTudo)
                                 <div class="bg-blue-50 border border-blue-200 rounded-lg p-6 mb-6">
-                                    <h3 class="text-lg font-semibold text-blue-800 mb-4">Selecionar Coordenadores para Aprovação</h3>
+                                    <h3 class="text-lg font-semibold text-blue-800 mb-4">Selecionar coordenadores para aprovação</h3>
                                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                                         <div>
                                             <label class="block text-sm font-medium text-gray-700 mb-2">Coordenador de Curso</label>
@@ -53,7 +53,7 @@
                                             </select>
                                         </div>
                                         <div>
-                                            <label class="block text-sm font-medium text-gray-700 mb-2">Coordenador de Laboratório</label>
+                                            <label class="block text-sm font-medium text-gray-700 mb-2">Coordenador de laboratório</label>
                                             <select name="coordenador_lab_id" required {{ $solicitacao->coordenador_lab_id ? 'disabled' : '' }} class="block w-full border border-gray-300 rounded-md shadow-sm p-3 focus:ring-blue-500 focus:border-blue-500">
                                                 <option value="">Selecione o coordenador de laboratório</option>
                                                 @foreach($coordenadoresLab as $coord)
@@ -67,9 +67,9 @@
 
                             <div class="md:col-span-2 space-y-4">
                                 <div class="flex items-center justify-between">
-                                    <label class="block text-sm font-bold text-gray-800">Datas, Horários e Laboratórios (Agendamentos)</label>
+                                    <label class="block text-sm font-bold text-gray-800">Datas, horários e laboratórios (agendamentos)</label>
                                     @if($podeEditarTudo)
-                                        <button type="button" onclick="addAgendamento()" class="text-blue-600 hover:text-blue-800 text-sm font-bold">+ Adicionar outra Data/Horário</button>
+                                        <button type="button" onclick="addAgendamento()" class="text-blue-600 hover:text-blue-800 text-sm font-bold">+ Adicionar outra data/horário</button>
                                     @endif
                                 </div>
 
@@ -90,36 +90,36 @@
                                             </div>
                                             @if($podeEditarTudo)
                                                 <div class="flex-1">
-                                                    <label class="block text-sm font-medium text-gray-700">Unidade Curricular</label>
+                                                    <label class="block text-sm font-medium text-gray-700">Unidade curricular</label>
                                                     <input type="text" name="unidade_curricular" value="{{ $solicitacao->unidade_curricular }}" required maxlength="255" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2" placeholder="Informe a unidade curricular" />
                                                 </div>
                                                 <div class="flex-1">
-                                                    <label class="block text-sm font-medium text-gray-700">Data da Prática</label>
+                                                    <label class="block text-sm font-medium text-gray-700">Data da prática</label>
                                                     <input type="date" name="data_solicitacao" value="{{ $solicitacao->data_solicitacao }}" required class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2">
                                                 </div>
                                                 <div class="flex-1">
-                                                    <label class="block text-sm font-medium text-gray-700">Horário de Início</label>
+                                                    <label class="block text-sm font-medium text-gray-700">Horário de início</label>
                                                     <input type="time" name="horario_inicio" value="{{ $solicitacao->horario_inicio }}" required class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2">
                                                 </div>
                                                 <div class="flex-1">
-                                                    <label class="block text-sm font-medium text-gray-700">Horário de Fim</label>
+                                                    <label class="block text-sm font-medium text-gray-700">Horário de fim</label>
                                                     <input type="time" name="horario_fim" value="{{ $solicitacao->horario_fim }}" required class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2">
                                                 </div>
                                             @else
                                                 <div class="flex-1">
-                                                    <label class="block text-sm font-medium text-gray-700">Unidade Curricular</label>
+                                                    <label class="block text-sm font-medium text-gray-700">Unidade curricular</label>
                                                     <input type="text" value="{{ $solicitacao->unidade_curricular }}" disabled class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 bg-gray-100" />
                                                 </div>
                                                 <div class="flex-1">
-                                                    <label class="block text-sm font-medium text-gray-700">Data da Prática</label>
+                                                    <label class="block text-sm font-medium text-gray-700">Data da prática</label>
                                                     <input type="date" value="{{ $solicitacao->data_solicitacao }}" disabled class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 bg-gray-100">
                                                 </div>
                                                 <div class="flex-1">
-                                                    <label class="block text-sm font-medium text-gray-700">Horário de Início</label>
+                                                    <label class="block text-sm font-medium text-gray-700">Horário de início</label>
                                                     <input type="time" value="{{ $solicitacao->horario_inicio }}" disabled class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 bg-gray-100">
                                                 </div>
                                                 <div class="flex-1">
-                                                    <label class="block text-sm font-medium text-gray-700">Horário de Fim</label>
+                                                    <label class="block text-sm font-medium text-gray-700">Horário de fim</label>
                                                     <input type="time" value="{{ $solicitacao->horario_fim }}" disabled class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 bg-gray-100">
                                                 </div>
                                             @endif
@@ -131,7 +131,7 @@
                                                 <!-- Insumos -->
                                                 <div class="space-y-2">
                                                     <div class="flex items-center justify-between">
-                                                        <label class="block text-sm font-medium text-gray-700">Insumos (Opcional)</label>
+                                                        <label class="block text-sm font-medium text-gray-700">Insumos (opcional)</label>
                                                         <button type="button" onclick="addInput(this)" class="text-blue-600 hover:text-blue-800 text-xs font-bold">+ Adicionar Insumo</button>
                                                     </div>
                                                     <div class="items-container space-y-2">
@@ -167,8 +167,8 @@
                                                 <!-- Equipamentos -->
                                                 <div class="space-y-2">
                                                     <div class="flex items-center justify-between">
-                                                        <label class="block text-sm font-medium text-gray-700">Equipamentos (Opcional)</label>
-                                                        <button type="button" onclick="addInput(this)" class="text-blue-600 hover:text-blue-800 text-xs font-bold">+ Adicionar Equipamento</button>
+                                                        <label class="block text-sm font-medium text-gray-700">Equipamentos (opcional)</label>
+                                                        <button type="button" onclick="addInput(this)" class="text-blue-600 hover:text-blue-800 text-xs font-bold">+ Adicionar equipamento</button>
                                                     </div>
                                                     <div class="items-container space-y-2">
                                                         @php
@@ -208,7 +208,7 @@
 
                             <div class="mt-6 flex justify-end">
                                 <button type="submit" class="cursor-pointer bg-[#0C2E5C] text-white px-6 py-3 rounded-md hover:bg-blue-800 font-bold transition">
-                                    Salvar Alterações
+                                    Salvar alterações
                                 </button>
                             </div>
 

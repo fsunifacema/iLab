@@ -1,7 +1,7 @@
 <x-app-layout>
     <x-slot name="header">
         <h2 class="text-xl font-semibold text-[#0C2E5C]">
-            Gerenciamento de Insumos
+            Gerenciamento de insumos
         </h2>
     </x-slot>
 
@@ -9,7 +9,7 @@
         <div class="max-w-6xl mx-auto sm:px-6 lg:px-8">
             @if(in_array(Auth::user()->nivel, [\App\Models\User::NIVEL_TECNICO, \App\Models\User::NIVEL_COORDENADOR_CURSO, \App\Models\User::NIVEL_COORDENADOR_LABORATORIO]))
                 <a href="{{ route('insumos.create') }}" class="fixed bottom-6 right-6 bg-[#0C2E5C] text-white text-sm px-4 py-2 rounded-md shadow-md hover:bg-blue-800 transition duration-200">
-                    + Novo Insumo
+                    + Novo insumo
                 </a>
             @endif
 
@@ -166,7 +166,7 @@
                                     <div class="mt-3 flex items-center gap-3">
                                         <a href="{{ route('insumos.edit', $insumo->id) }}" class="text-sm text-[#0C2E5C] font-medium">Editar</a>
                                         <a href="{{ route('insumos.estoque', $insumo) }}" class="px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700">
-                                            Gerenciar Estoque
+                                            Gerenciar estoque
                                         </a>
                                         <form action="{{ route('insumos.destroy', $insumo->id) }}" method="POST" class="inline-block">
                                             @csrf

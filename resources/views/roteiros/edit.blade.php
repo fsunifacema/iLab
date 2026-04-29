@@ -18,7 +18,7 @@
                 </div>
 
                 <div class="mb-4">
-                    <x-label for="unidade_curricular" value="Unidade Curricular" class="block text-sm font-medium text-gray-700" />
+                    <x-label for="unidade_curricular" value="Unidade curricular" class="block text-sm font-medium text-gray-700" />
                     <x-input id="unidade_curricular" type="text" name="unidade_curricular" :value="old('unidade_curricular', $roteiro->unidade_curricular)" required class="w-full" />
                     <x-input-error for="unidade_curricular" :messages="$errors->get('unidade_curricular')" class="mt-2" />
                 </div>
@@ -38,7 +38,7 @@
                 </div>
 
                 <div class="mb-4">
-                    <x-label for="quantidade_alunos" value="Quantidade de Alunos" class="block text-sm font-medium text-gray-700" />
+                    <x-label for="quantidade_alunos" value="Quantidade de alunos" class="block text-sm font-medium text-gray-700" />
                     <x-input id="quantidade_alunos" type="number" name="quantidade_alunos" :value="old('quantidade_alunos', $roteiro->quantidade_alunos)" required min="0" step="1" class="w-full" />
                     <x-input-error for="quantidade_alunos" :messages="$errors->get('quantidade_alunos')" class="mt-2" />
                 </div>
@@ -50,25 +50,25 @@
                 </div>
 
                 <div class="mb-4">
-                    <x-label for="horario_inicio" value="Horário Inicio" class="block text-sm font-medium text-gray-700" />
+                    <x-label for="horario_inicio" value="Horário de inicio" class="block text-sm font-medium text-gray-700" />
                     <x-input id="horario_inicio" type="time" name="horario_inicio" :value="old('horario_inicio')" required class="w-full" />
                     <x-input-error for="horario_inicio" :messages="$errors->get('horario_inicio')" class="mt-2" />
                 </div>
 
                 <div class="mb-4">
-                    <x-label for="horario_fim" value="Horário Fim" class="block text-sm font-medium text-gray-700" />
+                    <x-label for="horario_fim" value="Horário de fim" class="block text-sm font-medium text-gray-700" />
                     <x-input id="horario_fim" type="time" name="horario_fim" :value="old('horario_fim')" required class="w-full" />
                     <x-input-error for="horario_fim" :messages="$errors->get('horario_fim')" class="mt-2" />
                 </div>
 
                 <div class="mb-4">
-                    <x-label for="carga_horaria" value="Carga Horária" class="block text-sm font-medium text-gray-700" />
+                    <x-label for="carga_horaria" value="Carga horária" class="block text-sm font-medium text-gray-700" />
                     <x-input id="carga_horaria" type="text" name="carga_horaria" :value="old('carga_horaria', $roteiro->carga_horaria)" required class="w-full" />
                     <x-input-error for="carga_horaria" :messages="$errors->get('carga_horaria')" class="mt-2" />
                 </div>
 
                 <div class="mb-4">
-                    <x-label for="numero_praticas" value="Número de Práticas" class="block text-sm font-medium text-gray-700" />
+                    <x-label for="numero_praticas" value="Número de práticas" class="block text-sm font-medium text-gray-700" />
                     <x-input id="numero_praticas" type="number" name="numero_praticas" :value="old('numero_praticas', $roteiro->numero_praticas)" required min="1" step="1" class="w-full" />
                     <x-input-error for="numero_praticas" :messages="$errors->get('numero_praticas')" class="mt-2" />
                 </div>

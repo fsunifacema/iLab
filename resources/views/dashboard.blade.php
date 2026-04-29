@@ -1,7 +1,7 @@
 <x-app-layout>
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            {{ __('Calendário de Práticas') }}
+            {{ __('Calendário de práticas') }}
         </h2>
     </x-slot>
 
@@ -47,7 +47,7 @@
                 {{-- COLUNA 2: PAINEL DE NOTIFICAÇÕES (Ocupa 1/3 em telas grandes) --}}
                 <div class="lg:col-span-1 bg-white overflow-hidden shadow-xl sm:rounded-lg p-6">
                     <div class="flex items-center justify-between mb-4">
-                        <h3 class="text-lg font-bold text-[#0C2E5C] border-b pb-2">Feed de Atividades</h3>
+                        <h3 class="text-lg font-bold text-[#0C2E5C] border-b pb-2">Feed de atividades</h3>
                     </div>
 
                     {{-- O feed de atividades com rolagem limitada --}}
@@ -96,7 +96,7 @@
     <div id="detailsModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm hidden items-center justify-center z-50">
         {{-- Ajusta a largura máxima para mobile (mais estreita) e desktop (mais larga) --}}
         <div id="modalContent" class="bg-white rounded-lg shadow-2xl p-6 w-11/12 max-w-sm sm:max-w-lg transform scale-95 opacity-0 transition-all duration-300">
-            <h3 class="text-xl font-bold mb-4 text-[#0C2E5C]" id="modalTitle">Detalhes do Roteiro</h3>
+            <h3 class="text-xl font-bold mb-4 text-[#0C2E5C]" id="modalTitle">Detalhes do roteiro</h3>
 
             <div id="modalBody" class="space-y-2 text-gray-700">
                 </div>
@@ -106,7 +106,7 @@
                 <a id="viewRoteiroPdfBtn" href="#" target="_blank" class="inline-flex items-center justify-center px-4 py-2 bg-green-600 text-white rounded-md font-semibold text-sm hover:bg-green-700 transition">
                     {{-- Ícone: w-3 h-3 em mobile, w-4 h-4 em desktop (sm:w-4 sm:h-4) --}}
                     <svg class="w-3 h-3 sm:w-4 sm:h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 21h7a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
-                    Ver Roteiro (PDF)
+                    Ver roteiro (PDF)
                 </a>
 
                 <button id="closeModalBtn" class="cursor-pointer px-4 py-2 bg-gray-500 text-white rounded-md font-semibold text-sm hover:bg-gray-600 transition">
@@ -169,7 +169,7 @@
                 height: isMobile ? 'auto' : 700,
 
                 // NOVA OPÇÃO: Tradução do "All Day" para "Dia Inteiro" ou similar
-                allDayText: 'Dia Inteiro',
+                allDayText: 'Dia inteiro',
 
                 // TRADUÇÃO DOS BOTÕES (CUSTOM BUTTON TEXT)
                 buttonText: {
@@ -201,7 +201,7 @@
                     if(info.event.end) {
                         horarioDisplay += ' - ' + info.event.end.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
                     } else if (info.event.allDay) {
-                        horarioDisplay = 'Dia Todo';
+                        horarioDisplay = 'Dia todo';
                     } else {
                         // Se for um evento pontual com hora (sem hora final)
                         horarioDisplay = info.event.start.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
@@ -211,7 +211,7 @@
                     document.getElementById('modalTitle').textContent = `Roteiro: ${roteiro.curso} - ${roteiro.laboratorio}`;
 
                     let htmlBody = `
-                        <p><strong class="font-semibold">Unidade Curricular:</strong> ${roteiro.unidade_curricular || 'N/A'}</p>
+                        <p><strong class="font-semibold">Unidade curricular:</strong> ${roteiro.unidade_curricular || 'N/A'}</p>
                         <p><strong class="font-semibold">Tema:</strong> ${roteiro.tema || 'N/A'}</p>
                         <p><strong class="font-semibold">Professor:</strong> ${roteiro.professor || 'N/A'}</p>
                         <hr class="my-2 border-gray-200">
@@ -219,12 +219,12 @@
                         <p><strong class="font-semibold">Data:</strong> ${dataFormatada}</p>
                         <p><strong class="font-semibold">Horário:</strong> ${horarioDisplay}</p>
                         <p><strong class="font-semibold">Alunos:</strong> ${roteiro.quantidade_alunos}</p>
-                        <p><strong class="font-semibold">Carga Horária:</strong> ${roteiro.carga_horaria}</p>
+                        <p><strong class="font-semibold">Carga horária:</strong> ${roteiro.carga_horaria}</p>
                         <p><strong class="font-semibold">Período:</strong> ${roteiro.periodo}</p>
                     `;
                     document.getElementById('modalBody').innerHTML = htmlBody;
 
-                    // Configurar os botões de Ação
+                    // Configurar os botões de ação
                     const viewPdfBtn = document.getElementById('viewRoteiroPdfBtn');
 
                     // Rotas

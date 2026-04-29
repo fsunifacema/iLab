@@ -38,12 +38,12 @@
                 {{-- COLUNA PRINCIPAL --}}
                 <div class="lg:col-span-2 space-y-6 bg-white shadow-xl sm:rounded-lg p-6">
                     <h3 class="text-xl font-bold text-gray-700 border-b pb-3 mb-4">
-                        Detalhes da Solicitação
+                        Detalhes da solicitação
                     </h3>
                     
                     <div class="flex justify-between items-center bg-gray-50 p-3 rounded-md border">
                         <div class="p-1">
-                            <span class="text-sm font-medium text-gray-500 block">Status Atual:</span>
+                            <span class="text-sm font-medium text-gray-500 block">Status atual:</span>
                             <span class="px-2 py-1 inline-flex text-sm leading-5 font-semibold rounded-full 
                                 @if ($solicitacao->status == \App\Models\Solicitacao::STATUS_APROVADA) bg-green-100 text-green-800
                                 @elseif ($solicitacao->status == \App\Models\Solicitacao::STATUS_RECUSADA) bg-red-100 text-red-800
@@ -52,12 +52,12 @@
                             </span>
                         </div>
                         <div class="p-1 text-right">
-                            <span class="text-sm font-medium text-gray-500 block">Data de Criação:</span>
+                            <span class="text-sm font-medium text-gray-500 block">Data de criação:</span>
                             <span class="text-gray-800 font-semibold">{{ $solicitacao->created_at->format('d/m/Y H:i') }}</span>
                         </div>
                     </div>
 
-                    <h4 class="text-lg font-bold text-gray-700 pt-4 border-b pb-2">Informações do Laboratório</h4>
+                    <h4 class="text-lg font-bold text-gray-700 pt-4 border-b pb-2">Informações do laboratório</h4>
                     <div class="space-y-2 text-sm">
                         <div class="flex justify-between border-b pb-1">
                             <span class="font-medium text-gray-700">Laboratório:</span>
@@ -68,7 +68,7 @@
                             <span class="text-gray-900">{{ $solicitacao->laboratorio->localizacao ?? 'N/A' }}</span>
                         </div>
                         <div class="flex justify-between">
-                            <span class="font-medium text-gray-700">Data Solicitada da Prática:</span>
+                            <span class="font-medium text-gray-700">Data solicitada da prática:</span>
                             <span class="text-gray-900">{{ $solicitacao->data_solicitacao ? \Carbon\Carbon::parse($solicitacao->data_solicitacao)->format('d/m/Y') : 'N/A' }}</span>
                         </div>
                         <div class="flex justify-between">
@@ -80,7 +80,7 @@
                         </div>
                         {{-- Insumos --}}
                         <div class="flex justify-between border-b pb-2 items-start">
-                            <span class="font-medium text-gray-700">Insumos Solicitados:</span>
+                            <span class="font-medium text-gray-700">Insumos solicitados:</span>
                             <div class="flex flex-col text-right">
                                 @forelse ($solicitacao->insumos as $insumo)
                                     <span class="text-gray-900 bg-gray-100 px-2 py-0.5 rounded text-start mb-1 text-xs font-semibold border border-gray-200">
@@ -94,7 +94,7 @@
 
                         {{-- Equipamentos --}}
                         <div class="flex justify-between border-b pb-2 items-start mt-2">
-                            <span class="font-medium text-gray-700">Equipamentos Solicitados:</span>
+                            <span class="font-medium text-gray-700">Equipamentos solicitados:</span>
                             <div class="flex flex-col text-right">
                                 @forelse ($solicitacao->equipamentos as $equipamento)
                                     <span class="text-gray-900 bg-gray-100 px-2 py-0.5 rounded mb-1 texte-start text-xs font-semibold border border-gray-200">
@@ -108,19 +108,19 @@
 
                     </div>
                     
-                    <h4 class="text-lg font-bold text-gray-700 pt-4 border-b pb-2">Detalhes do Roteiro</h4>
+                    <h4 class="text-lg font-bold text-gray-700 pt-4 border-b pb-2">Detalhes do roteiro</h4>
                     
                     @if ($solicitacao->roteiro)
                         <div class="bg-blue-50 border-l-4 border-blue-500 p-4 mb-4">
-                            <p class="font-bold text-blue-700">Roteiro Vinculado</p>
+                            <p class="font-bold text-blue-700">Roteiro vinculado</p>
                             <a href="{{ route('roteiros.pdf', $solicitacao->roteiro->id) }}" target="_blank" class="text-sm text-blue-600 hover:text-blue-800 underline font-semibold mt-1 inline-block">
-                                📄 Baixar/Visualizar Roteiro em PDF
+                                📄 Baixar/visualizar roteiro em PDF
                             </a>
                         </div>
 
                         <div class="space-y-2 text-sm">
                             <div class="flex justify-between border-b pb-1">
-                                <span class="font-medium text-gray-700">Unidade Curricular:</span>
+                                <span class="font-medium text-gray-700">Unidade curricular:</span>
                                 <span class="text-gray-900">{{ $solicitacao->roteiro->unidade_curricular ?? 'N/A' }}</span>
                             </div>
                             <div class="flex justify-between border-b pb-1">
@@ -129,7 +129,7 @@
                             </div>
                             
                             <div class="pt-4">
-                                <span class="font-medium text-gray-700 block mb-1">Conteúdo Detalhado:</span>
+                                <span class="font-medium text-gray-700 block mb-1">Conteúdo detalhado:</span>
                                 <div class="bg-gray-50 p-3 rounded border text-gray-900 whitespace-pre-wrap">
                                     {{ $solicitacao->roteiro->conteudo ?? 'N/A' }}
                                 </div>
@@ -148,11 +148,11 @@
                     @if ($podeAprovarCurso || $podeAprovarLab)
                         <div class="bg-white shadow-xl sm:rounded-lg p-6 border-t-4 border-blue-500">
                             <h3 class="text-xl font-bold text-gray-700 border-b pb-3 mb-4">
-                                Minhas Ações
+                                Minhas ações
                             </h3>
                             
                             <div class="bg-blue-100 border border-blue-400 text-blue-700 px-4 py-3 rounded relative mb-4">
-                                <span class="font-bold block mb-1">Aguardando sua Aprovação</span>
+                                <span class="font-bold block mb-1">Aguardando sua aprovação</span>
                                 <p class="text-sm">Esta solicitação exige sua ação como:
                                     <span class="font-medium">{{ $podeAprovarCurso ? 'Coordenador de Curso' : 'Coordenador de Laboratório' }}</span>
                                 </p>
@@ -198,7 +198,7 @@
 
                     @elseif (!$statusFinalizado)
                         <div class="bg-yellow-100 border border-yellow-400 text-yellow-700 px-4 py-3 rounded relative mb-4">
-                            <span class="font-bold">Em Análise</span>
+                            <span class="font-bold">Em análise</span>
                             <p class="text-sm">Esta solicitação está {{ $solicitacao->status_texto }}. Não exige sua ação neste momento.</p>
                         </div>
                     @endif
@@ -209,10 +209,10 @@
                         && !$solicitacao->roteiro) 
                     
                         <div class="bg-green-50 border-l-4 border-green-500 p-6 rounded shadow-lg">
-                            <h4 class="font-bold text-green-900 mb-3">Próximo Passo</h4>
+                            <h4 class="font-bold text-green-900 mb-3">Próximo passo</h4>
                             <p class="text-sm text-green-800 mb-4">A solicitação foi aprovada! Você pode agora criar o roteiro de prática.</p>
                             <a href="{{ route('roteiros.criar-solicitacao', $solicitacao->codigo) }}" class="inline-block w-full text-center bg-green-600 text-white font-bold py-2 px-4 rounded hover:bg-green-700 transition">
-                                + Criar Roteiro
+                                + Criar roteiro
                             </a>
                         </div>
                     @endif
@@ -220,11 +220,11 @@
                     {{-- RESULTADO DA ANÁLISE --}}
                     @if ($solicitacao->autorizante || $solicitacao->parecer || $statusFinalizado)
                         <div class="bg-white shadow-xl sm:rounded-lg p-6">
-                            <h4 class="font-bold text-gray-700 border-b pb-2 mb-2">Resultado da Análise</h4>
+                            <h4 class="font-bold text-gray-700 border-b pb-2 mb-2">Resultado da análise</h4>
                             
                             <div class="space-y-3 pt-2">
                                 <div class="flex justify-between border-b pb-1">
-                                    <span class="font-medium text-gray-700">Status Final:</span>
+                                    <span class="font-medium text-gray-700">Status final:</span>
                                     <span class="px-2 py-1 rounded-full text-xs font-semibold
                                         {{ $solicitacao->status == \App\Models\Solicitacao::STATUS_APROVADA ? 'bg-green-100 text-green-800' :
                                           ($solicitacao->status == \App\Models\Solicitacao::STATUS_RECUSADA ? 'bg-red-100 text-red-800' : 'bg-yellow-100 text-yellow-800') }}">
@@ -233,13 +233,13 @@
                                 </div>
                                 @if($solicitacao->autorizante)
                                 <div class="flex justify-between border-b pb-1">
-                                    <span class="font-medium text-gray-700">Último Autorizante:</span>
+                                    <span class="font-medium text-gray-700">Último autorizante:</span>
                                     <span class="text-gray-900">{{ $solicitacao->autorizante->name ?? 'N/A' }}</span>
                                 </div>
                                 @endif
                                 @if($solicitacao->parecer)
                                 <div>
-                                    <span class="font-medium text-gray-700 block mb-2">Parecer/Motivo:</span>
+                                    <span class="font-medium text-gray-700 block mb-2">Parecer/motivo:</span>
                                     <div class="bg-gray-50 p-3 rounded border text-gray-900">
                                         {{ $solicitacao->parecer }}
                                     </div>
@@ -261,7 +261,7 @@
             {{-- Botão Voltar/Excluir --}}
             <div class="mt-8 flex justify-end space-x-2">
                 <a href="{{ route('solicitacoes.index') }}" class="bg-gray-500 text-white px-4 py-2 rounded-md hover:bg-gray-600 transition">
-                    Voltar para a Lista
+                    Voltar para a lista
                 </a>
                 
                 @php
@@ -274,7 +274,7 @@
                 
                 @if($podeEditar)
                     <a href="{{ route('solicitacoes.edit', $solicitacao->id) }}" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition">
-                        Editar Solicitação
+                        Editar solicitação
                     </a>
                 @endif
                 
@@ -286,7 +286,7 @@
                         @method('DELETE')
                         <button type="submit" class="bg-red-600 text-white px-4 py-2 cursor-pointer rounded-md hover:bg-red-700 transition"
                                 onclick="return confirm('Tem certeza que deseja excluir esta solicitação?')">
-                            Excluir Solicitação
+                            Excluir solicitação
                         </button>
                     </form>
                 @endif
@@ -312,7 +312,7 @@
                             Cancelar
                         </button>
                         <button type="submit" class="px-4 py-2 bg-red-600 text-white text-base cursor-pointer font-medium rounded-md shadow-sm hover:bg-red-700 focus:outline-none transition">
-                            Confirmar Recusa
+                            Confirmar recusa
                         </button>
                     </div>
                 </div>
