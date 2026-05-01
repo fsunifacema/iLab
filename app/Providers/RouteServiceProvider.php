@@ -17,6 +17,7 @@ class RouteServiceProvider extends ServiceProvider
      *
      * @var string
      */
+    // Direciona usuários autenticados para o dashboard após login
     public const HOME = '/dashboard';
 
     /**

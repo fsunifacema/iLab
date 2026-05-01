@@ -12,7 +12,37 @@
         <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
 
         <!-- Scripts -->
-        @vite(['resources/css/app.css', 'resources/js/app.js'])
+        <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4?plugins=forms,typography" defer></script>
+        <style>
+            /* O CSS básico para resetar a aparência do navegador */
+            input[type="checkbox"] {
+                height: 1rem; 
+                width: 1rem; 
+                border-radius: 0.25rem !important;
+                border-width: 1px !important;
+                border-color: #d1d5db !important;
+                -webkit-appearance: none;
+                -moz-appearance: none;
+                appearance: none;
+                background-color: #fff; 
+                box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05); /* Sombra suave */
+            }
+            
+            input[type="checkbox"].text-indigo-600:checked {
+                background-color: #4f46e5 !important; 
+                border-color: #4f46e5 !important;
+                background-image: url("data:image/svg+xml,%3csvg viewBox='0 0 16 16' fill='white' xmlns='http://www.w3.org/2000/svg'%3e%3cpath d='M12.207 4.793a1 1 0 010 1.414l-5 5a1 1 0 01-1.414 0l-2-2a1 1 0 011.414-1.414L6.5 9.086l4.293-4.293a1 1 0 011.414 0z'/%3e%3c/svg%3e") !important;
+                background-size: 100% 100%;
+                background-position: center;
+                background-repeat: no-repeat;
+            }
+            
+            input[type="checkbox"]:focus {
+                outline: none !important; 
+            }
+        </style>
+
+        <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 
         <!-- Styles -->
         @livewireStyles
