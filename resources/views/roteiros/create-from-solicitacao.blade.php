@@ -82,14 +82,25 @@
                         @foreach([
                         'Administração',
                         'Análise e Desenvolvimento de Sistemas',
-                        'Ciências Contábeis',
+                        'Arquitetura e Urbanismo',
+                        'Biomedicina',
+                        'Design de Moda',
                         'Direito',
+                        'Educação Física',
                         'Enfermagem',
                         'Engenharia Civil',
+                        'Engenharia Elétrica',
+                        'Estética e Cosmética',
                         'Farmácia',
                         'Fisioterapia',
+                        'Medicina',
+                        'Nutrição',
+                        'Odontologia',
                         'Pedagogia',
-                        'Psicologia'
+                        'Psicologia',
+                        'Radiologia',
+                        'Serviço Social',
+                        'Terapia Ocupacional'
                         ] as $curso)
                         <option value="{{ $curso }}" {{ old('curso', $solicitacao->roteiro?->curso ?? $solicitacao->curso ?? '') == $curso ? 'selected' : '' }}>
                             {{ $curso }}
