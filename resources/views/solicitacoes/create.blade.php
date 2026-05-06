@@ -11,6 +11,8 @@
             <div class="bg-white overflow-hidden shadow-xl sm:rounded-lg">
                 <div class="p-6">
 
+                    <x-validation-errors class="mb-4" />
+
                     <form action="{{ route('solicitacoes.store') }}" method="POST">
                         @csrf
 
@@ -23,7 +25,7 @@
                                     <select name="coordenador_curso_id" required class="block w-full border border-gray-300 rounded-md shadow-sm p-3 focus:ring-blue-500 focus:border-blue-500">
                                         <option value="">Selecione o coordenador de curso</option>
                                         @foreach($coordenadoresCurso as $coord)
-                                            <option value="{{ $coord->id }}">{{ $coord->name }}</option>
+                                            <option value="{{ $coord->id }}" {{ old('coordenador_curso_id') == $coord->id ? 'selected' : '' }}>{{ $coord->name }}</option>
                                         @endforeach
                                     </select>
                                 </div>
@@ -32,98 +34,113 @@
                                     <select name="coordenador_lab_id" required class="block w-full border border-gray-300 rounded-md shadow-sm p-3 focus:ring-blue-500 focus:border-blue-500">
                                         <option value="">Selecione o coordenador de laboratório</option>
                                         @foreach($coordenadoresLab as $coord)
-                                            <option value="{{ $coord->id }}">{{ $coord->name }}</option>
+                                            <option value="{{ $coord->id }}" {{ old('coordenador_lab_id') == $coord->id ? 'selected' : '' }}>{{ $coord->name }}</option>
                                         @endforeach
                                     </select>
                                 </div>
                             </div>
                         </div>
 
-                        <div class="md:col-span-2 space-y-4">
-                            <div class="flex items-center justify-between">
-                                <label class="block text-sm font-bold text-gray-800">Datas, horários e laboratórios (Agendamentos)</label>
-                                <button type="button" onclick="addAgendamento()" class="text-blue-600 hover:text-blue-800 text-sm font-bold">+ Adicionar outra data/horário</button>
-                            </div>
-                            
-                            <div id="agendamentos-container" class="space-y-6">
-                                <div class="agendamento-item border p-4 rounded bg-gray-50 flex flex-col gap-6 relative">
-                                    
-                                    <!-- Data, Horários e Laboratório -->
-                                    <div class="flex flex-col md:flex-row gap-4">
-                                        <div class="flex-1">
-                                            <label class="block text-sm font-medium text-gray-700">Laboratório</label>
-                                            <select name="agendamentos[0][laboratorio_id]" required class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2">
-                                                <option value="">Selecione o laboratório</option>
-                                                @foreach($laboratorios as $lab)
-                                                    <option value="{{ $lab->id }}">{{ $lab->nome }}</option>
-                                                @endforeach
-                                            </select>
-                                        </div>
-                                        <div class="flex-1">
-                                            <label class="block text-sm font-medium text-gray-700">Unidade curricular</label>
-                                            <input type="text" name="agendamentos[0][unidade_curricular]" id="unidade_curricular_0" required maxlength="255" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 unidade-curricular-input" placeholder="Informe a unidade curricular" />
-                                        </div>
-                                        <div class="flex-1">
-                                            <label class="block text-sm font-medium text-gray-700">Data da prática</label>
-                                            <input type="date" name="agendamentos[0][data_solicitacao]" required class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2">
-                                        </div>
-                                        <div class="flex-1">
-                                            <label class="block text-sm font-medium text-gray-700">Horário de início</label>
-                                            <input type="time" name="agendamentos[0][horario_inicio]" required class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2">
-                                        </div>
-                                        <div class="flex-1">
-                                            <label class="block text-sm font-medium text-gray-700">Horário de fim</label>
-                                            <input type="time" name="agendamentos[0][horario_fim]" required class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2">
-                                        </div>
-                                        <div class="flex items-end">
-                                            <button type="button" onclick="removeAgendamento(this)" class="text-red-500 font-bold px-2 py-2 mb-1" style="display: none;" title="Remover este item">✕</button>
-                                        </div>
-                                    </div>
-
-                                    <!-- Insumos e Equipamentos (Específicos deste agendamento) -->
-                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 bg-white p-4 border rounded shadow-inner">
-                                        <!-- Insumos -->
-                                        <div class="space-y-2">
-                                            <div class="flex items-center justify-between">
-                                                <label class="block text-sm font-medium text-gray-700">Insumos (opcional)</label>
-                                                <button type="button" onclick="addInput(this)" class="text-blue-600 hover:text-blue-800 text-xs font-bold">+ Adicionar insumo</button>
+                            <div class="md:col-span-2 space-y-4">
+                                <div class="flex items-center justify-between">
+                                    <label class="block text-sm font-bold text-gray-800">Datas, Horários e Laboratórios (Agendamentos)</label>
+                                    <button type="button" onclick="addAgendamento()" class="text-blue-600 hover:text-blue-800 text-sm font-bold">+ Adicionar outra Data/Horário</button>
+                                </div>
+                                
+                                <div id="agendamentos-container" class="space-y-6">
+@php
+    $agendamentosOld = old('agendamentos', [0 => []]);
+@endphp
+@foreach($agendamentosOld as $index => $agendamentoOld)
+                                    <div class="agendamento-item border p-4 rounded bg-gray-50 flex flex-col gap-6 relative">
+                                        
+                                        <!-- Data, Horários e Laboratório -->
+                                        <div class="flex flex-col md:flex-row gap-4">
+                                            <div class="flex-1">
+                                                <label class="block text-sm font-medium text-gray-700">Laboratório</label>
+                                                <select name="agendamentos[{{ $index }}][laboratorio_id]" required class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2">
+                                                    <option value="">Selecione o laboratório</option>
+                                                    @foreach($laboratorios as $lab)
+                                                        <option value="{{ $lab->id }}" {{ (isset($agendamentoOld['laboratorio_id']) && $agendamentoOld['laboratorio_id'] == $lab->id) ? 'selected' : '' }}>{{ $lab->nome }}</option>
+                                                    @endforeach
+                                                </select>
                                             </div>
-                                            <div class="items-container space-y-2">
-                                                <div class="flex gap-2">
-                                                    <select name="agendamentos[0][insumos_id][]" class="block w-full border border-gray-300 rounded-md shadow-sm p-2 text-sm">
-                                                        <option value="">Selecione o insumo...</option>
-                                                        @foreach($insumos as $insumo)
-                                                            <option value="{{ $insumo->id }}">{{ $insumo->nome }}</option>
-                                                        @endforeach
-                                                    </select>
-                                                    <button type="button" onclick="removeInput(this)" class="text-red-500 px-2 font-bold" title="Remover">✕</button>
+                                            <div class="flex-1">
+                                                <label class="block text-sm font-medium text-gray-700">Unidade Curricular</label>
+                                                <input type="text" name="agendamentos[{{ $index }}][unidade_curricular]" id="unidade_curricular_{{ $index }}" required maxlength="255" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 unidade-curricular-input" placeholder="Informe a unidade curricular" value="{{ $agendamentoOld['unidade_curricular'] ?? '' }}" />
+                                            </div>
+                                            <div class="flex-1">
+                                                <label class="block text-sm font-medium text-gray-700">Data da Prática</label>
+                                                <input type="date" name="agendamentos[{{ $index }}][data_solicitacao]" required class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2" value="{{ $agendamentoOld['data_solicitacao'] ?? '' }}">
+                                            </div>
+                                            <div class="flex-1">
+                                                <label class="block text-sm font-medium text-gray-700">Horário de Início</label>
+                                                <input type="time" name="agendamentos[{{ $index }}][horario_inicio]" required class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2" value="{{ $agendamentoOld['horario_inicio'] ?? '' }}">
+                                            </div>
+                                            <div class="flex-1">
+                                                <label class="block text-sm font-medium text-gray-700">Horário de Fim</label>
+                                                <input type="time" name="agendamentos[{{ $index }}][horario_fim]" required class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2" value="{{ $agendamentoOld['horario_fim'] ?? '' }}">
+                                            </div>
+                                            <div class="flex items-end">
+                                                <button type="button" onclick="removeAgendamento(this)" class="text-red-500 font-bold px-2 py-2 mb-1" style="{{ count($agendamentosOld) > 1 ? 'display: block;' : 'display: none;' }}" title="Remover este item">✕</button>
+                                            </div>
+                                        </div>
+
+                                        <!-- Insumos e Equipamentos (Específicos deste agendamento) -->
+                                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 bg-white p-4 border rounded shadow-inner">
+                                            <!-- Insumos -->
+                                            <div class="space-y-2">
+                                                <div class="flex items-center justify-between">
+                                                    <label class="block text-sm font-medium text-gray-700">Insumos (Opcional)</label>
+                                                    <button type="button" onclick="addInput(this)" class="text-blue-600 hover:text-blue-800 text-xs font-bold">+ Adicionar Insumo</button>
+                                                </div>
+                                                <div class="items-container space-y-2">
+@php
+    $insumosOld = isset($agendamentoOld['insumos_id']) ? $agendamentoOld['insumos_id'] : [0 => ''];
+@endphp
+@foreach($insumosOld as $insumoIndex => $insumoValue)
+                                                    <div class="flex gap-2">
+                                                        <select name="agendamentos[{{ $index }}][insumos_id][]" class="block w-full border border-gray-300 rounded-md shadow-sm p-2 text-sm">
+                                                            <option value="">Selecione o insumo...</option>
+                                                            @foreach($insumos as $insumo)
+                                                                <option value="{{ $insumo->id }}" {{ $insumoValue == $insumo->id ? 'selected' : '' }}>{{ $insumo->nome }}</option>
+                                                            @endforeach
+                                                        </select>
+                                                        <button type="button" onclick="removeInput(this)" class="text-red-500 px-2 font-bold" title="Remover">✕</button>
+                                                    </div>
+@endforeach
+                                                </div>
+                                            </div>
+
+                                            <!-- Equipamentos -->
+                                            <div class="space-y-2">
+                                                <div class="flex items-center justify-between">
+                                                    <label class="block text-sm font-medium text-gray-700">Equipamentos (Opcional)</label>
+                                                    <button type="button" onclick="addInput(this)" class="text-blue-600 hover:text-blue-800 text-xs font-bold">+ Adicionar Equipamento</button>
+                                                </div>
+                                                <div class="items-container space-y-2">
+@php
+    $equipamentosOld = isset($agendamentoOld['equipamentos_id']) ? $agendamentoOld['equipamentos_id'] : [0 => ''];
+@endphp
+@foreach($equipamentosOld as $equipIndex => $equipValue)
+                                                    <div class="flex gap-2">
+                                                        <select name="agendamentos[{{ $index }}][equipamentos_id][]" class="block w-full border border-gray-300 rounded-md shadow-sm p-2 text-sm">
+                                                            <option value="">Selecione o equipamento...</option>
+                                                            @foreach($equipamentos as $equipamento)
+                                                                <option value="{{ $equipamento->id }}" {{ $equipValue == $equipamento->id ? 'selected' : '' }}>{{ $equipamento->nome }}</option>
+                                                            @endforeach
+                                                        </select>
+                                                        <button type="button" onclick="removeInput(this)" class="text-red-500 px-2 font-bold" title="Remover">✕</button>
+                                                    </div>
+@endforeach
                                                 </div>
                                             </div>
                                         </div>
 
-                                        <!-- Equipamentos -->
-                                        <div class="space-y-2">
-                                            <div class="flex items-center justify-between">
-                                                <label class="block text-sm font-medium text-gray-700">Equipamentos (opcional)</label>
-                                                <button type="button" onclick="addInput(this)" class="text-blue-600 hover:text-blue-800 text-xs font-bold">+ Adicionar equipamento</button>
-                                            </div>
-                                            <div class="items-container space-y-2">
-                                                <div class="flex gap-2">
-                                                    <select name="agendamentos[0][equipamentos_id][]" class="block w-full border border-gray-300 rounded-md shadow-sm p-2 text-sm">
-                                                        <option value="">Selecione o equipamento...</option>
-                                                        @foreach($equipamentos as $equipamento)
-                                                            <option value="{{ $equipamento->id }}">{{ $equipamento->nome }}</option>
-                                                        @endforeach
-                                                    </select>
-                                                    <button type="button" onclick="removeInput(this)" class="text-red-500 px-2 font-bold" title="Remover">✕</button>
-                                                </div>
-                                            </div>
-                                        </div>
                                     </div>
-
+@endforeach
                                 </div>
                             </div>
-                        </div>
 
                         <div class="mt-8 mb-4 px-6 flex justify-end">
                             <button type="submit" class="cursor-pointer bg-[#0C2E5C] text-white px-6 py-3 rounded-md hover:bg-blue-800 font-bold transition">
@@ -138,7 +155,7 @@
         </div>
     </div>
     <script>
-        let agendamentoIndex = 0;
+        let agendamentoIndex = {{ max(array_keys(old('agendamentos', [0 => []]))) }};
 
         function addAgendamento() {
             agendamentoIndex++;

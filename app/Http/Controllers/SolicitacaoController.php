@@ -129,6 +129,35 @@ class SolicitacaoController extends Controller
         $agendamentos = $request->input('agendamentos', []);
         $quantas = count($agendamentos);
 
+        // Pré-verificação de choques de horário (no banco e na própria requisição)
+        $horariosVerificados = [];
+        foreach ($agendamentos as $key => $agendamento) {
+            // Checa choque no banco
+            if ($this->temChoqueHorario(
+                $agendamento['laboratorio_id'],
+                $agendamento['data_solicitacao'],
+                $agendamento['horario_inicio'],
+                $agendamento['horario_fim']
+            )) {
+                return back()->withInput()->withErrors([
+                    'agendamentos.'.$key.'.horario_inicio' => 'Já existe uma solicitação para este laboratório neste horário na data informada (' . \Carbon\Carbon::parse($agendamento['data_solicitacao'])->format('d/m/Y') . ').'
+                ]);
+            }
+
+            // Checa choque na própria lista sendo enviada
+            foreach ($horariosVerificados as $verificado) {
+                if ($verificado['laboratorio_id'] == $agendamento['laboratorio_id'] &&
+                    $verificado['data_solicitacao'] == $agendamento['data_solicitacao'] &&
+                    $agendamento['horario_inicio'] < $verificado['horario_fim'] &&
+                    $agendamento['horario_fim'] > $verificado['horario_inicio']) {
+                    return back()->withInput()->withErrors([
+                        'agendamentos.'.$key.'.horario_inicio' => 'Existem horários conflitantes na sua própria requisição para o mesmo laboratório.'
+                    ]);
+                }
+            }
+            $horariosVerificados[] = $agendamento;
+        }
+
         // 3. Cria as Solicitações em loop para CADA agendamento
         foreach ($agendamentos as $agendamento) {
             $solicitacao = Solicitacao::create([
@@ -168,6 +197,18 @@ class SolicitacaoController extends Controller
         }
 
         $solicitacao = Solicitacao::findOrFail($id);
+
+        // Verifica choque de horário com solicitações já aprovadas
+        if ($this->temChoqueHorario(
+            $solicitacao->laboratorio_id,
+            $solicitacao->data_solicitacao,
+            $solicitacao->horario_inicio,
+            $solicitacao->horario_fim,
+            $solicitacao->id,
+            true // apenasAprovadas
+        )) {
+            return back()->withErrors(['error' => 'Não é possível aprovar. Já existe outra solicitação APROVADA para este laboratório no mesmo horário.']);
+        }
 
         $solicitacao->update([
             'status' => Solicitacao::STATUS_AGUARDANDO_COORDENADOR_LAB,
@@ -211,6 +252,18 @@ class SolicitacaoController extends Controller
 
         $solicitacao = Solicitacao::findOrFail($id);
 
+        // Verifica choque de horário com solicitações já aprovadas
+        if ($this->temChoqueHorario(
+            $solicitacao->laboratorio_id,
+            $solicitacao->data_solicitacao,
+            $solicitacao->horario_inicio,
+            $solicitacao->horario_fim,
+            $solicitacao->id,
+            true // apenasAprovadas
+        )) {
+            return back()->withErrors(['error' => 'Não é possível aprovar. Já existe outra solicitação APROVADA para este laboratório no mesmo horário.']);
+        }
+
         // Preserve both coordenador_curso_id and autorizante_id for audit trail
         $solicitacao->update([
             'status' => Solicitacao::STATUS_APROVADA,
@@ -252,14 +305,14 @@ class SolicitacaoController extends Controller
 
     public function show($id)
     {
-        // O Eager Loading (with) garante que insumos e equipamentos 
+        // O Eager Loading (with) garante que insumos e equipamentos
         // sejam coleções, mesmo que vazias, evitando erros no foreach.
         $solicitacao = Solicitacao::with([
-            'laboratorio', 
-            'roteiro', 
-            'insumos', 
-            'equipamentos', 
-            'user', 
+            'laboratorio',
+            'roteiro',
+            'insumos',
+            'equipamentos',
+            'user',
             'autorizante'
         ])->findOrFail($id);
 
@@ -344,6 +397,19 @@ class SolicitacaoController extends Controller
                 'equipamentos_id.*' => 'exists:equipamentos,id',
             ]);
 
+            // Verifica choque de horário
+            if ($this->temChoqueHorario(
+                $request->laboratorio_id,
+                $request->data_solicitacao,
+                $request->horario_inicio,
+                $request->horario_fim,
+                $solicitacao->id
+            )) {
+                return back()->withInput()->withErrors([
+                    'horario_inicio' => 'Já existe uma solicitação para este laboratório neste horário na data informada.'
+                ]);
+            }
+
             try {
                 $updateData = [
                     'laboratorio_id' => $request->laboratorio_id,
@@ -384,6 +450,19 @@ class SolicitacaoController extends Controller
                 'laboratorio_id' => 'required|exists:laboratorios,id',
             ]);
 
+            // Verifica choque de horário
+            if ($this->temChoqueHorario(
+                $request->laboratorio_id,
+                $solicitacao->data_solicitacao,
+                $solicitacao->horario_inicio,
+                $solicitacao->horario_fim,
+                $solicitacao->id
+            )) {
+                return back()->withInput()->withErrors([
+                    'laboratorio_id' => 'O laboratório selecionado já possui uma solicitação neste horário.'
+                ]);
+            }
+
             try {
                 $solicitacao->update([
                     'laboratorio_id' => $request->laboratorio_id,
@@ -412,6 +491,30 @@ class SolicitacaoController extends Controller
 
         return redirect()->route('solicitacoes.index')
             ->with('success', 'Solicitação excluída com sucesso!');
+    }
+
+    /**
+     * Verifica se existe choque de horário para um laboratório
+     */
+    private function temChoqueHorario($laboratorio_id, $data_solicitacao, $horario_inicio, $horario_fim, $ignoreId = null, $apenasAprovadas = false)
+    {
+        $query = Solicitacao::where('laboratorio_id', $laboratorio_id)
+            ->where('data_solicitacao', $data_solicitacao)
+            ->where('status', '!=', Solicitacao::STATUS_RECUSADA)
+            ->where(function($q) use ($horario_inicio, $horario_fim) {
+                $q->where('horario_inicio', '<', $horario_fim)
+                  ->where('horario_fim', '>', $horario_inicio);
+            });
+
+        if ($ignoreId) {
+            $query->where('id', '!=', $ignoreId);
+        }
+
+        if ($apenasAprovadas) {
+            $query->where('status', Solicitacao::STATUS_APROVADA);
+        }
+
+        return $query->exists();
     }
 
     /**
