@@ -216,22 +216,37 @@
 
 <div style="width:100%; margin-top:70px; border:none;">
     <div style="text-align:center;">
-        <hr style="width:200px; margin: 0 auto 5px auto;">
-        <p style="margin:0; padding:0;">Professor da disciplina</p>
+      @if($sigProfessor)
+      <img src="{{ $sigProfessor }}" alt="Assinatura" style="height:60px; display:block; margin: 0 auto 2px auto;">
+      @else
+      <div style="height:60px;"></div>
+      @endif
+      <hr style="width:200px; margin: 0 auto 5px auto;">
+      <p style="margin:0; padding:0;">Professor da disciplina</p>
     </div>
 </div>
 
 <div style="width:100%; margin-top:70px; border:none;">
     <div style="text-align:center;">
-        <hr style="width:200px; margin: 0 auto 5px auto;">
-        <p style="margin:0; padding:0;">Coordenação do curso</p>
+      @if($sigCoordCurso)
+      <img src="{{ $sigCoordCurso }}" alt="Assinatura" style="height:60px; display:block; margin: 0 auto 2px auto;">
+      @else
+      <div style="height:60px;"></div>
+      @endif
+      <hr style="width:200px; margin: 0 auto 5px auto;">
+      <p style="margin:0; padding:0;">Coordenação do Curso</p>
     </div>
 </div>
 
 <div style="width:100%; margin-top:70px; border:none;">
     <div style="text-align:center;">
-        <hr style="width:200px; margin: 0 auto 5px auto;">
-        <p style="margin:0; padding:0;">Coordenação de laboratórios</p>
+      @if($sigCoordLab)
+      <img src="{{ $sigCoordLab }}" alt="Assinatura" style="height:60px; display:block; margin: 0 auto 2px auto;">
+      @else
+      <div style="height:60px;"></div>
+      @endif
+      <hr style="width:200px; margin: 0 auto 5px auto;">
+      <p style="margin:0; padding:0;">Coordenação de Laboratórios</p>
     </div>
 </div>
 

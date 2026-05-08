@@ -38,14 +38,20 @@
                             </div>
                         </div>
 
+                        @if($errors->has('assinatura'))
+                            <div class="p-4 bg-red-100 text-red-800 rounded mb-4">
+                                {{ $errors->first('assinatura') }}
+                            </div>
+                        @endif
+
                         <!-- Cabeçalho (desktop) -->
                         <div class="hidden md:grid grid-cols-7 space-x-2 flex bg-[#0C2E5C] text-white px-4 py-2 rounded-t-md text-sm font-semibold mt-3">
                             <div class="text-left">Curso</div>
                             <div class="text-center">Unidade curricular</div>
                             <div class="text-center">Professor</div>
                             <div class="text-center">Período</div>
-                            <div class="text-center">Qtd. alunos</div>
-                            <div class="text-center">Data</div>                  
+                            <div class="text-center">Qtd. Alunos</div>
+                            <div class="text-center">Data</div>
                             <div class="text-center">Ações</div>
                         </div>
 
@@ -60,7 +66,7 @@
                                 @endphp
                                     <!-- Desktop: linha -->
                                 <div data-curso="{{ $curso }}" data-professor="{{ $professor }}" data-unidade="{{ $unidade }}" data-periodo="{{ $periodo }}" x-show="matches($el)" class="hidden md:grid grid-cols-7 space-x-2 items-center bg-white px-4 py-2 rounded shadow border border-gray-200 hover:shadow-md transition">
-                                    
+
                                     <div class="text-sm text-gray-700 text-left">{{ $roteiro->curso }}</div>
                                     <div class="text-sm text-gray-700 text-center">{{ $roteiro->unidade_curricular }}</div>
                                     <div class="text-sm text-gray-700 text-center">{{ $roteiro->professor }}</div>
@@ -81,7 +87,7 @@
                                                 <button onclick="return confirm('Deseja excluir?')" type="submit" title="Excluir Roteiro">
                                                     <x-icons-logo name="delete"/>
                                                 </button>
-                                            </form>                                    
+                                            </form>
                                             <a href="{{ route('roteiros.pdf', $roteiro->id) }}" class="text-sm text-blue-600 font-medium" target="_blank" title="Criar PDF">
                                                 <x-icons-logo name="document"/>
                                             </a>
@@ -124,7 +130,7 @@
                                         <div class="text-xs text-gray-500">Quantidade de alunos</div>
                                         <div class="text-sm text-gray-700">{{ $roteiro->quantidade_alunos }}</div>
                                     </div>
-                                    
+
                                     <div class="mt-3 flex items-center gap-2">
                                         @if(in_array(Auth::user()->nivel, [\App\Models\User::NIVEL_PROFESSOR, \App\Models\User::NIVEL_COORDENADOR_LABORATORIO]))
                                         <!-- Botão para Gerar PDF -->
@@ -138,13 +144,13 @@
                                         <!-- Ícone de Visualizar (Olho) -->
                                         <a href="{{ route('roteiros.show', $roteiro->id) }}" class="text-sm text-yellow-600 font-medium size-4" title="Visualizar roteiro">
                                             <x-icons-logo name="show"/>
-                                        </a> 
+                                        </a>
                                         @else
                                         <a href="{{ route('roteiros.pdf', $roteiro->id) }}" class="text-sm text-blue-600 font-medium" target="_blank" title="Criar PDF">Criar PDF</a>
                                         <!-- Ícone de Visualizar (Olho) -->
                                         <a href="{{ route('roteiros.show', $roteiro->id) }}" class="text-sm text-yellow-600 font-medium size-4" title="Visualizar roteiro">
                                             <x-icons-logo name="show"/>
-                                        </a> 
+                                        </a>
                                         @endif
                                     </div>
                                 </div>
