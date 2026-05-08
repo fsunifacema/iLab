@@ -6,7 +6,7 @@
         
         <h1 class="text-center justify-center text-[#0C2E5C] text-3xl font-bold border-">iLab</h1>
 
-        <h2 class="text-center justify-center text-xl text-[#0C2E5C] mt-2 mb-4">Sistema de gerenciamento de laboratórios!</h2>
+        <h2 class="text-center justify-center text-xl text-[#0C2E5C] mt-2 mb-4">Sistema de Gerenciamento de Laboratórios!</h2>
 
         <x-validation-errors class="mb-4" />
 

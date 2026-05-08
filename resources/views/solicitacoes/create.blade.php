@@ -2,7 +2,7 @@
 <x-app-layout>
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            Nova solicitação
+            Nova Solicitação
         </h2>
     </x-slot>
 
@@ -18,10 +18,10 @@
 
                         {{-- Seleção de Coordenadores --}}
                         <div class="bg-blue-50 border border-blue-200 rounded-lg p-6 mb-6">
-                            <h3 class="text-lg font-semibold text-blue-800 mb-4">Selecionar coordenadores para aprovação</h3>
+                            <h3 class="text-lg font-semibold text-blue-800 mb-4">Selecionar Coordenadores para Aprovação</h3>
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-2">Coordenador de curso</label>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Coordenador de Curso</label>
                                     <select name="coordenador_curso_id" required class="block w-full border border-gray-300 rounded-md shadow-sm p-3 focus:ring-blue-500 focus:border-blue-500">
                                         <option value="">Selecione o coordenador de curso</option>
                                         @foreach($coordenadoresCurso as $coord)
@@ -30,7 +30,7 @@
                                     </select>
                                 </div>
                                 <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-2">Coordenador de laboratório</label>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Coordenador de Laboratório</label>
                                     <select name="coordenador_lab_id" required class="block w-full border border-gray-300 rounded-md shadow-sm p-3 focus:ring-blue-500 focus:border-blue-500">
                                         <option value="">Selecione o coordenador de laboratório</option>
                                         @foreach($coordenadoresLab as $coord)
@@ -142,9 +142,11 @@
                                 </div>
                             </div>
 
-                        <div class="mt-8 mb-4 px-6 flex justify-end">
+                        </div>
+
+                        <div class="mt-6 flex justify-end">
                             <button type="submit" class="cursor-pointer bg-[#0C2E5C] text-white px-6 py-3 rounded-md hover:bg-blue-800 font-bold transition">
-                                Enviar solicitação(ões)
+                                Enviar Solicitação(ões)
                             </button>
                         </div>
 
@@ -230,5 +232,7 @@
                 button.closest('.flex').querySelector('select').value = "";
             }
         }
+
+
     </script>
 </x-app-layout>

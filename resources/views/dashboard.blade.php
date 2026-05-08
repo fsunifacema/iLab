@@ -117,7 +117,7 @@
     </div>
 
     {{-- Scripts do FullCalendar --}}
-    <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js'></script>
+    
     <script>
         // Função para gerar uma cor hexadecimal aleatória
         function getRandomColor() {
@@ -161,6 +161,7 @@
             var isMobile = window.innerWidth < 768;
 
             var calendar = new FullCalendar.Calendar(calendarEl, {
+                plugins: [FullCalendar.dayGridPlugin, FullCalendar.timeGridPlugin, FullCalendar.listPlugin],
                 // Vista inicial adaptável (listWeek para mobile, month para desktop)
                 initialView: isMobile ? 'listWeek' : 'dayGridMonth',
                 locale: 'pt-br',
