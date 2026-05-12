@@ -23,6 +23,9 @@ Route::match(['get', 'post'], '/register', function () {
     return redirect('/login');
 })->name('register');
 
+// Rota para servir assinaturas (sem depender do symlink)
+Route::get('/assinatura/{filename}', [SignatureController::class, 'show'])->name('signature.show');
+
 Route::get('/roteiro-pratica/{roteiro}', [RoteiroController::class, 'pdf'])->name('roteiros.pdf');
 
 // ==============================================================================
