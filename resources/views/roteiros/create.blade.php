@@ -1,7 +1,6 @@
 <x-app-layout>
     <x-slot name="header">
         <h2 class="text-xl font-semibold text-[#0C2E5C]">Adicionar Roteiro</h2>
-        <h2 class="text-xl font-semibold text-[#0C2E5C]">Adicionar Roteiro</h2>
     </x-slot>
 
     <div class="py-6">
@@ -58,10 +57,6 @@
                     <x-input id="professor" type="text" name="professor"
                         value="{{ Auth::user()->name ?? 'Usuário Indefinido' }}"
                         readonly class="w-full bg-gray-100 cursor-not-allowed" />
-                    <x-input id="professor" type="text" name="professor"
-                        value="{{ Auth::user()->name ?? 'Usuário Indefinido' }}" 
-                        readonly class="w-full bg-gray-100 cursor-not-allowed" />
-                    <x-input-error for="professor" :messages="$errors->get('professor')" class="mt-2" />
                 </div>
 
                 {{-- PERIODO: Bloqueado --}}
@@ -116,16 +111,7 @@
                 <div class="mb-4">
                     <x-label for="laboratorio" value="Laboratório" class="block text-sm font-medium text-gray-700" />
                     <select id="laboratorio" name="laboratorio" x-model="dados.laboratorio" tabindex="-1"
-                        class="p-2 border-gray-300 rounded-md shadow-sm w-full pointer-events-none bg-gray-100 text-gray-500 cursor-not-allowed">
-                        <option value="">Selecione um laboratório</option>
-                        @foreach ($laboratorios as $lab)
-                            <option value="{{ $lab->nome }}" {{ old('laboratorio') == $lab->nome ? 'selected' : '' }}>
-                                {{ $lab->nome }}
-                            </option>
-                        @endforeach
-                    </select>
-                    <select id="laboratorio" name="laboratorio" required
-                        class="p-1 border-gray-300 focus:border-[#0C2E5C] focus:ring-[#0C2E5C] rounded-md shadow-sm w-full">
+                        class="p-2 border-gray-300 focus:border-[#0C2E5C] focus:ring-[#0C2E5C] rounded-md shadow-sm w-full pointer-events-none bg-gray-100 text-gray-500 cursor-not-allowed">
                         <option value="">Selecione um laboratório</option>
                         @foreach ($laboratorios as $lab)
                             <option value="{{ $lab->nome }}" {{ old('laboratorio') == $lab->nome ? 'selected' : '' }}>
@@ -139,12 +125,6 @@
                 <div class="mb-4">
                     <x-label for="tema" value="Tema" class="block text-sm font-medium text-gray-700" />
                     <x-input id="tema" type="text" name="tema" :value="old('tema')" class="w-full" />
-                    <x-input-error for="tema" :messages="$errors->get('tema')" class="mt-2" />
-                </div>
-
-                <div class="mb-4">
-                    <x-label for="tema" value="Tema" class="block text-sm font-medium text-gray-700" />
-                    <x-input id="tema" type="text" name="tema" :value="old('tema')" required class="w-full" />
                     <x-input-error for="tema" :messages="$errors->get('tema')" class="mt-2" />
                 </div>
 
