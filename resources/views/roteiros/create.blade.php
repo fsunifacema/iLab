@@ -1,6 +1,6 @@
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="text-xl font-semibold text-[#0C2E5C]">Adicionar Roteiro</h2>
+        <h2 class="text-xl font-semibold text-[#0C2E5C]">Adicionar roteiro</h2>
     </x-slot>
 
     <div class="py-6">
@@ -47,7 +47,7 @@
                 </div>
 
                 <div class="mb-4">
-                    <x-label for="unidade_curricular" value="Unidade Curricular" class="block text-sm font-medium text-gray-700" />
+                    <x-label for="unidade_curricular" value="Unidade curricular" class="block text-sm font-medium text-gray-700" />
                     <x-input id="unidade_curricular" type="text" name="unidade_curricular" :value="old('unidade_curricular')" x-model="dados.unidade_curricular" class="w-full" />
                     <x-input-error for="unidade_curricular" :messages="$errors->get('unidade_curricular')" class="mt-2" />
                 </div>
@@ -68,7 +68,7 @@
 
                 {{-- QUANTIDADE ALUNOS --}}
                 <div class="mb-4">
-                    <x-label for="quantidade_alunos" value="Quantidade de Alunos" class="block text-sm font-medium text-gray-700" />
+                    <x-label for="quantidade_alunos" value="Quantidade de alunos" class="block text-sm font-medium text-gray-700" />
                     <x-input id="quantidade_alunos" type="number" name="quantidade_alunos" :value="old('quantidade_alunos')" x-model="dados.quantidade_alunos" min="0" step="1" class="w-full" />
                     <x-input-error for="quantidade_alunos" :messages="$errors->get('quantidade_alunos')" class="mt-2" />
                 </div>
@@ -83,26 +83,26 @@
 
                 {{-- HORARIOS: Bloqueados --}}
                 <div class="mb-4">
-                    <x-label for="horario_inicio" value="Horário Inicio" class="block text-sm font-medium text-gray-700" />
+                    <x-label for="horario_inicio" value="Horário inicio" class="block text-sm font-medium text-gray-700" />
                     <x-input id="horario_inicio" type="time" name="horario_inicio" :value="old('horario_inicio')" x-model="dados.horario_inicio" 
                         readonly class="w-full bg-gray-100 cursor-not-allowed text-gray-500 focus:ring-0" />
                     <x-input-error for="horario_inicio" :messages="$errors->get('horario_inicio')" class="mt-2" />
                 </div>
                 <div class="mb-4">
-                    <x-label for="horario_fim" value="Horário Fim" class="block text-sm font-medium text-gray-700" />
+                    <x-label for="horario_fim" value="Horário fim" class="block text-sm font-medium text-gray-700" />
                     <x-input id="horario_fim" type="time" name="horario_fim" :value="old('horario_fim')" x-model="dados.horario_fim" 
                         readonly class="w-full bg-gray-100 cursor-not-allowed text-gray-500 focus:ring-0" />
                     <x-input-error for="horario_fim" :messages="$errors->get('horario_fim')" class="mt-2" />
                 </div>
 
                 <div class="mb-4">
-                    <x-label for="carga_horaria" value="Carga Horária" class="block text-sm font-medium text-gray-700" />
+                    <x-label for="carga_horaria" value="Carga horária" class="block text-sm font-medium text-gray-700" />
                     <x-input id="carga_horaria" type="text" name="carga_horaria" :value="old('carga_horaria')" class="w-full" placeholder="Ex: 2 horas" />
                     <x-input-error for="carga_horaria" :messages="$errors->get('carga_horaria')" class="mt-2" />
                 </div>
 
                 <div class="mb-4">
-                    <x-label for="numero_praticas" value="Número de Práticas" class="block text-sm font-medium text-gray-700" />
+                    <x-label for="numero_praticas" value="Número de práticas" class="block text-sm font-medium text-gray-700" />
                     <x-input id="numero_praticas" type="number" name="numero_praticas" :value="old('numero_praticas')" min="1" step="1" class="w-full" />
                     <x-input-error for="numero_praticas" :messages="$errors->get('numero_praticas')" class="mt-2" />
                 </div>

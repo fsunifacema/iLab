@@ -113,7 +113,7 @@
                 @else
                     <x-confirms-password wire:then="disableTwoFactorAuthentication">
                         <x-danger-button wire:loading.attr="disabled">
-                            {{ __('Disabilitar') }}
+                            {{ __('Desabilitar') }}
                         </x-danger-button>
                     </x-confirms-password>
                 @endif

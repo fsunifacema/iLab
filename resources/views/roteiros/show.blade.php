@@ -1,7 +1,7 @@
 <x-app-layout>
     <x-slot name="header">
         <h2 class="text-xl font-semibold text-[#0C2E5C]">
-            Detalhes do Roteiro
+            Detalhes do roteiro
         </h2>
     </x-slot>
 
@@ -15,7 +15,7 @@
                 </div>
 
                 <div class="flex">
-                    <strong class="w-1/3">Unidade Curricular:</strong>
+                    <strong class="w-1/3">Unidade curricular:</strong>
                     <span class="flex-1">{{ $roteiro->unidade_curricular }}</span>
                 </div>
 
@@ -30,7 +30,7 @@
                 </div>
 
                 <div class="flex">
-                    <strong class="w-1/3">Quantidade de Alunos:</strong>
+                    <strong class="w-1/3">Quantidade de alunos:</strong>
                     <span class="flex-1">{{ $roteiro->quantidade_alunos }}</span>
                 </div>
 
@@ -40,22 +40,22 @@
                 </div>
 
                 <div class="flex">
-                    <strong class="w-1/3">Horário de Início:</strong>
+                    <strong class="w-1/3">Horário de início:</strong>
                     <span class="flex-1">{{ $roteiro->horario_inicio }}</span>
                 </div>
 
                 <div class="flex">
-                    <strong class="w-1/3">Horário de Fim:</strong>
+                    <strong class="w-1/3">Horário de fim:</strong>
                     <span class="flex-1">{{ $roteiro->horario_fim }}</span>
                 </div>
 
                 <div class="flex">
-                    <strong class="w-1/3">Carga Horária:</strong>
+                    <strong class="w-1/3">Carga horária:</strong>
                     <span class="flex-1">{{ $roteiro->carga_horaria }}</span>
                 </div>
 
                 <div class="flex">
-                    <strong class="w-1/3">Número de Práticas:</strong>
+                    <strong class="w-1/3">Número de práticas:</strong>
                     <span class="flex-1">{{ $roteiro->numero_praticas }}</span>
                 </div>
 
@@ -100,7 +100,7 @@
                 </div>
 
                 <div class="flex">
-                    <strong class="w-1/3">Data de Assinatura:</strong>
+                    <strong class="w-1/3">Data de assinatura:</strong>
                     <span class="flex-1">{{ \Carbon\Carbon::parse($roteiro->data_assinatura)->format('d/m/Y') }}</span>
                 </div>
             </div>

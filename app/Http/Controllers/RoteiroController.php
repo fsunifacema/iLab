@@ -11,6 +11,7 @@ use Dompdf\Dompdf;
 use Dompdf\Options;
 use Carbon\Carbon;
 use App\Models\User;
+use Illuminate\Support\Facades\Storage;
 
 class RoteiroController extends Controller
 {
@@ -22,7 +23,7 @@ class RoteiroController extends Controller
         // 2. Aplica o filtro SE o usuário for Professor
         if (Auth::user()->nivel === User::NIVEL_PROFESSOR) {
             // Adiciona a cláusula WHERE para filtrar por professor
-            $query->where('professor', Auth::user()->name);
+            $query->where('user_id', Auth::id());
             // Os coordenadores, técnicos, etc. verão todos, pois não entram neste IF
         }
 
@@ -45,7 +46,7 @@ class RoteiroController extends Controller
         // **FILTRO DE ACESSO DO USUÁRIO:**
         // Se for Professor, filtra apenas os seus roteiros.
         if (Auth::user()->nivel === User::NIVEL_PROFESSOR) {
-            $query->where('professor', Auth::user()->name);
+            $query->where('user_id', Auth::id());
         }
 
         // Filtro de segurança para ignorar datas obviamente inválidas
@@ -98,7 +99,7 @@ class RoteiroController extends Controller
 
                 // Informações adicionais para o modal
                 'extendedProps' => [
-                    'professor' => $roteiro->professor,
+                    'professor' => $roteiro->user ? $roteiro->user->name : 'Indefinido',
                     'curso' => $roteiro->curso,
                     'unidade_curricular' => $roteiro->unidade_curricular,
                     'periodo' => $roteiro->periodo,
@@ -119,15 +120,15 @@ public function create()
         // Busca solicitações aprovadas E que ainda NÃO possuem roteiro
         $query = Solicitacao::where('status', Solicitacao::STATUS_APROVADA)
         ->doesntHave('roteiro'); // <--- Importante: Filtra apenas as sem roteiro
-        
+
         // Se for professor, filtra apenas as dele
         if (Auth::user()->nivel === User::NIVEL_PROFESSOR) {
-            $query->where('professor_id', Auth::id());
+            $query->where('user_id', Auth::id());
         }
-        
+
         $solicitacoes = $query->get();
         $laboratorios = Laboratorio::all();
-        
+
         return view('roteiros.create', compact('solicitacoes', 'laboratorios'));
     }
 
@@ -147,7 +148,7 @@ public function create()
         }
 
         // Validar se o usuário é o professor da solicitação ou coordenador
-        $is_authorized = Auth::id() === $solicitacao->professor_id ||
+        $is_authorized = Auth::id() === $solicitacao->user_id ||
                          Auth::user()->nivel === User::NIVEL_COORDENADOR_CURSO ||
                          Auth::user()->nivel === User::NIVEL_COORDENADOR_LABORATORIO;
 
@@ -177,7 +178,7 @@ public function create()
         }
 
         // Validação de autorização
-        $is_authorized = Auth::id() === $solicitacao->professor_id ||
+        $is_authorized = Auth::id() === $solicitacao->user_id ||
                          Auth::user()->nivel === User::NIVEL_COORDENADOR_CURSO ||
                          Auth::user()->nivel === User::NIVEL_COORDENADOR_LABORATORIO;
 
@@ -207,14 +208,14 @@ public function create()
         ]);
 
         // 2. CORREÇÃO: Lógica de Fallback (Prioridade: Formulário > Solicitação > Padrão)
-        
+
         // Curso
         if (empty($dados['curso'])) {
             $dados['curso'] = $solicitacao->curso ?? '';
         }
 
-        // Professor (Sempre pega da solicitação ou do usuário logado se não vier no form)
-        $dados['professor'] = $solicitacao->professor->name ?? Auth::user()->name;
+        // Usuário (Sempre pega da solicitação ou do usuário logado se não vier no form)
+        $dados['user_id'] = $solicitacao->user_id ?? Auth::id();
 
         // Período
         if (empty($dados['periodo'])) {
@@ -227,8 +228,8 @@ public function create()
         // Data
         if (empty($dados['data'])) {
             // Tenta pegar data da solicitação, se não tiver, pega created_at
-            $dados['data'] = $solicitacao->data_solicitacao 
-                             ?? $solicitacao->data 
+            $dados['data'] = $solicitacao->data_solicitacao
+                             ?? $solicitacao->data
                              ?? $solicitacao->created_at->toDateString();
         }
 
@@ -243,20 +244,20 @@ public function create()
         // Carga Horária
         if (empty($dados['carga_horaria'])) {
              // Tenta pegar do roteiro antigo vinculado (se existir) ou define padrão
-            $dados['carga_horaria'] = $solicitacao->carga_horaria 
+            $dados['carga_horaria'] = $solicitacao->carga_horaria
                                       ?? ($solicitacao->roteiro?->carga_horaria ?? 'Não Definida');
         }
 
         // Número de Práticas
         if (empty($dados['numero_praticas'])) {
-            $dados['numero_praticas'] = $solicitacao->numero_praticas 
+            $dados['numero_praticas'] = $solicitacao->numero_praticas
                                         ?? ($solicitacao->roteiro?->numero_praticas ?? 1);
         }
 
         // Laboratório
         if (empty($dados['laboratorio'])) {
             // Uso optional() para evitar erro se laboratorio for nulo
-            $dados['laboratorio'] = optional($solicitacao->laboratorio)->nome 
+            $dados['laboratorio'] = optional($solicitacao->laboratorio)->nome
                                     ?? ($solicitacao->laboratorio_nome ?? '');
         }
 
@@ -298,8 +299,8 @@ public function create()
                 ->withInput();
         }
 
-        // Adiciona automaticamente o professor logado
-        $dados['professor'] = auth()->user()->name ?? 'Usuário Indefinido';
+        // Adiciona automaticamente o usuário logado
+        $dados['user_id'] = auth()->id();
 
         $roteiro = Roteiro::create($dados);
 
@@ -399,11 +400,58 @@ public function create()
         $imageData = base64_encode(file_get_contents($imagePath));
         $imageSrc = 'data:image/png;base64,' . $imageData;
 
+        $assinaturasFaltando = [];
+
+        if (!$roteiro->user || !$roteiro->user->signature_path) {
+            $assinaturasFaltando[] = 'Professor: ' . ($roteiro->user->name ?? 'não identificado');
+        }
+
+        if (!$roteiro->solicitacao || !$roteiro->solicitacao->coordenadorCurso || !$roteiro->solicitacao->coordenadorCurso->signature_path) {
+            $assinaturasFaltando[] = 'Coordenador de Curso: ' . ($roteiro->solicitacao->coordenadorCurso->name ?? 'não identificado');
+        }
+
+        if (!$roteiro->solicitacao || !$roteiro->solicitacao->coordenadorLab || !$roteiro->solicitacao->coordenadorLab->signature_path) {
+            $assinaturasFaltando[] = 'Coordenador de Laboratório: ' . ($roteiro->solicitacao->coordenadorLab->name ?? 'não identificado');
+        }
+
+        if (!empty($assinaturasFaltando)) {
+            return redirect()->back()->withErrors([
+                'assinatura' => 'O PDF não pode ser gerado pois os seguintes usuários ainda não cadastraram sua assinatura: [' . implode(', ', $assinaturasFaltando) . ']. Cada um deve acessar seu perfil e cadastrar a assinatura antes de prosseguir.'
+            ]);
+        }
+
+        // Assinatura do professor
+        $sigProfessor = null;
+        if ($roteiro->user && $roteiro->user->signature_path) {
+            $path = storage_path('app/public/' . $roteiro->user->signature_path);
+            if (file_exists($path)) {
+                $sigProfessor = 'data:image/png;base64,' . base64_encode(file_get_contents($path));
+            }
+        }
+
+        // Assinatura do coordenador de curso
+        $sigCoordCurso = null;
+        if ($roteiro->solicitacao && $roteiro->solicitacao->coordenadorCurso && $roteiro->solicitacao->coordenadorCurso->signature_path) {
+            $path = storage_path('app/public/' . $roteiro->solicitacao->coordenadorCurso->signature_path);
+            if (file_exists($path)) {
+                $sigCoordCurso = 'data:image/png;base64,' . base64_encode(file_get_contents($path));
+            }
+        }
+
+        // Assinatura do coordenador de laboratório
+        $sigCoordLab = null;
+        if ($roteiro->solicitacao && $roteiro->solicitacao->coordenadorLab && $roteiro->solicitacao->coordenadorLab->signature_path) {
+            $path = storage_path('app/public/' . $roteiro->solicitacao->coordenadorLab->signature_path);
+            if (file_exists($path)) {
+                $sigCoordLab = 'data:image/png;base64,' . base64_encode(file_get_contents($path));
+            }
+        }
+
         // Instanciar o DomPDF
         $dompdf = new Dompdf($options);
 
         // Carregar a view e gerar o conteúdo
-        $pdfContent = view('pdf.roteiro-pratica', compact('roteiro', 'imageSrc'))->render();
+        $pdfContent = view('pdf.roteiro-pratica', compact('roteiro', 'imageSrc', 'sigProfessor', 'sigCoordCurso', 'sigCoordLab'))->render();
 
         // Carregar o conteúdo HTML no DomPDF
         $dompdf->loadHtml($pdfContent);

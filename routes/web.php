@@ -8,7 +8,7 @@ use App\Http\Controllers\LaboratorioController;
 use App\Http\Controllers\InsumoController;
 use App\Http\Controllers\EquipamentoController;
 use App\Http\Controllers\Admin\UserController;
-
+use App\Http\Controllers\SignatureController;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -34,9 +34,16 @@ Route::middleware([
     'verified',
 ])->group(function () {
 
+
+    // Rotas para criar assinatura para todos os usuários autenticados menos admin
+    Route::middleware(['nivel:1,2,3,4','auth','verified'])->group(function(){
+    Route::post('/profile/signature', [SignatureController::class, 'save'])->name('profile.signature.save');
+    Route::delete('/profile/signature', [SignatureController::class, 'delete'])->name('profile.signature.delete');
+    });
+
     // 🚫 ÁREA DE USUÁRIOS (Bloqueada para Admin via 'redirect.admin')
     Route::middleware('redirect.admin')->group(function () {
-        
+
         // 1. DASHBOARD (Todos acessam)
         Route::get('/dashboard', [DashboardController::class, 'index'])
             ->name('dashboard')
@@ -70,12 +77,13 @@ Route::middleware([
         // Quem acessa: Professor (1), Coords (3, 4)
         // Bloqueado para: Técnico (2) -> Note que o número 2 NÃO está na lista abaixo
         Route::middleware('nivel:1,3,4')->group(function () {
-            Route::resource('solicitacoes', SolicitacaoController::class);
+            Route::resource('solicitacoes', SolicitacaoController::class)
+                ->parameters(['solicitacoes' => 'solicitacao']);
         });
 
 
         // 5. ROTAS DE AÇÕES ESPECÍFICAS
-        
+
         // Estoque (Só Técnico - Nível 2)
         Route::get('insumos/{insumo}/estoque', [InsumoController::class, 'estoque'])
             ->name('insumos.estoque')

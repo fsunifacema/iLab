@@ -1,7 +1,7 @@
 <x-app-layout>
     <x-slot name="header">
         <h2 class="text-xl font-semibold leading-tight text-gray-800">
-            Editar Insumo
+            Editar insumo
         </h2>
     </x-slot>
 
@@ -12,7 +12,7 @@
                 @csrf
                 @method('PUT')
 
-                <h3 class="text-xl font-bold mb-6 text-gray-800 text-center">Editar Insumo</h3>
+                <h3 class="text-xl font-bold mb-6 text-gray-800 text-center">Editar insumo</h3>
 
                 <div class="mb-4">
                     <x-label for="nome" value="Nome" class="block text-sm font-medium" />

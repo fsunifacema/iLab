@@ -17,7 +17,7 @@
         // Lista de todos os menus possíveis
         $menuItems = [
             [
-                'label' => 'Inicio',
+                'label' => 'Início',
                 'route' => 'dashboard',
                 'show_for' => [$prof, $tec, $coordCurso, $coordLab] // Admin não vê esse
             ],
@@ -42,7 +42,7 @@
                 'show_for' => [$prof, $tec, $coordCurso, $coordLab]
             ],
             [
-                'label' => 'Solicitações',
+                'label' => 'Quadro de Práticas',
                 'route' => 'solicitacoes.index',
                 'show_for' => [$prof, $coordCurso, $coordLab]
             ],

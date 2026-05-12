@@ -169,7 +169,7 @@
     <tr><th>PERÍODO:</th><td>{{ $roteiro->periodo }}</td></tr>
     <tr><th>QUANT. DE ALUNOS:</th><td>{{ $roteiro->quantidade_alunos }}</td></tr>
     <tr><th>DATA:</th><td>{{ \Carbon\Carbon::parse($roteiro->data)->format('d/m/Y') }}</td></tr>
-    <tr><th>HORÁRIO:</th><td>{{ $roteiro->horario_inicio }} às {{ $roteiro->horario_fim }} Horas</td></tr>
+    <tr><th>HORÁRIO:</th><td>{{ $roteiro->horario_inicio }} às {{ $roteiro->horario_fim }} horas</td></tr>
     <tr><th>CARGA HORÁRIA DA AULA PRÁTICA:</th><td>{{ $roteiro->carga_horaria }}</td></tr>
     <tr><th>Nº DE PRÁTICAS:</th><td>{{ $roteiro->numero_praticas }}</td></tr>
     <tr><th>LABORATÓRIO / CENÁRIO DE PRÁTICA:</th><td>{{ $roteiro->laboratorio }}</td></tr>
@@ -216,29 +216,44 @@
 
 <div style="width:100%; margin-top:70px; border:none;">
     <div style="text-align:center;">
-        <hr style="width:200px; margin: 0 auto 5px auto;">
-        <p style="margin:0; padding:0;">Professor da disciplina</p>
+      @if($sigProfessor)
+      <img src="{{ $sigProfessor }}" alt="Assinatura" style="height:60px; display:block; margin: 0 auto 2px auto;">
+      @else
+      <div style="height:60px;"></div>
+      @endif
+      <hr style="width:200px; margin: 0 auto 5px auto;">
+      <p style="margin:0; padding:0;">Professor da disciplina</p>
     </div>
 </div>
 
 <div style="width:100%; margin-top:70px; border:none;">
     <div style="text-align:center;">
-        <hr style="width:200px; margin: 0 auto 5px auto;">
-        <p style="margin:0; padding:0;">Coordenação do Curso</p>
+      @if($sigCoordCurso)
+      <img src="{{ $sigCoordCurso }}" alt="Assinatura" style="height:60px; display:block; margin: 0 auto 2px auto;">
+      @else
+      <div style="height:60px;"></div>
+      @endif
+      <hr style="width:200px; margin: 0 auto 5px auto;">
+      <p style="margin:0; padding:0;">Coordenação do Curso</p>
     </div>
 </div>
 
 <div style="width:100%; margin-top:70px; border:none;">
     <div style="text-align:center;">
-        <hr style="width:200px; margin: 0 auto 5px auto;">
-        <p style="margin:0; padding:0;">Coordenação de Laboratórios</p>
+      @if($sigCoordLab)
+      <img src="{{ $sigCoordLab }}" alt="Assinatura" style="height:60px; display:block; margin: 0 auto 2px auto;">
+      @else
+      <div style="height:60px;"></div>
+      @endif
+      <hr style="width:200px; margin: 0 auto 5px auto;">
+      <p style="margin:0; padding:0;">Coordenação de Laboratórios</p>
     </div>
 </div>
 
 <div style="width:100%; margin-top:70px; border:none; margin-bottom: 70px;">
     <div style="text-align:center;">
         <hr style="width:200px; margin: 0 auto 5px auto;">
-        <p style="margin:0; padding:0;">Técnico de Laboratório</p>
+        <p style="margin:0; padding:0;">Técnico de laboratório</p>
     </div>
 </div>
 
