@@ -48,7 +48,7 @@
                               @if(auth()->user()->signature_path)
                                   <div class="mb-4">
                                       <p class="text-sm text-gray-600 mb-1">Assinatura atual:</p>
-                                      <img src="{{ route('signature.show', auth()->user()->signature_path) }}"
+                                      <img src="{{ route('signature.show', ['filename' => auth()->user()->signature_path]) }}"
                                           height="80"
                                           class="border rounded p-2 bg-white">
                                       <p class="text-xs text-gray-400 mt-1">

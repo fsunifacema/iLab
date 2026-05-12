@@ -145,7 +145,7 @@
                         </div>
 
                         <div class="mt-6 flex justify-end">
-                            <button type="submit" class="cursor-pointer bg-[#0C2E5C] text-white px-6 py-3 rounded-md hover:bg-blue-800 font-bold transition">
+                            <button type="submit" class="cursor-pointer bg-[#0C2E5C] mb-3 mr-4 text-white px-6 py-3 rounded-md hover:bg-blue-800 font-bold transition">
                                 Enviar Solicitação(ões)
                             </button>
                         </div>
