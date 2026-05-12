@@ -11,6 +11,7 @@ use Dompdf\Dompdf;
 use Dompdf\Options;
 use Carbon\Carbon;
 use App\Models\User;
+use Illuminate\Support\Facades\Storage;
 
 class RoteiroController extends Controller
 {

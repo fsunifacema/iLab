@@ -1,7 +1,7 @@
 <x-app-layout>
     <x-slot name="header">
         <h2 class="text-xl font-semibold text-[#0C2E5C]">
-            Gerenciamento de quadro de práticas
+            Gerenciamento do Quadro de Práticas
         </h2>
     </x-slot>
 
@@ -245,7 +245,7 @@
                                             </span>
                                         </div>
                                         <div class="text-center flex justify-center gap-2">
-                                            <a href="{{ route('solicitacoes.show', $solicitacao->id) }}" class="text-blue-600 hover:text-blue-800 font-semibold text-sm">Ver detalhes</a>
+                                            <a href="{{ route('solicitacoes.show', $solicitacao->id) }}" class="text-blue-600 hover:text-blue-800 font-semibold text-sm" title="Visualizar solicitação"><x-icons-logo name="show"/></a>
                                             @php
                                                 $podeEditar = (
                                                     (auth()->id() == $solicitacao->user_id && $solicitacao->status == \App\Models\Solicitacao::STATUS_AGUARDANDO_COORDENADOR_CURSO) ||
@@ -254,13 +254,13 @@
                                                 );
                                             @endphp
                                             @if($podeEditar)
-                                                <a href="{{ route('solicitacoes.edit', $solicitacao->id) }}" class="text-green-600 hover:text-green-800 font-semibold text-sm">Editar</a>
+                                                <a href="{{ route('solicitacoes.edit', $solicitacao->id) }}" class="text-green-600 hover:text-green-800 font-semibold text-sm " title="Editar solicitação"><x-icons-logo name="edit"/></a>
                                             @endif
                                             @if($solicitacao->status != \App\Models\Solicitacao::STATUS_APROVADA && $solicitacao->status != \App\Models\Solicitacao::STATUS_RECUSADA)
                                                 <form action="{{ route('solicitacoes.destroy', $solicitacao->id) }}" method="POST" class="inline-block" onsubmit="return confirm('Deseja realmente excluir esta solicitação?');">
                                                     @csrf
                                                     @method('DELETE')
-                                                    <button type="submit" class="text-red-600 hover:text-red-800 font-semibold text-sm">Excluir</button>
+                                                    <button type="submit" class="text-red-600 hover:text-red-800 font-semibold text-sm" title="Excluir solicitação"><x-icons-logo name="delete"/></button>
                                                 </form>
                                             @endif
                                         </div>
