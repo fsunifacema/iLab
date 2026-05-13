@@ -6,6 +6,13 @@
     </x-slot>
 
     {{-- BLOCO DE ESTILO PARA AJUSTAR O FULLCALENDAR EM MOBILE E CAPITALIZAR O MÊS --}}
+    @push('styles')
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fullcalendar/core@6.1.20/main.min.css" />
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fullcalendar/daygrid@6.1.20/main.min.css" />
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fullcalendar/timegrid@6.1.20/main.min.css" />
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fullcalendar/list@6.1.20/main.min.css" />
+    @endpush
+
     <style>
         @media (max-width: 767px) {
             /* Reduz o padding e o tamanho da fonte nos botões do cabeçalho do FullCalendar */
@@ -187,13 +194,14 @@
                 plugins: [FullCalendar.dayGridPlugin, FullCalendar.timeGridPlugin, FullCalendar.listPlugin],
                 // Vista inicial adaptável (listWeek para mobile, month para desktop)
                 initialView: isMobile ? 'listWeek' : 'dayGridMonth',
-                locale: 'pt-br',
+                locale: FullCalendar.ptBrLocale,
 
                 // Define altura fixa (700px) para desktop para garantir visualização completa
                 height: isMobile ? 'auto' : 700,
 
-                // NOVA OPÇÃO: Tradução do "All Day" para "Dia Inteiro" ou similar
+                // Tradução de textos do FullCalendar
                 allDayText: 'Dia inteiro',
+                noEventsContent: 'Nenhum evento para exibir',
 
                 // TRADUÇÃO DOS BOTÕES (CUSTOM BUTTON TEXT)
                 buttonText: {

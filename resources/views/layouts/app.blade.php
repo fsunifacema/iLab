@@ -13,6 +13,7 @@
 
         <!-- Scripts -->
         @vite(['resources/css/app.css', 'resources/js/app.js'])        
+        @stack('styles')
         <style>
             /* O CSS básico para resetar a aparência do navegador */
             input[type="checkbox"] {
