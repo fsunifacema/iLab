@@ -48,10 +48,10 @@
                                 </div>
                                 
                                 <div id="agendamentos-container" class="space-y-6">
-@php
-    $agendamentosOld = old('agendamentos', [0 => []]);
-@endphp
-@foreach($agendamentosOld as $index => $agendamentoOld)
+                                @php
+                                    $agendamentosOld = old('agendamentos', [0 => []]);
+                                @endphp
+                                @foreach($agendamentosOld as $index => $agendamentoOld)
                                     <div class="agendamento-item border p-4 rounded bg-gray-50 flex flex-col gap-6 relative">
                                         
                                         <!-- Data, Horários e Laboratório -->
@@ -95,20 +95,32 @@
                                                     <button type="button" onclick="addInput(this)" class="text-blue-600 hover:text-blue-800 text-xs font-bold">+ Adicionar Insumo</button>
                                                 </div>
                                                 <div class="items-container space-y-2">
-@php
-    $insumosOld = isset($agendamentoOld['insumos_id']) ? $agendamentoOld['insumos_id'] : [0 => ''];
-@endphp
-@foreach($insumosOld as $insumoIndex => $insumoValue)
-                                                    <div class="flex gap-2">
+                                                    @php
+                                                        $insumosOld = isset($agendamentoOld['insumos_id']) ? $agendamentoOld['insumos_id'] : [];
+                                                    @endphp
+                                                    @if(count($insumosOld) > 0)
+                                                        @foreach($insumosOld as $insumoIndex => $insumoValue)
+                                                        <div class="flex gap-2">
+                                                            <select name="agendamentos[{{ $index }}][insumos_id][]" class="block w-full border border-gray-300 rounded-md shadow-sm p-2 text-sm">
+                                                                <option value="">Selecione o insumo...</option>
+                                                                @foreach($insumos as $insumo)
+                                                                    <option value="{{ $insumo->id }}" {{ $insumoValue == $insumo->id ? 'selected' : '' }}>{{ $insumo->nome }}</option>
+                                                                @endforeach
+                                                            </select>
+                                                            <button type="button" onclick="removeInput(this)" class="text-red-500 px-2 font-bold" title="Remover">✕</button>
+                                                        </div>
+                                                        @endforeach
+                                                    @else
+                                                    <div class="flex gap-2 hidden-template" style="display: none;">
                                                         <select name="agendamentos[{{ $index }}][insumos_id][]" class="block w-full border border-gray-300 rounded-md shadow-sm p-2 text-sm">
                                                             <option value="">Selecione o insumo...</option>
                                                             @foreach($insumos as $insumo)
-                                                                <option value="{{ $insumo->id }}" {{ $insumoValue == $insumo->id ? 'selected' : '' }}>{{ $insumo->nome }}</option>
+                                                                <option value="{{ $insumo->id }}">{{ $insumo->nome }}</option>
                                                             @endforeach
                                                         </select>
                                                         <button type="button" onclick="removeInput(this)" class="text-red-500 px-2 font-bold" title="Remover">✕</button>
                                                     </div>
-@endforeach
+                                                    @endif
                                                 </div>
                                             </div>
 
@@ -119,10 +131,11 @@
                                                     <button type="button" onclick="addInput(this)" class="text-blue-600 hover:text-blue-800 text-xs font-bold">+ Adicionar Equipamento</button>
                                                 </div>
                                                 <div class="items-container space-y-2">
-@php
-    $equipamentosOld = isset($agendamentoOld['equipamentos_id']) ? $agendamentoOld['equipamentos_id'] : [0 => ''];
-@endphp
-@foreach($equipamentosOld as $equipIndex => $equipValue)
+                                                @php
+                                                    $equipamentosOld = isset($agendamentoOld['equipamentos_id']) ? $agendamentoOld['equipamentos_id'] : [];
+                                                @endphp
+                                                @if(count($equipamentosOld) > 0)
+                                                @foreach($equipamentosOld as $equipIndex => $equipValue)
                                                     <div class="flex gap-2">
                                                         <select name="agendamentos[{{ $index }}][equipamentos_id][]" class="block w-full border border-gray-300 rounded-md shadow-sm p-2 text-sm">
                                                             <option value="">Selecione o equipamento...</option>
@@ -132,13 +145,23 @@
                                                         </select>
                                                         <button type="button" onclick="removeInput(this)" class="text-red-500 px-2 font-bold" title="Remover">✕</button>
                                                     </div>
-@endforeach
+                                                @endforeach
+                                                @else
+                                                <div class="flex gap-2 hidden-template" style="display: none;">
+                                                    <select name="agendamentos[{{ $index }}][equipamentos_id][]" class="block w-full border border-gray-300 rounded-md shadow-sm p-2 text-sm">
+                                                        <option value="">Selecione o equipamento...</option>
+                                                        @foreach($equipamentos as $equipamento)
+                                                            <option value="{{ $equipamento->id }}">{{ $equipamento->nome }}</option>
+                                                        @endforeach
+                                                    </select>
+                                                    <button type="button" onclick="removeInput(this)" class="text-red-500 px-2 font-bold" title="Remover">✕</button>
+                                                </div>
+                                                @endif
                                                 </div>
                                             </div>
                                         </div>
-
                                     </div>
-@endforeach
+                                    @endforeach
                                 </div>
                             </div>
 
@@ -184,9 +207,16 @@
             // Múltiplos selects (insumos e equipamentos) devem voltar a ter apenas 1 por padrão
             const itemsContainers = item.querySelectorAll('.items-container');
             itemsContainers.forEach(itemsContainer => {
-                const firstRow = itemsContainer.querySelector('.flex');
+                let firstRow = itemsContainer.querySelector('.flex:not(.hidden-template)');
+                if (!firstRow) {
+                    firstRow = itemsContainer.querySelector('.flex.hidden-template');
+                }
                 if (firstRow) {
                     const clonedRow = firstRow.cloneNode(true);
+                    // Remove a classe hidden-template se existir
+                    clonedRow.classList.remove('hidden-template');
+                    clonedRow.style.display = '';
+                    
                     const select = clonedRow.querySelector('select');
                     select.value = "";
                     select.name = select.name.replace(/\[\d+\]/, `[${agendamentoIndex}]`);
@@ -213,10 +243,40 @@
 
         function addInput(button) {
             const container = button.closest('.space-y-2').querySelector('.items-container');
-            const div = container.querySelector('div.flex').cloneNode(true);
+            let div = container.querySelector('div.flex:not(.hidden-template)');
             
-            // Limpa o valor selecionado no novo campo
-            div.querySelector('select').value = "";
+            // Se não houver elemento visível, procura pelo template oculto
+            if (!div) {
+                div = container.querySelector('div.flex.hidden-template');
+            }
+            
+            // Se ainda não achar, cria um novo elemento dinamicamente
+            if (!div) {
+                div = document.createElement('div');
+                div.className = 'flex gap-2';
+                const select = document.createElement('select');
+                select.className = 'block w-full border border-gray-300 rounded-md shadow-sm p-2 text-sm';
+                select.name = 'agendamentos[0][insumos_id][]'; // Nome padrão, será atualizado depois
+                select.innerHTML = '<option value="">Selecione...</option>';
+                
+                const button = document.createElement('button');
+                button.type = 'button';
+                button.onclick = function() { removeInput(this); };
+                button.className = 'text-red-500 px-2 font-bold';
+                button.title = 'Remover';
+                button.textContent = '✕';
+                
+                div.appendChild(select);
+                div.appendChild(button);
+            } else {
+                div = div.cloneNode(true);
+                // Remove a classe hidden-template se existir
+                div.classList.remove('hidden-template');
+                div.style.display = '';
+                
+                // Limpa o valor selecionado no novo campo
+                div.querySelector('select').value = "";
+            }
             
             // Adiciona o novo campo ao final da lista de itens
             container.appendChild(div);
@@ -224,11 +284,13 @@
 
         function removeInput(button) {
             const container = button.closest('.items-container');
-            // Evita remover se for o único campo
-            if (container.querySelectorAll('.flex').length > 1) {
+            const visibleElements = container.querySelectorAll('.flex:not(.hidden-template)');
+            
+            // Evita remover se for o único campo visível
+            if (visibleElements.length > 1) {
                 button.closest('.flex').remove();
-            } else {
-                // Se for o único, apenas reseta o valor para que não mande nada se não quiser
+            } else if (visibleElements.length === 1 && !button.closest('.flex').classList.contains('hidden-template')) {
+                // Se for o único visível e não for um template, apenas reseta o valor
                 button.closest('.flex').querySelector('select').value = "";
             }
         }

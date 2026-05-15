@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Http\Controllers;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Response;
@@ -13,6 +14,7 @@ class SignatureController extends Controller
             'signature_base64' => ['required', 'string'],
         ]);
 
+        /** @var User $user */
         $user      = auth()->user();
         $imageData = $request->input('signature_base64');
         $imageData = preg_replace('/^data:image\/\w+;base64,/', '', $imageData);
@@ -32,6 +34,7 @@ class SignatureController extends Controller
 
     public function delete()
     {
+        /** @var User $user */
         $user = auth()->user();
 
         if ($user->signature_path) {
@@ -42,7 +45,7 @@ class SignatureController extends Controller
         return back()->with('success', 'Assinatura removida com sucesso!');
     }
 
-    public function show($filename)
+    public function show(string $filename)
     {
         $path = storage_path('app/public/' . $filename);
         
