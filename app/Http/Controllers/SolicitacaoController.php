@@ -92,13 +92,14 @@ class SolicitacaoController extends Controller
             abort(403, 'Apenas professores podem criar solicitações.');
         }
 
-        $laboratorios = Laboratorio::all();
-        $insumos = Insumo::all();
-        $equipamentos = Equipamento::all();
+        // Otimização: Selecionar apenas os campos necessários e ordenar
+        $laboratorios = Laboratorio::select('id', 'nome')->orderBy('nome')->get();
+        $insumos = Insumo::select('id', 'nome')->orderBy('nome')->get();
+        $equipamentos = Equipamento::select('id', 'nome')->orderBy('nome')->get();
 
-        // Buscar coordenadores disponíveis
-        $coordenadoresCurso = User::where('nivel', User::NIVEL_COORDENADOR_CURSO)->get();
-        $coordenadoresLab = User::where('nivel', User::NIVEL_COORDENADOR_LABORATORIO)->get();
+        // Buscar coordenadores disponíveis (apenas os campos necessários)
+        $coordenadoresCurso = User::where('nivel', User::NIVEL_COORDENADOR_CURSO)->select('id', 'name')->orderBy('name')->get();
+        $coordenadoresLab = User::where('nivel', User::NIVEL_COORDENADOR_LABORATORIO)->select('id', 'name')->orderBy('name')->get();
 
         return view('solicitacoes.create', compact('laboratorios', 'insumos', 'equipamentos', 'coordenadoresCurso', 'coordenadoresLab'));
     }
@@ -341,12 +342,12 @@ class SolicitacaoController extends Controller
             return redirect()->route('solicitacoes.show', $solicitacao)->withErrors('Você não tem permissão para editar esta solicitação.');
         }
 
-        // Carregar dados necessários
-        $laboratorios = Laboratorio::all();
-        $insumos = Insumo::all();
-        $equipamentos = Equipamento::all();
-        $coordenadoresCurso = User::where('nivel', User::NIVEL_COORDENADOR_CURSO)->get();
-        $coordenadoresLab = User::where('nivel', User::NIVEL_COORDENADOR_LABORATORIO)->get();
+        // Carregar dados necessários (Otimizado para carregar apenas campos úteis)
+        $laboratorios = Laboratorio::select('id', 'nome')->orderBy('nome')->get();
+        $insumos = Insumo::select('id', 'nome')->orderBy('nome')->get();
+        $equipamentos = Equipamento::select('id', 'nome')->orderBy('nome')->get();
+        $coordenadoresCurso = User::where('nivel', User::NIVEL_COORDENADOR_CURSO)->select('id', 'name')->orderBy('name')->get();
+        $coordenadoresLab = User::where('nivel', User::NIVEL_COORDENADOR_LABORATORIO)->select('id', 'name')->orderBy('name')->get();
 
         return view('solicitacoes.edit', compact(
             'solicitacao',

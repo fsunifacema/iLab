@@ -11,6 +11,13 @@
                 @csrf
                 @method('PUT')
 
+                @php
+                    // Define se os campos originários da solicitação devem ser bloqueados para edição
+                    $isLinked = !empty($roteiro->codigo_solicitacao);
+                    $isProfessor = Auth::user()->nivel == \App\Models\User::NIVEL_PROFESSOR;
+                    $isLocked = $isLinked && $isProfessor;
+                @endphp
+
                 <div class="mb-4">
                     <x-label for="curso" value="Curso" class="block text-sm font-medium text-gray-700" />
                     <x-input id="curso" type="text" name="curso" :value="old('curso', $roteiro->curso)" required class="w-full" />
@@ -45,19 +52,19 @@
 
                 <div class="mb-4">
                     <x-label for="data" value="Data" class="block text-sm font-medium text-gray-700" />
-                    <x-input id="data" type="date" name="data" :value="old('data', $roteiro->data)" required class="w-full" />
+                    <input id="data" type="date" name="data" value="{{ old('data', $roteiro->data ? \Carbon\Carbon::parse($roteiro->data)->format('Y-m-d') : '') }}" required class="w-full p-1 pl-2 border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm {{ $isLocked ? 'bg-gray-100 cursor-not-allowed' : '' }}" {{ $isLocked ? 'readonly' : '' }} />
                     <x-input-error for="data" :messages="$errors->get('data')" class="mt-2" />
                 </div>
 
                 <div class="mb-4">
                     <x-label for="horario_inicio" value="Horário de inicio" class="block text-sm font-medium text-gray-700" />
-                    <x-input id="horario_inicio" type="time" name="horario_inicio" :value="old('horario_inicio')" required class="w-full" />
+                    <input id="horario_inicio" type="time" name="horario_inicio" value="{{ old('horario_inicio', $roteiro->horario_inicio ? \Carbon\Carbon::parse($roteiro->horario_inicio)->format('H:i') : '') }}" required class="w-full p-1 pl-2 border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm {{ $isLocked ? 'bg-gray-100 cursor-not-allowed' : '' }}" {{ $isLocked ? 'readonly' : '' }} />
                     <x-input-error for="horario_inicio" :messages="$errors->get('horario_inicio')" class="mt-2" />
                 </div>
 
                 <div class="mb-4">
                     <x-label for="horario_fim" value="Horário de fim" class="block text-sm font-medium text-gray-700" />
-                    <x-input id="horario_fim" type="time" name="horario_fim" :value="old('horario_fim')" required class="w-full" />
+                    <input id="horario_fim" type="time" name="horario_fim" value="{{ old('horario_fim', $roteiro->horario_fim ? \Carbon\Carbon::parse($roteiro->horario_fim)->format('H:i') : '') }}" required class="w-full p-1 pl-2 border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm {{ $isLocked ? 'bg-gray-100 cursor-not-allowed' : '' }}" {{ $isLocked ? 'readonly' : '' }} />
                     <x-input-error for="horario_fim" :messages="$errors->get('horario_fim')" class="mt-2" />
                 </div>
 
@@ -75,16 +82,24 @@
 
                 <div class="mb-4">
                     <x-label for="laboratorio" value="Laboratório" class="block text-sm font-medium text-gray-700" />
-                    <select id="laboratorio" name="laboratorio" required
-                        class="p-1 border-gray-300 focus:border-[#0C2E5C] focus:ring-[#0C2E5C] rounded-md shadow-sm w-full">
-                        <option value="">Selecione um laboratório</option>
-                        @foreach ($laboratorios as $lab)
-                            <option value="{{ $lab->nome }}" 
-                                {{ old('laboratorio', $roteiro->laboratorio) == $lab->nome ? 'selected' : '' }}>
-                                {{ $lab->nome }}
-                            </option>
-                        @endforeach
-                    </select>
+                    @if($isLocked)
+                        <input type="hidden" name="laboratorio" value="{{ $roteiro->laboratorio }}">
+                        <select id="laboratorio_disabled" disabled
+                            class="p-1 border-gray-300 bg-gray-100 cursor-not-allowed rounded-md shadow-sm w-full">
+                            <option value="{{ $roteiro->laboratorio }}">{{ $roteiro->laboratorio }}</option>
+                        </select>
+                    @else
+                        <select id="laboratorio" name="laboratorio" required
+                            class="p-1 border-gray-300 focus:border-[#0C2E5C] focus:ring-[#0C2E5C] rounded-md shadow-sm w-full">
+                            <option value="">Selecione um laboratório</option>
+                            @foreach ($laboratorios as $lab)
+                                <option value="{{ $lab->nome }}" 
+                                    {{ old('laboratorio', $roteiro->laboratorio) == $lab->nome ? 'selected' : '' }}>
+                                    {{ $lab->nome }}
+                                </option>
+                            @endforeach
+                        </select>
+                    @endif
                     <x-input-error for="laboratorio" :messages="$errors->get('laboratorio')" class="mt-2" />
                 </div>
 

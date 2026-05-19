@@ -139,8 +139,9 @@
 
     @push('scripts')
     <script>
-        document.addEventListener('DOMContentLoaded', function () {
+        document.addEventListener('livewire:navigated', function () {
             const canvas = document.getElementById('signature-canvas');
+            if (!canvas) return; // Garante que só roda na página correta
             const signaturePad = new SignaturePad(canvas, {
                 minWidth: 1,
                 maxWidth: 3,

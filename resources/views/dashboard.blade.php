@@ -149,10 +149,19 @@
     {{-- Scripts do FullCalendar --}}
     
     <script>
-        // Função para gerar uma cor hexadecimal aleatória
-        function getRandomColor() {
-            // Gera um número hexadecimal de 6 dígitos
-            return '#' + Math.floor(Math.random()*16777215).toString(16).padStart(6, '0');
+        // Função para gerar uma cor constante (determinística) baseada em um texto (ex: nome da disciplina ou ID)
+        function stringToColor(str) {
+            let hash = 0;
+            for (let i = 0; i < str.length; i++) {
+                hash = str.charCodeAt(i) + ((hash << 5) - hash);
+            }
+            let color = '#';
+            for (let i = 0; i < 3; i++) {
+                // Traz os valores um pouco para o escuro/médio para dar contraste melhor
+                let value = (hash >> (i * 8)) & 0xAA; 
+                color += ('00' + value.toString(16)).substr(-2);
+            }
+            return color;
         }
 
         // Função para determinar a cor do texto (preto ou branco) com base no fundo
@@ -173,8 +182,40 @@
             return brightness > 140 ? '#000000' : '#FFFFFF';
         }
 
-        document.addEventListener('DOMContentLoaded', function() {
+        function escapeHtml(text) {
+            return String(text)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
+        }
+
+        function renderTemaField(tema) {
+            if (!tema) {
+                return `<p><strong class="font-semibold">Tema:</strong> N/A</p>`;
+            }
+
+            const maxChars = 120;
+            const escaped = escapeHtml(tema);
+            if (tema.length <= maxChars) {
+                return `<p><strong class="font-semibold">Tema:</strong> ${escaped}</p>`;
+            }
+
+            return `
+                <div>
+                    <p class="font-semibold">Tema:</p>
+                    <div id="temaText" class="text-sm text-gray-700 whitespace-pre-line overflow-hidden max-h-20 transition-all duration-200 rounded border border-gray-200 bg-gray-50 p-3">${escaped}</div>
+                    <button id="toggleTemaBtn" type="button" class="inline-flex items-center gap-1 text-blue-600 hover:text-blue-800 text-sm font-semibold mt-2">
+                        Ver mais
+                    </button>
+                </div>`;
+        }
+
+        document.addEventListener('livewire:navigated', function() {
             var calendarEl = document.getElementById('calendar');
+            if (!calendarEl) return; // Garante que só roda se o elemento existir
+            
             var modal = document.getElementById('detailsModal');
             var modalContent = document.getElementById('modalContent');
 
@@ -219,6 +260,14 @@
                     right: 'dayGridMonth,timeGridWeek,timeGridDay'
                 },
 
+                // Define o formato base do horário para 2 dígitos sem ocultar os minutos (se preferir pode voltar o omitZeroMinute pra true)
+                eventTimeFormat: {
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    omitZeroMinute: true, // Mantemos true para mostrar só "20" e não "20:00" e depois adicionarmos o "h" via JS
+                    meridiem: false
+                },
+
                 // Aponta para a Rota API recém-criada
                 events: '{{ route("api.roteiros.eventos") }}',
 
@@ -244,7 +293,7 @@
 
                     let htmlBody = `
                         <p><strong class="font-semibold">Unidade curricular:</strong> ${roteiro.unidade_curricular || 'N/A'}</p>
-                        <p><strong class="font-semibold">Tema:</strong> ${roteiro.tema || 'N/A'}</p>
+                        ${renderTemaField(roteiro.tema)}
                         <p><strong class="font-semibold">Professor:</strong> ${roteiro.professor || 'N/A'}</p>
                         <hr class="my-2 border-gray-200">
                         <p><strong class="font-semibold">Laboratório:</strong> ${roteiro.laboratorio || 'N/A'}</p>
@@ -255,6 +304,24 @@
                         <p><strong class="font-semibold">Período:</strong> ${roteiro.periodo}</p>
                     `;
                     document.getElementById('modalBody').innerHTML = htmlBody;
+
+                    const toggleBtn = document.getElementById('toggleTemaBtn');
+                    if (toggleBtn) {
+                        toggleBtn.addEventListener('click', function() {
+                            const temaText = document.getElementById('temaText');
+                            const isNowCollapsed = temaText.classList.contains('max-h-20');
+
+                            if (isNowCollapsed) {
+                                temaText.classList.remove('max-h-20', 'overflow-hidden');
+                                temaText.classList.add('max-h-80', 'overflow-auto');
+                                toggleBtn.textContent = 'Ver menos';
+                            } else {
+                                temaText.classList.remove('max-h-80', 'overflow-auto');
+                                temaText.classList.add('max-h-20', 'overflow-hidden');
+                                toggleBtn.textContent = 'Ver mais';
+                            }
+                        });
+                    }
 
                     // Configurar os botões de ação
                     const viewPdfBtn = document.getElementById('viewRoteiroPdfBtn');
@@ -272,15 +339,28 @@
                 },
 
                 eventDidMount: function(info) {
-                    const randomColor = getRandomColor();
-                    const contrastColor = getContrastColor(randomColor);
+                    // Usa o nome da Unidade Curricular ou Título para gerar sempre a mesma cor
+                    const eventTitle = info.event.title || info.event.id;
+                    const consistentColor = stringToColor(eventTitle);
+                    const contrastColor = getContrastColor(consistentColor);
 
-                    // Aplica a cor aleatória ao fundo
-                    info.el.style.backgroundColor = randomColor;
+                    // Aplica a cor consistente ao fundo
+                    info.el.style.backgroundColor = consistentColor;
                     // Aplica a cor de contraste ao texto
                     info.el.style.color = contrastColor;
-                    // Mantém a cor da borda um pouco mais escura ou sólida
-                    info.el.style.borderColor = '#0C2E5C';
+                    // Mantém a cor da borda igual à de fundo
+                    info.el.style.borderColor = consistentColor;
+
+                    // Formata a hora de forma limpa preservando o layout
+                    let timeEl = info.el.querySelector('.fc-event-time');
+                    if (timeEl && timeEl.textContent) {
+                        let text = timeEl.textContent.trim();
+                        if (/^\d+$/.test(text)) {
+                            timeEl.textContent = text + 'h';
+                        } else if (text.includes(':')) {
+                            timeEl.textContent = text.replace(':', 'h');
+                        }
+                    }
                 }
             });
 
