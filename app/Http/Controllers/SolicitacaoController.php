@@ -7,8 +7,12 @@ use App\Models\Roteiro;
 use App\Models\Insumo;
 use App\Models\Equipamento;
 use App\Models\Solicitacao;
+use App\Models\SemestreLetivo;
+use App\Models\UnidadeCurricular;
 use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 
 class SolicitacaoController extends Controller
 {
@@ -100,7 +104,13 @@ class SolicitacaoController extends Controller
         $coordenadoresCurso = User::where('nivel', User::NIVEL_COORDENADOR_CURSO)->get();
         $coordenadoresLab = User::where('nivel', User::NIVEL_COORDENADOR_LABORATORIO)->get();
 
-        return view('solicitacoes.create', compact('laboratorios', 'insumos', 'equipamentos', 'coordenadoresCurso', 'coordenadoresLab'));
+        // Unidades curriculares cadastradas pelos coordenadores de curso
+        $unidadesCurriculares = UnidadeCurricular::orderBy('nome')->get();
+
+        // Limites do semestre letivo ativo (dica visual nos campos de data)
+        [$dataMinima, $dataMaxima] = SemestreLetivo::limitesAtivos();
+
+        return view('solicitacoes.create', compact('laboratorios', 'insumos', 'equipamentos', 'coordenadoresCurso', 'coordenadoresLab', 'unidadesCurriculares', 'dataMinima', 'dataMaxima'));
     }
 
     public function store(Request $request)
@@ -116,7 +126,7 @@ class SolicitacaoController extends Controller
             'coordenador_lab_id'               => 'required|exists:users,id',
             'agendamentos'                      => 'required|array|min:1',
             'agendamentos.*.laboratorio_id'     => 'required|exists:laboratorios,id',
-            'agendamentos.*.unidade_curricular' => 'required|string|max:255',
+            'agendamentos.*.unidade_curricular' => ['required', 'string', 'max:255', Rule::exists('unidades_curriculares', 'nome')],
             'agendamentos.*.data_solicitacao'   => 'required|date|after_or_equal:today',
             'agendamentos.*.horario_inicio'     => 'required|regex:/^\d{2}:\d{2}(:\d{2})?$/',
             'agendamentos.*.horario_fim'        => 'required|regex:/^\d{2}:\d{2}(:\d{2})?$/',
@@ -129,33 +139,15 @@ class SolicitacaoController extends Controller
         $agendamentos = $request->input('agendamentos', []);
         $quantas = count($agendamentos);
 
-        // Pré-verificação de choques de horário (no banco e na própria requisição)
-        $horariosVerificados = [];
-        foreach ($agendamentos as $key => $agendamento) {
-            // Checa choque no banco
-            if ($this->temChoqueHorario(
-                $agendamento['laboratorio_id'],
-                $agendamento['data_solicitacao'],
-                $agendamento['horario_inicio'],
-                $agendamento['horario_fim']
-            )) {
-                return back()->withInput()->withErrors([
-                    'agendamentos.'.$key.'.horario_inicio' => 'Já existe uma solicitação para este laboratório neste horário na data informada (' . \Carbon\Carbon::parse($agendamento['data_solicitacao'])->format('d/m/Y') . ').'
-                ]);
+        // 2.1 Restrição: só é possível lançar práticas dentro do semestre letivo ativo
+        $errosSemestre = [];
+        foreach ($agendamentos as $i => $agendamento) {
+            if (!SemestreLetivo::dataPermitida($agendamento['data_solicitacao'])) {
+                $errosSemestre["agendamentos.$i.data_solicitacao"] = $this->mensagemForaDoSemestre($agendamento['data_solicitacao']);
             }
-
-            // Checa choque na própria lista sendo enviada
-            foreach ($horariosVerificados as $verificado) {
-                if ($verificado['laboratorio_id'] == $agendamento['laboratorio_id'] &&
-                    $verificado['data_solicitacao'] == $agendamento['data_solicitacao'] &&
-                    $agendamento['horario_inicio'] < $verificado['horario_fim'] &&
-                    $agendamento['horario_fim'] > $verificado['horario_inicio']) {
-                    return back()->withInput()->withErrors([
-                        'agendamentos.'.$key.'.horario_inicio' => 'Existem horários conflitantes na sua própria requisição para o mesmo laboratório.'
-                    ]);
-                }
-            }
-            $horariosVerificados[] = $agendamento;
+        }
+        if (!empty($errosSemestre)) {
+            return back()->withInput()->withErrors($errosSemestre);
         }
 
         // 3. Cria as Solicitações em loop para CADA agendamento
@@ -197,18 +189,6 @@ class SolicitacaoController extends Controller
         }
 
         $solicitacao = Solicitacao::findOrFail($id);
-
-        // Verifica choque de horário com solicitações já aprovadas
-        if ($this->temChoqueHorario(
-            $solicitacao->laboratorio_id,
-            $solicitacao->data_solicitacao,
-            $solicitacao->horario_inicio,
-            $solicitacao->horario_fim,
-            $solicitacao->id,
-            true // apenasAprovadas
-        )) {
-            return back()->withErrors(['error' => 'Não é possível aprovar. Já existe outra solicitação APROVADA para este laboratório no mesmo horário.']);
-        }
 
         $solicitacao->update([
             'status' => Solicitacao::STATUS_AGUARDANDO_COORDENADOR_LAB,
@@ -252,18 +232,6 @@ class SolicitacaoController extends Controller
 
         $solicitacao = Solicitacao::findOrFail($id);
 
-        // Verifica choque de horário com solicitações já aprovadas
-        if ($this->temChoqueHorario(
-            $solicitacao->laboratorio_id,
-            $solicitacao->data_solicitacao,
-            $solicitacao->horario_inicio,
-            $solicitacao->horario_fim,
-            $solicitacao->id,
-            true // apenasAprovadas
-        )) {
-            return back()->withErrors(['error' => 'Não é possível aprovar. Já existe outra solicitação APROVADA para este laboratório no mesmo horário.']);
-        }
-
         // Preserve both coordenador_curso_id and autorizante_id for audit trail
         $solicitacao->update([
             'status' => Solicitacao::STATUS_APROVADA,
@@ -304,16 +272,9 @@ class SolicitacaoController extends Controller
     }
 
     public function show($id)
-    {
-        // O Eager Loading (with) garante que insumos e equipamentos
+    {        // O Eager Loading (with) garante que insumos e equipamentos.
         // sejam coleções, mesmo que vazias, evitando erros no foreach.
-        $solicitacao = Solicitacao::with([
-            'laboratorio',
-            'roteiro',
-            'insumos',
-            'equipamentos',
-            'user',
-            'autorizante'
+   $solicitacao = Solicitacao::with(['laboratorio','roteiro','insumos','equipamentos','user','autorizante'
         ])->findOrFail($id);
 
         return view('solicitacoes.show', compact('solicitacao'));
@@ -347,8 +308,13 @@ class SolicitacaoController extends Controller
         $equipamentos = Equipamento::all();
         $coordenadoresCurso = User::where('nivel', User::NIVEL_COORDENADOR_CURSO)->get();
         $coordenadoresLab = User::where('nivel', User::NIVEL_COORDENADOR_LABORATORIO)->get();
+        $unidadesCurriculares = UnidadeCurricular::orderBy('nome')->get();
+        [$dataMinima, $dataMaxima] = SemestreLetivo::limitesAtivos();
 
         return view('solicitacoes.edit', compact(
+            'unidadesCurriculares',
+            'dataMinima',
+            'dataMaxima',
             'solicitacao',
             'laboratorios',
             'insumos',
@@ -387,7 +353,16 @@ class SolicitacaoController extends Controller
                 'coordenador_curso_id' => $solicitacao->coordenador_curso_id ? 'nullable|exists:users,id' : 'required|exists:users,id',
                 'coordenador_lab_id' => $solicitacao->coordenador_lab_id ? 'nullable|exists:users,id' : 'required|exists:users,id',
                 'laboratorio_id' => 'required|exists:laboratorios,id',
-                'unidade_curricular' => 'required|string|max:255',
+                'unidade_curricular' => [
+                    'required', 'string', 'max:255',
+                    // Aceita uma UC cadastrada OU o valor antigo já salvo na solicitação (legado)
+                    function ($attribute, $value, $fail) use ($solicitacao) {
+                        if ($value !== $solicitacao->unidade_curricular
+                            && !UnidadeCurricular::where('nome', $value)->exists()) {
+                            $fail('Selecione uma unidade curricular cadastrada.');
+                        }
+                    },
+                ],
                 'data_solicitacao' => 'required|date|after_or_equal:today',
                 'horario_inicio' => 'required|regex:/^\d{2}:\d{2}(:\d{2})?$/',
                 'horario_fim' => 'required|regex:/^\d{2}:\d{2}(:\d{2})?$/',
@@ -397,16 +372,10 @@ class SolicitacaoController extends Controller
                 'equipamentos_id.*' => 'exists:equipamentos,id',
             ]);
 
-            // Verifica choque de horário
-            if ($this->temChoqueHorario(
-                $request->laboratorio_id,
-                $request->data_solicitacao,
-                $request->horario_inicio,
-                $request->horario_fim,
-                $solicitacao->id
-            )) {
+            // Restrição: a data precisa estar dentro do semestre letivo ativo
+            if (!SemestreLetivo::dataPermitida($request->data_solicitacao)) {
                 return back()->withInput()->withErrors([
-                    'horario_inicio' => 'Já existe uma solicitação para este laboratório neste horário na data informada.'
+                    'data_solicitacao' => $this->mensagemForaDoSemestre($request->data_solicitacao),
                 ]);
             }
 
@@ -450,19 +419,6 @@ class SolicitacaoController extends Controller
                 'laboratorio_id' => 'required|exists:laboratorios,id',
             ]);
 
-            // Verifica choque de horário
-            if ($this->temChoqueHorario(
-                $request->laboratorio_id,
-                $solicitacao->data_solicitacao,
-                $solicitacao->horario_inicio,
-                $solicitacao->horario_fim,
-                $solicitacao->id
-            )) {
-                return back()->withInput()->withErrors([
-                    'laboratorio_id' => 'O laboratório selecionado já possui uma solicitação neste horário.'
-                ]);
-            }
-
             try {
                 $solicitacao->update([
                     'laboratorio_id' => $request->laboratorio_id,
@@ -494,27 +450,15 @@ class SolicitacaoController extends Controller
     }
 
     /**
-     * Verifica se existe choque de horário para um laboratório
+     * Mensagem padrão quando a data da prática está fora do semestre letivo ativo.
      */
-    private function temChoqueHorario($laboratorio_id, $data_solicitacao, $horario_inicio, $horario_fim, $ignoreId = null, $apenasAprovadas = false)
+    private function mensagemForaDoSemestre(string $data): string
     {
-        $query = Solicitacao::where('laboratorio_id', $laboratorio_id)
-            ->where('data_solicitacao', $data_solicitacao)
-            ->where('status', '!=', Solicitacao::STATUS_RECUSADA)
-            ->where(function($q) use ($horario_inicio, $horario_fim) {
-                $q->where('horario_inicio', '<', $horario_fim)
-                  ->where('horario_fim', '>', $horario_inicio);
-            });
-
-        if ($ignoreId) {
-            $query->where('id', '!=', $ignoreId);
-        }
-
-        if ($apenasAprovadas) {
-            $query->where('status', Solicitacao::STATUS_APROVADA);
-        }
-
-        return $query->exists();
+        return sprintf(
+            'A data %s está fora do semestre letivo. Períodos liberados: %s',
+            Carbon::parse($data)->format('d/m/Y'),
+            SemestreLetivo::descricaoPeriodosAtivos()
+        );
     }
 
     /**

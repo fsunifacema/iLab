@@ -28,7 +28,6 @@ class User extends Authenticatable
         'email',
         'password',
         'nivel',
-        'signature_path',
     ];
 
     /**

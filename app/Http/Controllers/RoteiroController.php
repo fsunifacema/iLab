@@ -11,7 +11,6 @@ use Dompdf\Dompdf;
 use Dompdf\Options;
 use Carbon\Carbon;
 use App\Models\User;
-use Illuminate\Support\Facades\Storage;
 
 class RoteiroController extends Controller
 {
@@ -120,7 +119,6 @@ public function create()
         // Busca solicitações aprovadas E que ainda NÃO possuem roteiro
         $query = Solicitacao::where('status', Solicitacao::STATUS_APROVADA)
         ->doesntHave('roteiro'); // <--- Importante: Filtra apenas as sem roteiro
-
         // Se for professor, filtra apenas as dele
         if (Auth::user()->nivel === User::NIVEL_PROFESSOR) {
             $query->where('user_id', Auth::id());
@@ -400,58 +398,11 @@ public function create()
         $imageData = base64_encode(file_get_contents($imagePath));
         $imageSrc = 'data:image/png;base64,' . $imageData;
 
-        $assinaturasFaltando = [];
-
-        if (!$roteiro->user || !$roteiro->user->signature_path) {
-            $assinaturasFaltando[] = 'Professor: ' . ($roteiro->user->name ?? 'não identificado');
-        }
-
-        if (!$roteiro->solicitacao || !$roteiro->solicitacao->coordenadorCurso || !$roteiro->solicitacao->coordenadorCurso->signature_path) {
-            $assinaturasFaltando[] = 'Coordenador de Curso: ' . ($roteiro->solicitacao->coordenadorCurso->name ?? 'não identificado');
-        }
-
-        if (!$roteiro->solicitacao || !$roteiro->solicitacao->coordenadorLab || !$roteiro->solicitacao->coordenadorLab->signature_path) {
-            $assinaturasFaltando[] = 'Coordenador de Laboratório: ' . ($roteiro->solicitacao->coordenadorLab->name ?? 'não identificado');
-        }
-
-        if (!empty($assinaturasFaltando)) {
-            return redirect()->back()->withErrors([
-                'assinatura' => 'O PDF não pode ser gerado pois os seguintes usuários ainda não cadastraram sua assinatura: [' . implode(', ', $assinaturasFaltando) . ']. Cada um deve acessar seu perfil e cadastrar a assinatura antes de prosseguir.'
-            ]);
-        }
-
-        // Assinatura do professor
-        $sigProfessor = null;
-        if ($roteiro->user && $roteiro->user->signature_path) {
-            $path = storage_path('app/public/' . $roteiro->user->signature_path);
-            if (file_exists($path)) {
-                $sigProfessor = 'data:image/png;base64,' . base64_encode(file_get_contents($path));
-            }
-        }
-
-        // Assinatura do coordenador de curso
-        $sigCoordCurso = null;
-        if ($roteiro->solicitacao && $roteiro->solicitacao->coordenadorCurso && $roteiro->solicitacao->coordenadorCurso->signature_path) {
-            $path = storage_path('app/public/' . $roteiro->solicitacao->coordenadorCurso->signature_path);
-            if (file_exists($path)) {
-                $sigCoordCurso = 'data:image/png;base64,' . base64_encode(file_get_contents($path));
-            }
-        }
-
-        // Assinatura do coordenador de laboratório
-        $sigCoordLab = null;
-        if ($roteiro->solicitacao && $roteiro->solicitacao->coordenadorLab && $roteiro->solicitacao->coordenadorLab->signature_path) {
-            $path = storage_path('app/public/' . $roteiro->solicitacao->coordenadorLab->signature_path);
-            if (file_exists($path)) {
-                $sigCoordLab = 'data:image/png;base64,' . base64_encode(file_get_contents($path));
-            }
-        }
-
         // Instanciar o DomPDF
         $dompdf = new Dompdf($options);
 
         // Carregar a view e gerar o conteúdo
-        $pdfContent = view('pdf.roteiro-pratica', compact('roteiro', 'imageSrc', 'sigProfessor', 'sigCoordCurso', 'sigCoordLab'))->render();
+        $pdfContent = view('pdf.roteiro-pratica', compact('roteiro', 'imageSrc'))->render();
 
         // Carregar o conteúdo HTML no DomPDF
         $dompdf->loadHtml($pdfContent);
