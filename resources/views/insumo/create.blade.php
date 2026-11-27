@@ -1,7 +1,7 @@
 <x-app-layout>
     <x-slot name="header">
         <h2 class="text-xl font-semibold leading-tight text-gray-800">
-            Adicionar Novo Insumo
+            Adicionar novo insumo
         </h2>
     </x-slot>
 
@@ -11,7 +11,7 @@
             <form method="POST" action="{{ route('insumos.store') }}" onsubmit="return trimFormInputs(this)">
                 @csrf
 
-                <h3 class="text-xl font-bold mb-6 text-gray-800 text-center">Dados do Insumo</h3>
+                <h3 class="text-xl font-bold mb-6 text-gray-800 text-center">Dados do insumo</h3>
 
                 <div class="mb-4">
                     <x-label for="nome" value="Nome" class="block text-sm font-medium" />
@@ -61,7 +61,7 @@
                 <div class="flex justify-end space-x-2 mt-4">
                     <a href="{{ route('insumos.index') }}"  class="px-4 py-2 text-white bg-red-700 border rounded hover:bg-red-600">Cancelar</a>
                     <x-button type="submit" class="bg-[#0C2E5C] hover:bg-blue-700">
-                        {{ __('Salvar Insumo') }}
+                        {{ __('Salvar insumo') }}
                     </x-button>
                 </div>
             </form>

@@ -119,15 +119,14 @@ public function create()
         // Busca solicitações aprovadas E que ainda NÃO possuem roteiro
         $query = Solicitacao::where('status', Solicitacao::STATUS_APROVADA)
         ->doesntHave('roteiro'); // <--- Importante: Filtra apenas as sem roteiro
-        
         // Se for professor, filtra apenas as dele
         if (Auth::user()->nivel === User::NIVEL_PROFESSOR) {
             $query->where('user_id', Auth::id());
         }
-        
+
         $solicitacoes = $query->get();
         $laboratorios = Laboratorio::all();
-        
+
         return view('roteiros.create', compact('solicitacoes', 'laboratorios'));
     }
 
@@ -207,7 +206,7 @@ public function create()
         ]);
 
         // 2. CORREÇÃO: Lógica de Fallback (Prioridade: Formulário > Solicitação > Padrão)
-        
+
         // Curso
         if (empty($dados['curso'])) {
             $dados['curso'] = $solicitacao->curso ?? '';
@@ -227,8 +226,8 @@ public function create()
         // Data
         if (empty($dados['data'])) {
             // Tenta pegar data da solicitação, se não tiver, pega created_at
-            $dados['data'] = $solicitacao->data_solicitacao 
-                             ?? $solicitacao->data 
+            $dados['data'] = $solicitacao->data_solicitacao
+                             ?? $solicitacao->data
                              ?? $solicitacao->created_at->toDateString();
         }
 
@@ -243,20 +242,20 @@ public function create()
         // Carga Horária
         if (empty($dados['carga_horaria'])) {
              // Tenta pegar do roteiro antigo vinculado (se existir) ou define padrão
-            $dados['carga_horaria'] = $solicitacao->carga_horaria 
+            $dados['carga_horaria'] = $solicitacao->carga_horaria
                                       ?? ($solicitacao->roteiro?->carga_horaria ?? 'Não Definida');
         }
 
         // Número de Práticas
         if (empty($dados['numero_praticas'])) {
-            $dados['numero_praticas'] = $solicitacao->numero_praticas 
+            $dados['numero_praticas'] = $solicitacao->numero_praticas
                                         ?? ($solicitacao->roteiro?->numero_praticas ?? 1);
         }
 
         // Laboratório
         if (empty($dados['laboratorio'])) {
             // Uso optional() para evitar erro se laboratorio for nulo
-            $dados['laboratorio'] = optional($solicitacao->laboratorio)->nome 
+            $dados['laboratorio'] = optional($solicitacao->laboratorio)->nome
                                     ?? ($solicitacao->laboratorio_nome ?? '');
         }
 

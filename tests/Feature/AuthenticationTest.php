@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Models\User;
 use App\Providers\RouteServiceProvider;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Livewire\Livewire;
 use Tests\TestCase;
 
 class AuthenticationTest extends TestCase
@@ -22,9 +23,12 @@ class AuthenticationTest extends TestCase
     {
         $user = User::factory()->create();
 
+        $this->session(['_token' => 'test']);
+
         $response = $this->post('/login', [
             'email' => $user->email,
             'password' => 'password',
+            '_token' => 'test',
         ]);
 
         $this->assertAuthenticated();
@@ -35,9 +39,12 @@ class AuthenticationTest extends TestCase
     {
         $user = User::factory()->create();
 
-        $this->post('/login', [
+        $this->session(['_token' => 'test']);
+
+        $response = $this->post('/login', [
             'email' => $user->email,
             'password' => 'wrong-password',
+            '_token' => 'test',
         ]);
 
         $this->assertGuest();

@@ -1,7 +1,7 @@
 <x-app-layout>
     <x-slot name="header">
         <h2 class="text-xl font-semibold text-[#0C2E5C]">
-            Gerenciamento de Laboratórios
+            Gerenciamento de laboratórios
         </h2>
     </x-slot>
 
@@ -15,7 +15,7 @@
                 @endif
                 @if(in_array(Auth::user()->nivel, [\App\Models\User::NIVEL_TECNICO, \App\Models\User::NIVEL_COORDENADOR_CURSO, \App\Models\User::NIVEL_COORDENADOR_LABORATORIO]))
                     <a href="{{ route('laboratorios.create') }}" class="fixed bottom-6 right-6 bg-[#0C2E5C] text-white text-sm px-4 py-2 rounded-md shadow-md hover:bg-blue-800 transition duration-200">
-                        + Novo Laboratório
+                        + Novo laboratório
                     </a>
                 @endif
 

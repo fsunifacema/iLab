@@ -1,7 +1,7 @@
 <x-app-layout>
     <x-slot name="header">
         <h2 class="text-xl font-semibold leading-tight text-gray-800">
-            Adicionar Novo Equipamento
+            Adicionar novo equipamento
         </h2>
     </x-slot>
 
@@ -11,7 +11,7 @@
             <form method="POST" action="{{ route('equipamentos.store') }}" onsubmit="return trimFormInputs(this)">
                 @csrf
 
-                <h3 class="text-xl font-bold mb-6 text-gray-800 text-center">Dados do Equipamento</h3>
+                <h3 class="text-xl font-bold mb-6 text-gray-800 text-center">Dados do equipamento</h3>
 
                 <div class="mb-4">
                     <x-label for="nome" value="Nome" class="block text-sm font-medium" />
@@ -32,13 +32,13 @@
                 <div class="mb-4">
                     <label class="inline-flex items-center">
                         <input type="checkbox" id="manutencao" name="manutencao" value="1" class="form-checkbox h-4 w-4 text-indigo-600 transition duration-150 ease-in-out" />
-                        <span class="ml-2 text-sm text-gray-700">{{ __('Está em Manutenção?') }}</span>
+                        <span class="ml-2 text-sm text-gray-700">{{ __('Está em manutenção?') }}</span>
                     </label>
                 </div>
                 <div class="mb-4">
                     <label class="inline-flex items-center">
                         <input type="checkbox" id="calibracao" name="calibracao" value="1" class="form-checkbox h-4 w-4 text-indigo-600 transition duration-150 ease-in-out" />
-                        <span class="ml-2 text-sm text-gray-700">{{ __('Necessita Calibração?') }}</span>
+                        <span class="ml-2 text-sm text-gray-700">{{ __('Necessita calibração?') }}</span>
                     </label>
                 </div>
 

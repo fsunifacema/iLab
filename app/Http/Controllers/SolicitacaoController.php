@@ -7,8 +7,12 @@ use App\Models\Roteiro;
 use App\Models\Insumo;
 use App\Models\Equipamento;
 use App\Models\Solicitacao;
+use App\Models\SemestreLetivo;
+use App\Models\UnidadeCurricular;
 use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 
 class SolicitacaoController extends Controller
 {
@@ -100,7 +104,13 @@ class SolicitacaoController extends Controller
         $coordenadoresCurso = User::where('nivel', User::NIVEL_COORDENADOR_CURSO)->get();
         $coordenadoresLab = User::where('nivel', User::NIVEL_COORDENADOR_LABORATORIO)->get();
 
-        return view('solicitacoes.create', compact('laboratorios', 'insumos', 'equipamentos', 'coordenadoresCurso', 'coordenadoresLab'));
+        // Unidades curriculares cadastradas pelos coordenadores de curso
+        $unidadesCurriculares = UnidadeCurricular::orderBy('nome')->get();
+
+        // Limites do semestre letivo ativo (dica visual nos campos de data)
+        [$dataMinima, $dataMaxima] = SemestreLetivo::limitesAtivos();
+
+        return view('solicitacoes.create', compact('laboratorios', 'insumos', 'equipamentos', 'coordenadoresCurso', 'coordenadoresLab', 'unidadesCurriculares', 'dataMinima', 'dataMaxima'));
     }
 
     public function store(Request $request)
@@ -116,7 +126,7 @@ class SolicitacaoController extends Controller
             'coordenador_lab_id'               => 'required|exists:users,id',
             'agendamentos'                      => 'required|array|min:1',
             'agendamentos.*.laboratorio_id'     => 'required|exists:laboratorios,id',
-            'agendamentos.*.unidade_curricular' => 'required|string|max:255',
+            'agendamentos.*.unidade_curricular' => ['required', 'string', 'max:255', Rule::exists('unidades_curriculares', 'nome')],
             'agendamentos.*.data_solicitacao'   => 'required|date|after_or_equal:today',
             'agendamentos.*.horario_inicio'     => 'required|regex:/^\d{2}:\d{2}(:\d{2})?$/',
             'agendamentos.*.horario_fim'        => 'required|regex:/^\d{2}:\d{2}(:\d{2})?$/',
@@ -128,6 +138,17 @@ class SolicitacaoController extends Controller
 
         $agendamentos = $request->input('agendamentos', []);
         $quantas = count($agendamentos);
+
+        // 2.1 Restrição: só é possível lançar práticas dentro do semestre letivo ativo
+        $errosSemestre = [];
+        foreach ($agendamentos as $i => $agendamento) {
+            if (!SemestreLetivo::dataPermitida($agendamento['data_solicitacao'])) {
+                $errosSemestre["agendamentos.$i.data_solicitacao"] = $this->mensagemForaDoSemestre($agendamento['data_solicitacao']);
+            }
+        }
+        if (!empty($errosSemestre)) {
+            return back()->withInput()->withErrors($errosSemestre);
+        }
 
         // 3. Cria as Solicitações em loop para CADA agendamento
         foreach ($agendamentos as $agendamento) {
@@ -251,16 +272,9 @@ class SolicitacaoController extends Controller
     }
 
     public function show($id)
-    {
-        // O Eager Loading (with) garante que insumos e equipamentos 
+    {        // O Eager Loading (with) garante que insumos e equipamentos.
         // sejam coleções, mesmo que vazias, evitando erros no foreach.
-        $solicitacao = Solicitacao::with([
-            'laboratorio', 
-            'roteiro', 
-            'insumos', 
-            'equipamentos', 
-            'user', 
-            'autorizante'
+   $solicitacao = Solicitacao::with(['laboratorio','roteiro','insumos','equipamentos','user','autorizante'
         ])->findOrFail($id);
 
         return view('solicitacoes.show', compact('solicitacao'));
@@ -294,8 +308,13 @@ class SolicitacaoController extends Controller
         $equipamentos = Equipamento::all();
         $coordenadoresCurso = User::where('nivel', User::NIVEL_COORDENADOR_CURSO)->get();
         $coordenadoresLab = User::where('nivel', User::NIVEL_COORDENADOR_LABORATORIO)->get();
+        $unidadesCurriculares = UnidadeCurricular::orderBy('nome')->get();
+        [$dataMinima, $dataMaxima] = SemestreLetivo::limitesAtivos();
 
         return view('solicitacoes.edit', compact(
+            'unidadesCurriculares',
+            'dataMinima',
+            'dataMaxima',
             'solicitacao',
             'laboratorios',
             'insumos',
@@ -334,7 +353,16 @@ class SolicitacaoController extends Controller
                 'coordenador_curso_id' => $solicitacao->coordenador_curso_id ? 'nullable|exists:users,id' : 'required|exists:users,id',
                 'coordenador_lab_id' => $solicitacao->coordenador_lab_id ? 'nullable|exists:users,id' : 'required|exists:users,id',
                 'laboratorio_id' => 'required|exists:laboratorios,id',
-                'unidade_curricular' => 'required|string|max:255',
+                'unidade_curricular' => [
+                    'required', 'string', 'max:255',
+                    // Aceita uma UC cadastrada OU o valor antigo já salvo na solicitação (legado)
+                    function ($attribute, $value, $fail) use ($solicitacao) {
+                        if ($value !== $solicitacao->unidade_curricular
+                            && !UnidadeCurricular::where('nome', $value)->exists()) {
+                            $fail('Selecione uma unidade curricular cadastrada.');
+                        }
+                    },
+                ],
                 'data_solicitacao' => 'required|date|after_or_equal:today',
                 'horario_inicio' => 'required|regex:/^\d{2}:\d{2}(:\d{2})?$/',
                 'horario_fim' => 'required|regex:/^\d{2}:\d{2}(:\d{2})?$/',
@@ -343,6 +371,13 @@ class SolicitacaoController extends Controller
                 'equipamentos_id' => 'nullable|array',
                 'equipamentos_id.*' => 'exists:equipamentos,id',
             ]);
+
+            // Restrição: a data precisa estar dentro do semestre letivo ativo
+            if (!SemestreLetivo::dataPermitida($request->data_solicitacao)) {
+                return back()->withInput()->withErrors([
+                    'data_solicitacao' => $this->mensagemForaDoSemestre($request->data_solicitacao),
+                ]);
+            }
 
             try {
                 $updateData = [
@@ -412,6 +447,18 @@ class SolicitacaoController extends Controller
 
         return redirect()->route('solicitacoes.index')
             ->with('success', 'Solicitação excluída com sucesso!');
+    }
+
+    /**
+     * Mensagem padrão quando a data da prática está fora do semestre letivo ativo.
+     */
+    private function mensagemForaDoSemestre(string $data): string
+    {
+        return sprintf(
+            'A data %s está fora do semestre letivo. Períodos liberados: %s',
+            Carbon::parse($data)->format('d/m/Y'),
+            SemestreLetivo::descricaoPeriodosAtivos()
+        );
     }
 
     /**

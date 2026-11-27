@@ -1,7 +1,7 @@
 <x-app-layout>
     <x-slot name="header">
         <h2 class="text-xl font-semibold leading-tight text-[#0C2E5C]">
-            Editar Laboratório
+            Editar laboratório
         </h2>
     </x-slot>
 

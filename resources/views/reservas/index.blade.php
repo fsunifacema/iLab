@@ -1,14 +1,14 @@
 <x-app-layout>
     <x-slot name="header">
         <h2 class="text-xl font-semibold text-[#0C2E5C]">
-            Gerenciamento de Reservas
+            Gerenciamento de reservas
         </h2>
     </x-slot>
 
     <div class="py-8">
         <div class="max-w-6xl mx-auto sm:px-6 lg:px-8">
             <a class="fixed bottom-6 right-6 bg-[#0C2E5C] text-white text-sm px-4 py-2 rounded-md shadow-md hover:bg-blue-800 transition duration-200">
-                + Nova Reserva
+                + Nova reserva
             </a>
 
 

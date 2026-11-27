@@ -18,7 +18,7 @@
                         </div>
 
                         <div>
-                            <label class="block text-sm font-medium text-gray-700">Email</label>
+                            <label class="block text-sm font-medium text-gray-700">E-mail</label>
                             <input type="email" name="email" value="{{ old('email', $user->email) }}" class="mt-1 block w-full border rounded px-3 py-2" required>
                             @error('email') <p class="text-red-600 text-sm mt-1">{{ $message }}</p> @enderror
                         </div>
